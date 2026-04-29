@@ -62,6 +62,13 @@ const resources = [
     type: "project" as const,
   },
   {
+    title: "פלייליסט מדריכי ארדואינו",
+    description: "אוסף מקיף של מדריכי וידאו לארדואינו - מהבסיס ועד פרויקטים מתקדמים",
+    url: "https://www.youtube.com/playlist?list=PLGs0VKk2DiYw-L-RibttcvK-WBZm8WLEP",
+    type: "video" as const,
+    embedDisabled: true,
+  },
+  {
     title: "רמזור תנועה עם ארדואינו",
     description: "פרויקט מעשי ומהנה - בניית רמזור תנועה עובד",
     url: "https://www.instructables.com/Traffic-Lights-With-an-Arduino/",
