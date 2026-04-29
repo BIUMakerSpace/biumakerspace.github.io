@@ -7,7 +7,12 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Requests from "./pages/Requests";
+import MyRequests from "./pages/MyRequests";
 import Admin from "./pages/Admin";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import Forum from "./pages/Forum";
+import ForumThread from "./pages/ForumThread";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
