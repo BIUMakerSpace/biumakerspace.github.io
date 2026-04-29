@@ -171,7 +171,7 @@ const projectIdeas = [
     title: "רובוט נמנע ממכשולים",
     difficulty: "מתקדם",
     description: "רובוט קטן על גלגלים שמסתובב במרחב ומזהה מכשולים בעזרת חיישנים - פרויקט מלא",
-    url: "https://projecthub.arduino.cc/",
+    url: "https://www.instructables.com/Obstacle-Avoiding-Robot-13/",
   },
   {
     title: "תזכורת לשתות מים",
