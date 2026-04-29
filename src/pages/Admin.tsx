@@ -227,7 +227,7 @@ const Admin = () => {
                       <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                     </div>
                     <select value={r.status} onChange={(e) => {
-                      const updates: Partial<LendReq> = { status: e.target.value };
+                      const updates: { status: string; delivered_at?: string; returned_at?: string } = { status: e.target.value };
                       if (e.target.value === "delivered" && !r.delivered_at) updates.delivered_at = new Date().toISOString();
                       if (e.target.value === "returned" && !r.returned_at) updates.returned_at = new Date().toISOString();
                       updateLendStatus(r.id, updates);
