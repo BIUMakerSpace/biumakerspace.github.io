@@ -67,6 +67,16 @@ const Requests = () => {
   const [lNotes, setLNotes] = useState("");
   const [lSubmitting, setLSubmitting] = useState(false);
 
+  // Item details dialog
+  const [detailsItem, setDetailsItem] = useState<CatalogItem | null>(null);
+
+  // "Request new item" dialog state
+  const [reqOpen, setReqOpen] = useState(false);
+  const [riName, setRiName] = useState("");
+  const [riDesc, setRiDesc] = useState("");
+  const [riLink, setRiLink] = useState("");
+  const [riSubmitting, setRiSubmitting] = useState(false);
+
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
   }, [user, loading, navigate]);
