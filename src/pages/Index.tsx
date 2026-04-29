@@ -153,7 +153,7 @@ const projectIdeas = [
     title: "תחנת מזג אוויר",
     difficulty: "בינוני",
     description: "מדידת טמפרטורה ולחות עם תצוגת LCD - פרויקט שימושי שמלמד עבודה עם חיישנים ומסכים",
-    url: "https://projecthub.arduino.cc/",
+    url: "https://projecthub.arduino.cc/SurtrTech/mini-weather-station-using-arduino-nano-7e3960",
   },
   {
     title: "נורת RGB מתחלפת",
@@ -171,7 +171,7 @@ const projectIdeas = [
     title: "רובוט נמנע ממכשולים",
     difficulty: "מתקדם",
     description: "רובוט קטן על גלגלים שמסתובב במרחב ומזהה מכשולים בעזרת חיישנים - פרויקט מלא",
-    url: "https://projecthub.arduino.cc/",
+    url: "https://www.instructables.com/Obstacle-Avoiding-Robot-13/",
   },
   {
     title: "תזכורת לשתות מים",
@@ -251,10 +251,10 @@ const Index = () => {
             </p>
           </div>
           <Tabs defaultValue="video" dir="rtl">
-            <TabsList className="mx-auto mb-8 flex w-fit flex-wrap">
+            <TabsList className="mx-auto mb-8 grid h-auto w-full max-w-2xl grid-cols-2 gap-1 sm:flex sm:w-fit sm:flex-wrap">
               <TabsTrigger value="video" className="gap-1.5"><Play className="h-3.5 w-3.5" />סרטונים</TabsTrigger>
               <TabsTrigger value="guide" className="gap-1.5"><BookOpen className="h-3.5 w-3.5" />מדריכים</TabsTrigger>
-              <TabsTrigger value="ideas" className="gap-1.5"><Rocket className="h-3.5 w-3.5" />רעיונות לפרויקטים</TabsTrigger>
+              <TabsTrigger value="ideas" className="gap-1.5"><Rocket className="h-3.5 w-3.5" />רעיונות</TabsTrigger>
               <TabsTrigger value="inspiration" className="gap-1.5"><Sparkles className="h-3.5 w-3.5" />השראה</TabsTrigger>
             </TabsList>
 
