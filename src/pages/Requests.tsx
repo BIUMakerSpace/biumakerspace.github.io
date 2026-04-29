@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -35,6 +36,15 @@ const lendSchema = z.object({
   notes: z.string().trim().max(1000).optional(),
 });
 
+const itemReqSchema = z.object({
+  item_name: z.string().trim().min(2).max(150),
+  description: z.string().trim().max(1000).optional(),
+  reference_link: z.string().trim().url().max(500).optional().or(z.literal("")),
+  requester_name: z.string().trim().min(2).max(100),
+  requester_email: z.string().trim().email().max(255),
+  requester_phone: z.string().trim().min(7).max(20),
+});
+
 const Requests = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -56,6 +66,16 @@ const Requests = () => {
   const [lPhone, setLPhone] = useState("");
   const [lNotes, setLNotes] = useState("");
   const [lSubmitting, setLSubmitting] = useState(false);
+
+  // Item details dialog
+  const [detailsItem, setDetailsItem] = useState<CatalogItem | null>(null);
+
+  // "Request new item" dialog state
+  const [reqOpen, setReqOpen] = useState(false);
+  const [riName, setRiName] = useState("");
+  const [riDesc, setRiDesc] = useState("");
+  const [riLink, setRiLink] = useState("");
+  const [riSubmitting, setRiSubmitting] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
@@ -178,6 +198,35 @@ const Requests = () => {
     }
   };
 
+  const submitItemRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const parsed = itemReqSchema.safeParse({
+      item_name: riName, description: riDesc, reference_link: riLink,
+      requester_name: lName, requester_email: lEmail, requester_phone: lPhone,
+    });
+    if (!parsed.success) { toast.error("יש למלא את כל השדות בצורה תקינה"); return; }
+    setRiSubmitting(true);
+    try {
+      const { error } = await supabase.from("item_requests").insert({
+        user_id: user.id,
+        requester_name: parsed.data.requester_name,
+        requester_email: parsed.data.requester_email,
+        requester_phone: parsed.data.requester_phone,
+        item_name: parsed.data.item_name,
+        description: parsed.data.description || null,
+        reference_link: parsed.data.reference_link || null,
+      });
+      if (error) throw error;
+      toast.success("הבקשה נשלחה!", { description: "נבחן הוספת הפריט לקטלוג" });
+      setRiName(""); setRiDesc(""); setRiLink(""); setReqOpen(false);
+    } catch (err) {
+      toast.error("שגיאה בשליחה", { description: (err as Error).message });
+    } finally {
+      setRiSubmitting(false);
+    }
+  };
+
   if (loading || !user) return null;
 
   return (
@@ -246,39 +295,58 @@ const Requests = () => {
             <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
               {/* Catalog */}
               <div>
-                <h2 className="mb-4 text-xl font-bold text-foreground">קטלוג ציוד</h2>
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 className="text-xl font-bold text-foreground">קטלוג ציוד</h2>
+                  <Button variant="outline" size="sm" onClick={() => setReqOpen(true)} className="gap-1.5">
+                    <PackagePlus className="h-4 w-4" />
+                    בקש פריט שלא בקטלוג
+                  </Button>
+                </div>
                 {items.length === 0 ? (
                   <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
                     אין פריטים בקטלוג כרגע
                   </p>
                 ) : (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {items.map((item) => (
-                      <div key={item.id} className="overflow-hidden rounded-lg border border-border bg-card">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="h-40 w-full object-cover" />
-                        ) : (
-                          <div className="flex h-40 items-center justify-center bg-muted text-muted-foreground">
-                            <ShoppingBag className="h-8 w-8" />
-                          </div>
-                        )}
-                        <div className="p-4">
-                          <h3 className="font-semibold text-foreground">{item.name}</h3>
-                          {item.description && <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>}
-                          <p className="mt-2 text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
-                          <Button
-                            size="sm"
-                            variant={cart[item.id] ? "secondary" : "default"}
-                            className="mt-3 w-full gap-1.5"
-                            onClick={() => addToCart(item.id)}
-                            disabled={(cart[item.id] ?? 0) >= item.quantity_available}
+                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                    {items.map((item) => {
+                      const inCart = cart[item.id] ?? 0;
+                      const atMax = inCart >= item.quantity_available;
+                      return (
+                        <div key={item.id} className="flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md">
+                          <button
+                            type="button"
+                            onClick={() => setDetailsItem(item)}
+                            className="group relative block aspect-square w-full overflow-hidden bg-muted"
+                            aria-label={`פרטים על ${item.name}`}
                           >
-                            <Plus className="h-3.5 w-3.5" />
-                            {cart[item.id] ? `נוסף (${cart[item.id]})` : "הוסף לעגלה"}
-                          </Button>
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.name} className="h-full w-full object-contain p-2 transition-transform group-hover:scale-105" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                                <ShoppingBag className="h-10 w-10" />
+                              </div>
+                            )}
+                            <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+                              <Info className="h-3 w-3" /> פרטים
+                            </span>
+                          </button>
+                          <div className="flex flex-1 flex-col p-3">
+                            <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{item.name}</h3>
+                            <p className="mt-1 text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
+                            <Button
+                              size="sm"
+                              variant={inCart ? "secondary" : "default"}
+                              className="mt-auto w-full gap-1.5"
+                              onClick={() => addToCart(item.id)}
+                              disabled={atMax}
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              {inCart ? `נוסף (${inCart})` : "הוסף לעגלה"}
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -326,6 +394,69 @@ const Requests = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Item details dialog */}
+        <Dialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)}>
+          <DialogContent dir="rtl" className="max-w-lg">
+            {detailsItem && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">{detailsItem.name}</DialogTitle>
+                  <DialogDescription>זמין כעת: {detailsItem.quantity_available}</DialogDescription>
+                </DialogHeader>
+                {detailsItem.image_url && (
+                  <div className="overflow-hidden rounded-lg bg-muted">
+                    <img src={detailsItem.image_url} alt={detailsItem.name} className="mx-auto max-h-72 w-full object-contain p-3" />
+                  </div>
+                )}
+                {detailsItem.description ? (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{detailsItem.description}</p>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">אין תיאור נוסף</p>
+                )}
+                <DialogFooter className="sm:justify-start">
+                  <Button
+                    onClick={() => { addToCart(detailsItem.id); setDetailsItem(null); }}
+                    disabled={(cart[detailsItem.id] ?? 0) >= detailsItem.quantity_available}
+                    className="gap-1.5"
+                  >
+                    <Plus className="h-4 w-4" />הוסף לעגלה
+                  </Button>
+                  <Button variant="outline" onClick={() => setDetailsItem(null)}>סגור</Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Request new item dialog */}
+        <Dialog open={reqOpen} onOpenChange={setReqOpen}>
+          <DialogContent dir="rtl" className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>בקשה לפריט חדש</DialogTitle>
+              <DialogDescription>לא מצאתם בקטלוג? ספרו לנו על הפריט ואולי נזמין אותו.</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={submitItemRequest} className="space-y-3">
+              <div>
+                <Label htmlFor="ri-name">שם הפריט</Label>
+                <Input id="ri-name" value={riName} onChange={(e) => setRiName(e.target.value)} required maxLength={150} />
+              </div>
+              <div>
+                <Label htmlFor="ri-desc">תיאור / לשם מה תשמשו אותו</Label>
+                <Textarea id="ri-desc" value={riDesc} onChange={(e) => setRiDesc(e.target.value)} rows={3} maxLength={1000} />
+              </div>
+              <div>
+                <Label htmlFor="ri-link">קישור (לא חובה)</Label>
+                <Input id="ri-link" type="url" value={riLink} onChange={(e) => setRiLink(e.target.value)} placeholder="https://..." maxLength={500} />
+              </div>
+              <p className="text-xs text-muted-foreground">פרטי קשר ייקחו מטופס ההשאלה (שם, אימייל, טלפון).</p>
+              <DialogFooter className="gap-2 sm:justify-start">
+                <Button type="submit" disabled={riSubmitting}>{riSubmitting ? "שולח..." : "שלח בקשה"}</Button>
+                <Button type="button" variant="outline" onClick={() => setReqOpen(false)}>ביטול</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

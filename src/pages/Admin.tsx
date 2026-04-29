@@ -46,12 +46,19 @@ interface LendReq {
   lend_request_items: { quantity: number; catalog_items: { name: string } }[];
 }
 
+interface ItemReq {
+  id: string; item_name: string; description: string | null; reference_link: string | null;
+  requester_name: string; requester_email: string; requester_phone: string;
+  status: string; created_at: string;
+}
+
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [printReqs, setPrintReqs] = useState<PrintReq[]>([]);
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
+  const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
 
   // New item form
   const [iName, setIName] = useState("");
@@ -68,14 +75,16 @@ const Admin = () => {
   }, [user, isAdmin, loading, navigate]);
 
   const loadAll = async () => {
-    const [a, b, c] = await Promise.all([
+    const [a, b, c, d] = await Promise.all([
       supabase.from("catalog_items").select("*").order("name"),
       supabase.from("print_requests").select("*").order("created_at", { ascending: false }),
       supabase.from("lend_requests").select("*, lend_request_items(quantity, catalog_items(name))").order("created_at", { ascending: false }),
+      supabase.from("item_requests").select("*").order("created_at", { ascending: false }),
     ]);
     setItems(a.data ?? []);
     setPrintReqs(b.data ?? []);
     setLendReqs((c.data as LendReq[]) ?? []);
+    setItemReqs(d.data ?? []);
   };
 
   useEffect(() => { if (isAdmin) loadAll(); }, [isAdmin]);
@@ -153,6 +162,7 @@ const Admin = () => {
             <TabsTrigger value="print" className="gap-1.5"><Printer className="h-4 w-4" />הדפסות ({printReqs.length})</TabsTrigger>
             <TabsTrigger value="lend" className="gap-1.5"><ShoppingBag className="h-4 w-4" />השאלות ({lendReqs.length})</TabsTrigger>
             <TabsTrigger value="onloan" className="gap-1.5"><ClipboardList className="h-4 w-4" />ציוד מושאל</TabsTrigger>
+            <TabsTrigger value="itemreq" className="gap-1.5"><Package className="h-4 w-4" />בקשות פריטים ({itemReqs.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="catalog">
@@ -341,6 +351,42 @@ const Admin = () => {
                 </div>
               );
             })()}
+          </TabsContent>
+
+          <TabsContent value="itemreq">
+            <div className="space-y-3">
+              {itemReqs.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות לפריטים חדשים</p>}
+              {itemReqs.map((r) => (
+                <div key={r.id} className="rounded-lg border border-border bg-card p-5">
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-bold">{r.item_name}</h3>
+                      <p className="text-xs text-muted-foreground">{r.requester_name} · {r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                    </div>
+                    <select
+                      value={r.status}
+                      onChange={async (e) => {
+                        const { error } = await supabase.from("item_requests").update({ status: e.target.value }).eq("id", r.id);
+                        if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
+                      }}
+                      className="rounded-md border border-border bg-background px-2 py-1 text-sm"
+                    >
+                      <option value="pending">ממתין</option>
+                      <option value="approved">אושר</option>
+                      <option value="ordered">הוזמן</option>
+                      <option value="received">הגיע</option>
+                      <option value="rejected">נדחה</option>
+                    </select>
+                  </div>
+                  {r.description && <p className="text-sm whitespace-pre-wrap"><strong>תיאור:</strong> {r.description}</p>}
+                  {r.reference_link && (
+                    <a href={r.reference_link} target="_blank" rel="noreferrer" className="mt-1 inline-block text-sm text-primary underline">
+                      קישור לפריט
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </main>
