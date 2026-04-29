@@ -153,7 +153,7 @@ const projectIdeas = [
     title: "תחנת מזג אוויר",
     difficulty: "בינוני",
     description: "מדידת טמפרטורה ולחות עם תצוגת LCD - פרויקט שימושי שמלמד עבודה עם חיישנים ומסכים",
-    url: "https://projecthub.arduino.cc/",
+    url: "https://projecthub.arduino.cc/SurtrTech/mini-weather-station-using-arduino-nano-7e3960",
   },
   {
     title: "נורת RGB מתחלפת",
