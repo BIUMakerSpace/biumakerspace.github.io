@@ -7,6 +7,7 @@ interface ResourceCardProps {
   type: "video" | "article" | "pdf" | "project";
   isHebrew?: boolean;
   embedDisabled?: boolean;
+  thumbnail?: string;
 }
 
 const typeConfig = {
@@ -21,9 +22,10 @@ function getYouTubeId(url: string): string | null {
   return match ? match[1] : null;
 }
 
-const ResourceCard = ({ title, description, url, type, isHebrew, embedDisabled }: ResourceCardProps) => {
+const ResourceCard = ({ title, description, url, type, isHebrew, embedDisabled, thumbnail }: ResourceCardProps) => {
   const { icon: Icon, label } = typeConfig[type];
   const youtubeId = type === "video" ? getYouTubeId(url) : null;
+  const thumbSrc = thumbnail ?? (youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null);
 
   return (
     <div className="group rounded-lg border border-border bg-card overflow-hidden transition-all duration-300 hover:border-primary/50 hover:glow-primary">
