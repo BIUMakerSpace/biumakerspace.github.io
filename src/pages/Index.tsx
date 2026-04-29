@@ -96,6 +96,96 @@ const features = [
   },
 ];
 
+const inspirations = [
+  {
+    name: "Limor Fried (Ladyada)",
+    role: "מהנדסת ומייסדת Adafruit",
+    description: "חלוצה בעולם החומרה הפתוחה, מייסדת אחת מחברות האלקטרוניקה היוצרות הגדולות בעולם",
+    url: "https://www.adafruit.com/",
+  },
+  {
+    name: "Simone Giertz",
+    role: "מלכת רובוטים גרועים",
+    description: "ממציאה ויוצרת יוטיוב שבונה רובוטים מצחיקים ומפתיעים - הוכחה שכישלון הוא חלק מהתהליך",
+    url: "https://www.youtube.com/@simonegiertz",
+  },
+  {
+    name: "Becky Stern",
+    role: "יוצרת תוכן DIY ואלקטרוניקה לבישה",
+    description: "מאות מדריכים על מיקרו-בקרים, אלקטרוניקה לבישה ופרויקטי יצירה לכל הרמות",
+    url: "https://beckystern.com/",
+  },
+  {
+    name: "Nina Zakharenko",
+    role: "מהנדסת תוכנה ויוצרת חומרה",
+    description: "משלבת בין Python לחומרה - מומחית ל-CircuitPython, IoT ופרויקטי לבישה יצירתיים",
+    url: "https://www.nnja.io/",
+  },
+  {
+    name: "Naomi Wu",
+    role: "יוצרת מ-Shenzhen",
+    description: "מתעדת את עולם החומרה הפתוחה והייצור בסין, עם פרויקטים מקוריים ומרהיבים",
+    url: "https://www.youtube.com/@RealSexyCyborg",
+  },
+  {
+    name: "Mark Rober",
+    role: "מהנדס לשעבר ב-NASA",
+    description: "פרויקטי הנדסה ענקיים ויצירתיים שמשלבים מדע, הומור ובניית גאדג׳טים מטורפים",
+    url: "https://www.youtube.com/@MarkRober",
+  },
+];
+
+const projectIdeas = [
+  {
+    title: "רמזור LED",
+    difficulty: "קל מאוד",
+    description: "שלושה לדים, נגדים וקצת קוד - הפרויקט הקלאסי להתחלה עם ארדואינו",
+    url: "https://www.instructables.com/Traffic-Lights-With-an-Arduino/",
+  },
+  {
+    title: "חיישן מרחק עם זמזם",
+    difficulty: "קל",
+    description: "השתמשו בחיישן אולטרסוני לזיהוי מרחק והפעלת זמזם - מערכת חניה מיני",
+    url: "https://projecthub.arduino.cc/Isaac100/getting-started-with-the-hc-sr04-ultrasonic-sensor-7cabe1",
+  },
+  {
+    title: "תחנת מזג אוויר",
+    difficulty: "בינוני",
+    description: "מדידת טמפרטורה ולחות עם תצוגת LCD - פרויקט שימושי שמלמד עבודה עם חיישנים ומסכים",
+    url: "https://projecthub.arduino.cc/",
+  },
+  {
+    title: "נורת RGB מתחלפת",
+    difficulty: "קל",
+    description: "שלטו בצבע של נורת RGB - למידת PWM, ערבוב צבעים ושליטה אנלוגית",
+    url: "https://projecthub.arduino.cc/SAnwandter1/programming-4-leds-with-the-arduino-uno-93f128",
+  },
+  {
+    title: "מנעול דיגיטלי עם מקלדת",
+    difficulty: "בינוני",
+    description: "בנו מערכת קוד סודי עם מקלדת ממברנה ומנוע סרוו לפתיחת דלת או קופסה",
+    url: "https://projecthub.arduino.cc/electropeak/diy-arduino-keypad-door-lock-9a92e7",
+  },
+  {
+    title: "רובוט נמנע ממכשולים",
+    difficulty: "מתקדם",
+    description: "רובוט קטן על גלגלים שמסתובב במרחב ומזהה מכשולים בעזרת חיישנים - פרויקט מלא",
+    url: "https://projecthub.arduino.cc/",
+  },
+  {
+    title: "תזכורת לשתות מים",
+    difficulty: "קל",
+    description: "מכשיר קטן שמהבהב ומצפצף כל שעה כדי להזכיר לכם לשתות - שימושי ופשוט",
+    url: "https://www.instructables.com/Arduino-Water-Reminder/",
+  },
+  {
+    title: "פסנתר עם כפתורים",
+    difficulty: "קל",
+    description: "8 כפתורים ורמקול פיזואלקטרי = פסנתר מיני. למדו על תדרים והשמעת צלילים",
+    url: "https://projecthub.arduino.cc/SURYATEJA/use-a-buzzer-module-piezo-speaker-using-arduino-uno-89df45",
+  },
+];
+
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
