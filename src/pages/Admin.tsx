@@ -352,6 +352,42 @@ const Admin = () => {
               );
             })()}
           </TabsContent>
+
+          <TabsContent value="itemreq">
+            <div className="space-y-3">
+              {itemReqs.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות לפריטים חדשים</p>}
+              {itemReqs.map((r) => (
+                <div key={r.id} className="rounded-lg border border-border bg-card p-5">
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-bold">{r.item_name}</h3>
+                      <p className="text-xs text-muted-foreground">{r.requester_name} · {r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                    </div>
+                    <select
+                      value={r.status}
+                      onChange={async (e) => {
+                        const { error } = await supabase.from("item_requests").update({ status: e.target.value }).eq("id", r.id);
+                        if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
+                      }}
+                      className="rounded-md border border-border bg-background px-2 py-1 text-sm"
+                    >
+                      <option value="pending">ממתין</option>
+                      <option value="approved">אושר</option>
+                      <option value="ordered">הוזמן</option>
+                      <option value="received">הגיע</option>
+                      <option value="rejected">נדחה</option>
+                    </select>
+                  </div>
+                  {r.description && <p className="text-sm whitespace-pre-wrap"><strong>תיאור:</strong> {r.description}</p>}
+                  {r.reference_link && (
+                    <a href={r.reference_link} target="_blank" rel="noreferrer" className="mt-1 inline-block text-sm text-primary underline">
+                      קישור לפריט
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
     </div>
