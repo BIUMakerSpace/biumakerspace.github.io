@@ -2,7 +2,7 @@ import heroImage from "@/assets/hero-maker.jpg";
 import arduinoPlaylistThumb from "@/assets/arduino-playlist-thumb.png";
 import ResourceCard from "@/components/ResourceCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, FileText, BookOpen, Wrench } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket } from "lucide-react";
 
 const resources = [
   {
