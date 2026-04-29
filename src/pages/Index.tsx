@@ -2,7 +2,7 @@ import heroImage from "@/assets/hero-maker.jpg";
 import arduinoPlaylistThumb from "@/assets/arduino-playlist-thumb.png";
 import ResourceCard from "@/components/ResourceCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, FileText, BookOpen, Wrench } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket } from "lucide-react";
 
 const resources = [
   {
@@ -96,6 +96,96 @@ const features = [
   },
 ];
 
+const inspirations = [
+  {
+    name: "Limor Fried (Ladyada)",
+    role: "מהנדסת ומייסדת Adafruit",
+    description: "חלוצה בעולם החומרה הפתוחה, מייסדת אחת מחברות האלקטרוניקה היוצרות הגדולות בעולם",
+    url: "https://www.adafruit.com/",
+  },
+  {
+    name: "Simone Giertz",
+    role: "מלכת רובוטים גרועים",
+    description: "ממציאה ויוצרת יוטיוב שבונה רובוטים מצחיקים ומפתיעים - הוכחה שכישלון הוא חלק מהתהליך",
+    url: "https://www.youtube.com/@simonegiertz",
+  },
+  {
+    name: "Becky Stern",
+    role: "יוצרת תוכן DIY ואלקטרוניקה לבישה",
+    description: "מאות מדריכים על מיקרו-בקרים, אלקטרוניקה לבישה ופרויקטי יצירה לכל הרמות",
+    url: "https://beckystern.com/",
+  },
+  {
+    name: "Nina Zakharenko",
+    role: "מהנדסת תוכנה ויוצרת חומרה",
+    description: "משלבת בין Python לחומרה - מומחית ל-CircuitPython, IoT ופרויקטי לבישה יצירתיים",
+    url: "https://www.nnja.io/",
+  },
+  {
+    name: "Naomi Wu",
+    role: "יוצרת מ-Shenzhen",
+    description: "מתעדת את עולם החומרה הפתוחה והייצור בסין, עם פרויקטים מקוריים ומרהיבים",
+    url: "https://www.youtube.com/@RealSexyCyborg",
+  },
+  {
+    name: "Mark Rober",
+    role: "מהנדס לשעבר ב-NASA",
+    description: "פרויקטי הנדסה ענקיים ויצירתיים שמשלבים מדע, הומור ובניית גאדג׳טים מטורפים",
+    url: "https://www.youtube.com/@MarkRober",
+  },
+];
+
+const projectIdeas = [
+  {
+    title: "רמזור LED",
+    difficulty: "קל מאוד",
+    description: "שלושה לדים, נגדים וקצת קוד - הפרויקט הקלאסי להתחלה עם ארדואינו",
+    url: "https://www.instructables.com/Traffic-Lights-With-an-Arduino/",
+  },
+  {
+    title: "חיישן מרחק עם זמזם",
+    difficulty: "קל",
+    description: "השתמשו בחיישן אולטרסוני לזיהוי מרחק והפעלת זמזם - מערכת חניה מיני",
+    url: "https://projecthub.arduino.cc/Isaac100/getting-started-with-the-hc-sr04-ultrasonic-sensor-7cabe1",
+  },
+  {
+    title: "תחנת מזג אוויר",
+    difficulty: "בינוני",
+    description: "מדידת טמפרטורה ולחות עם תצוגת LCD - פרויקט שימושי שמלמד עבודה עם חיישנים ומסכים",
+    url: "https://projecthub.arduino.cc/",
+  },
+  {
+    title: "נורת RGB מתחלפת",
+    difficulty: "קל",
+    description: "שלטו בצבע של נורת RGB - למידת PWM, ערבוב צבעים ושליטה אנלוגית",
+    url: "https://projecthub.arduino.cc/SAnwandter1/programming-4-leds-with-the-arduino-uno-93f128",
+  },
+  {
+    title: "מנעול דיגיטלי עם מקלדת",
+    difficulty: "בינוני",
+    description: "בנו מערכת קוד סודי עם מקלדת ממברנה ומנוע סרוו לפתיחת דלת או קופסה",
+    url: "https://projecthub.arduino.cc/electropeak/diy-arduino-keypad-door-lock-9a92e7",
+  },
+  {
+    title: "רובוט נמנע ממכשולים",
+    difficulty: "מתקדם",
+    description: "רובוט קטן על גלגלים שמסתובב במרחב ומזהה מכשולים בעזרת חיישנים - פרויקט מלא",
+    url: "https://projecthub.arduino.cc/",
+  },
+  {
+    title: "תזכורת לשתות מים",
+    difficulty: "קל",
+    description: "מכשיר קטן שמהבהב ומצפצף כל שעה כדי להזכיר לכם לשתות - שימושי ופשוט",
+    url: "https://www.instructables.com/Arduino-Water-Reminder/",
+  },
+  {
+    title: "פסנתר עם כפתורים",
+    difficulty: "קל",
+    description: "8 כפתורים ורמקול פיזואלקטרי = פסנתר מיני. למדו על תדרים והשמעת צלילים",
+    url: "https://projecthub.arduino.cc/SURYATEJA/use-a-buzzer-module-piezo-speaker-using-arduino-uno-89df45",
+  },
+];
+
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -178,7 +268,84 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Project Ideas */}
+      <section id="ideas" className="border-t border-border bg-card/30 py-20" dir="rtl">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="mb-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Rocket className="h-6 w-6" />
+            </div>
+            <h2 className="mb-3 text-3xl font-black text-foreground md:text-4xl">
+              רעיונות לפרויקטים <span className="text-gradient">למתחילים</span>
+            </h2>
+            <p className="text-muted-foreground">
+              לא יודעים מאיפה להתחיל? הנה רשימה של פרויקטים פשוטים ומגניבים
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {projectIdeas.map((idea) => (
+              <a
+                key={idea.title}
+                href={idea.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:border-primary/50 hover:glow-primary"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    {idea.difficulty}
+                  </span>
+                  <ExternalLink className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                </div>
+                <h3 className="mb-1.5 text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {idea.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">{idea.description}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Inspiration */}
+      <section id="inspiration" className="py-20" dir="rtl">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="mb-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <h2 className="mb-3 text-3xl font-black text-foreground md:text-4xl">
+              <span className="text-gradient">השראה</span> מיוצרים בעולם
+            </h2>
+            <p className="text-muted-foreground">
+              היכרות עם משפיענים, מהנדסים ויוצרים שמובילים את עולם ה-Maker
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {inspirations.map((person) => (
+              <a
+                key={person.name}
+                href={person.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:glow-primary"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-foreground transition-colors group-hover:text-primary">
+                      {person.name}
+                    </h3>
+                    <p className="mt-0.5 text-xs font-medium text-primary/80">{person.role}</p>
+                  </div>
+                  <ExternalLink className="h-4 w-4 flex-shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">{person.description}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         <p>Maker Space – אוניברסיטת בר אילן &copy; {new Date().getFullYear()}</p>
       </footer>
