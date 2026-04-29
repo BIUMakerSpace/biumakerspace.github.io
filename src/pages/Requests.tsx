@@ -295,39 +295,58 @@ const Requests = () => {
             <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
               {/* Catalog */}
               <div>
-                <h2 className="mb-4 text-xl font-bold text-foreground">קטלוג ציוד</h2>
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 className="text-xl font-bold text-foreground">קטלוג ציוד</h2>
+                  <Button variant="outline" size="sm" onClick={() => setReqOpen(true)} className="gap-1.5">
+                    <PackagePlus className="h-4 w-4" />
+                    בקש פריט שלא בקטלוג
+                  </Button>
+                </div>
                 {items.length === 0 ? (
                   <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
                     אין פריטים בקטלוג כרגע
                   </p>
                 ) : (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {items.map((item) => (
-                      <div key={item.id} className="overflow-hidden rounded-lg border border-border bg-card">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="h-40 w-full object-cover" />
-                        ) : (
-                          <div className="flex h-40 items-center justify-center bg-muted text-muted-foreground">
-                            <ShoppingBag className="h-8 w-8" />
-                          </div>
-                        )}
-                        <div className="p-4">
-                          <h3 className="font-semibold text-foreground">{item.name}</h3>
-                          {item.description && <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>}
-                          <p className="mt-2 text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
-                          <Button
-                            size="sm"
-                            variant={cart[item.id] ? "secondary" : "default"}
-                            className="mt-3 w-full gap-1.5"
-                            onClick={() => addToCart(item.id)}
-                            disabled={(cart[item.id] ?? 0) >= item.quantity_available}
+                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                    {items.map((item) => {
+                      const inCart = cart[item.id] ?? 0;
+                      const atMax = inCart >= item.quantity_available;
+                      return (
+                        <div key={item.id} className="flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md">
+                          <button
+                            type="button"
+                            onClick={() => setDetailsItem(item)}
+                            className="group relative block aspect-square w-full overflow-hidden bg-muted"
+                            aria-label={`פרטים על ${item.name}`}
                           >
-                            <Plus className="h-3.5 w-3.5" />
-                            {cart[item.id] ? `נוסף (${cart[item.id]})` : "הוסף לעגלה"}
-                          </Button>
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.name} className="h-full w-full object-contain p-2 transition-transform group-hover:scale-105" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                                <ShoppingBag className="h-10 w-10" />
+                              </div>
+                            )}
+                            <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+                              <Info className="h-3 w-3" /> פרטים
+                            </span>
+                          </button>
+                          <div className="flex flex-1 flex-col p-3">
+                            <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{item.name}</h3>
+                            <p className="mt-1 text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
+                            <Button
+                              size="sm"
+                              variant={inCart ? "secondary" : "default"}
+                              className="mt-auto w-full gap-1.5"
+                              onClick={() => addToCart(item.id)}
+                              disabled={atMax}
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              {inCart ? `נוסף (${inCart})` : "הוסף לעגלה"}
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
