@@ -230,17 +230,21 @@ const Admin = () => {
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3 rounded-lg border border-border bg-card p-3">
-                      {item.image_url && <img src={item.image_url} alt={item.name} className="h-20 w-20 rounded object-cover" />}
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{item.name}</h3>
+                      {item.image_url && <img src={item.image_url} alt={item.name} className="h-20 w-20 shrink-0 rounded object-cover" />}
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="min-w-0 flex-1 break-words font-semibold">{item.name}</h3>
+                          <div className="flex shrink-0 gap-1">
+                            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(item)} aria-label="ערוך"><Pencil className="h-3.5 w-3.5" /></Button>
+                            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteItem(item.id)} aria-label="מחק"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </div>
+                        </div>
                         {item.description && <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
-                        <div className="mt-2 flex items-center gap-2 text-xs">
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                           <span>זמין:</span>
                           <Input type="number" value={item.quantity_available} onChange={(e) => updateItemQty(item.id, parseInt(e.target.value) || 0, item.quantity_total)} className="h-7 w-16" />
                           <span>/ סה״כ:</span>
                           <Input type="number" value={item.quantity_total} onChange={(e) => updateItemQty(item.id, item.quantity_available, parseInt(e.target.value) || 0)} className="h-7 w-16" />
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(item)} aria-label="ערוך"><Pencil className="h-3.5 w-3.5" /></Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteItem(item.id)} aria-label="מחק"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                       </div>
                     </div>
