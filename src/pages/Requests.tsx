@@ -36,6 +36,15 @@ const lendSchema = z.object({
   notes: z.string().trim().max(1000).optional(),
 });
 
+const itemReqSchema = z.object({
+  item_name: z.string().trim().min(2).max(150),
+  description: z.string().trim().max(1000).optional(),
+  reference_link: z.string().trim().url().max(500).optional().or(z.literal("")),
+  requester_name: z.string().trim().min(2).max(100),
+  requester_email: z.string().trim().email().max(255),
+  requester_phone: z.string().trim().min(7).max(20),
+});
+
 const Requests = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
