@@ -253,6 +253,95 @@ const Admin = () => {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="onloan">
+            {(() => {
+              const onLoan = lendReqs.filter((r) => r.status === "delivered");
+              const q = search.trim().toLowerCase();
+              const filtered = q
+                ? onLoan.filter((r) =>
+                    r.requester_name.toLowerCase().includes(q) ||
+                    r.requester_email.toLowerCase().includes(q) ||
+                    r.requester_phone.toLowerCase().includes(q) ||
+                    r.lend_request_items?.some((li) => li.catalog_items?.name.toLowerCase().includes(q))
+                  )
+                : onLoan;
+              const totalItems = filtered.reduce(
+                (sum, r) => sum + (r.lend_request_items?.reduce((s, li) => s + li.quantity, 0) ?? 0),
+                0
+              );
+              return (
+                <div>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div className="relative max-w-sm flex-1">
+                      <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="חיפוש לפי שם, אימייל, טלפון או פריט..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pr-9"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {filtered.length} השאלות · {totalItems} פריטים
+                    </p>
+                  </div>
+
+                  {filtered.length === 0 ? (
+                    <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+                      אין ציוד מושאל כרגע
+                    </p>
+                  ) : (
+                    <div className="overflow-hidden rounded-lg border border-border bg-card">
+                      <table className="w-full text-sm">
+                        <thead className="border-b border-border bg-muted/50 text-right">
+                          <tr>
+                            <th className="p-3 font-semibold">שואל</th>
+                            <th className="p-3 font-semibold">קשר</th>
+                            <th className="p-3 font-semibold">פריטים</th>
+                            <th className="p-3 font-semibold">תאריך מסירה</th>
+                            <th className="p-3 font-semibold">פעולה</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filtered.map((r) => (
+                            <tr key={r.id} className="border-b border-border last:border-0">
+                              <td className="p-3 font-medium">{r.requester_name}</td>
+                              <td className="p-3 text-xs text-muted-foreground">
+                                <div>{r.requester_email}</div>
+                                <div>{r.requester_phone}</div>
+                              </td>
+                              <td className="p-3">
+                                <ul className="space-y-0.5">
+                                  {r.lend_request_items?.map((li, i) => (
+                                    <li key={i}>• {li.catalog_items?.name} × {li.quantity}</li>
+                                  ))}
+                                </ul>
+                              </td>
+                              <td className="p-3 text-xs">
+                                {r.delivered_at ? new Date(r.delivered_at).toLocaleDateString("he-IL") : "—"}
+                              </td>
+                              <td className="p-3">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    updateLendStatus(r.id, { status: "returned", returned_at: new Date().toISOString() })
+                                  }
+                                >
+                                  סמן כהוחזר
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </TabsContent>
         </Tabs>
       </main>
     </div>
