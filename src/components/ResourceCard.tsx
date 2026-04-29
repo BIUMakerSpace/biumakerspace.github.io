@@ -40,7 +40,7 @@ const ResourceCard = ({ title, description, url, type, isHebrew, embedDisabled, 
           />
         </div>
       )}
-      {youtubeId && embedDisabled && (
+      {type === "video" && embedDisabled && thumbSrc && (
         <a
           href={url}
           target="_blank"
@@ -48,7 +48,7 @@ const ResourceCard = ({ title, description, url, type, isHebrew, embedDisabled, 
           className="relative block aspect-video w-full overflow-hidden"
         >
           <img
-            src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+            src={thumbSrc}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
