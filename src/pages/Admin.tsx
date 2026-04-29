@@ -439,6 +439,34 @@ const Admin = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
+          <DialogContent dir="rtl" className="max-w-lg">
+            <DialogHeader><DialogTitle>עריכת פריט</DialogTitle></DialogHeader>
+            {editItem && (
+              <form onSubmit={saveEdit} className="space-y-3">
+                {(eImage || editItem.image_url) && (
+                  <img
+                    src={eImage ? URL.createObjectURL(eImage) : editItem.image_url!}
+                    alt={eName}
+                    className="mx-auto h-32 rounded-md object-contain bg-muted p-2"
+                  />
+                )}
+                <div><Label>שם</Label><Input value={eName} onChange={(e) => setEName(e.target.value)} required /></div>
+                <div><Label>תיאור</Label><Textarea value={eDesc} onChange={(e) => setEDesc(e.target.value)} rows={3} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>סה״כ</Label><Input type="number" min={0} value={eTotal} onChange={(e) => setETotal(parseInt(e.target.value) || 0)} required /></div>
+                  <div><Label>זמין</Label><Input type="number" min={0} max={eTotal} value={eAvailable} onChange={(e) => setEAvailable(parseInt(e.target.value) || 0)} required /></div>
+                </div>
+                <div><Label>החלפת תמונה</Label><input type="file" accept="image/*" onChange={(e) => setEImage(e.target.files?.[0] ?? null)} className="block w-full text-sm" /></div>
+                <DialogFooter className="gap-2 sm:justify-start">
+                  <Button type="submit" disabled={eSubmitting}>{eSubmitting ? "שומר..." : "שמור"}</Button>
+                  <Button type="button" variant="outline" onClick={() => setEditItem(null)}>ביטול</Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
