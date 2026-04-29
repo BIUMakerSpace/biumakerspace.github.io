@@ -145,6 +145,51 @@ export type Database = {
           },
         ]
       }
+      item_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string | null
+          id: string
+          item_name: string
+          reference_link: string | null
+          requester_email: string
+          requester_name: string
+          requester_phone: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name: string
+          reference_link?: string | null
+          requester_email: string
+          requester_name: string
+          requester_phone: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_name?: string
+          reference_link?: string | null
+          requester_email?: string
+          requester_name?: string
+          requester_phone?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lend_request_items: {
         Row: {
           id: string
