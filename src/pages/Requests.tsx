@@ -394,6 +394,69 @@ const Requests = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Item details dialog */}
+        <Dialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)}>
+          <DialogContent dir="rtl" className="max-w-lg">
+            {detailsItem && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">{detailsItem.name}</DialogTitle>
+                  <DialogDescription>זמין כעת: {detailsItem.quantity_available}</DialogDescription>
+                </DialogHeader>
+                {detailsItem.image_url && (
+                  <div className="overflow-hidden rounded-lg bg-muted">
+                    <img src={detailsItem.image_url} alt={detailsItem.name} className="mx-auto max-h-72 w-full object-contain p-3" />
+                  </div>
+                )}
+                {detailsItem.description ? (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{detailsItem.description}</p>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">אין תיאור נוסף</p>
+                )}
+                <DialogFooter className="sm:justify-start">
+                  <Button
+                    onClick={() => { addToCart(detailsItem.id); setDetailsItem(null); }}
+                    disabled={(cart[detailsItem.id] ?? 0) >= detailsItem.quantity_available}
+                    className="gap-1.5"
+                  >
+                    <Plus className="h-4 w-4" />הוסף לעגלה
+                  </Button>
+                  <Button variant="outline" onClick={() => setDetailsItem(null)}>סגור</Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Request new item dialog */}
+        <Dialog open={reqOpen} onOpenChange={setReqOpen}>
+          <DialogContent dir="rtl" className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>בקשה לפריט חדש</DialogTitle>
+              <DialogDescription>לא מצאתם בקטלוג? ספרו לנו על הפריט ואולי נזמין אותו.</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={submitItemRequest} className="space-y-3">
+              <div>
+                <Label htmlFor="ri-name">שם הפריט</Label>
+                <Input id="ri-name" value={riName} onChange={(e) => setRiName(e.target.value)} required maxLength={150} />
+              </div>
+              <div>
+                <Label htmlFor="ri-desc">תיאור / לשם מה תשמשו אותו</Label>
+                <Textarea id="ri-desc" value={riDesc} onChange={(e) => setRiDesc(e.target.value)} rows={3} maxLength={1000} />
+              </div>
+              <div>
+                <Label htmlFor="ri-link">קישור (לא חובה)</Label>
+                <Input id="ri-link" type="url" value={riLink} onChange={(e) => setRiLink(e.target.value)} placeholder="https://..." maxLength={500} />
+              </div>
+              <p className="text-xs text-muted-foreground">פרטי קשר ייקחו מטופס ההשאלה (שם, אימייל, טלפון).</p>
+              <DialogFooter className="gap-2 sm:justify-start">
+                <Button type="submit" disabled={riSubmitting}>{riSubmitting ? "שולח..." : "שלח בקשה"}</Button>
+                <Button type="button" variant="outline" onClick={() => setReqOpen(false)}>ביטול</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
