@@ -268,7 +268,84 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Project Ideas */}
+      <section id="ideas" className="border-t border-border bg-card/30 py-20" dir="rtl">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="mb-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Rocket className="h-6 w-6" />
+            </div>
+            <h2 className="mb-3 text-3xl font-black text-foreground md:text-4xl">
+              רעיונות לפרויקטים <span className="text-gradient">למתחילים</span>
+            </h2>
+            <p className="text-muted-foreground">
+              לא יודעים מאיפה להתחיל? הנה רשימה של פרויקטים פשוטים ומגניבים
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {projectIdeas.map((idea) => (
+              <a
+                key={idea.title}
+                href={idea.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:border-primary/50 hover:glow-primary"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    {idea.difficulty}
+                  </span>
+                  <ExternalLink className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                </div>
+                <h3 className="mb-1.5 text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {idea.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">{idea.description}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Inspiration */}
+      <section id="inspiration" className="py-20" dir="rtl">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="mb-12 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <h2 className="mb-3 text-3xl font-black text-foreground md:text-4xl">
+              <span className="text-gradient">השראה</span> מיוצרים בעולם
+            </h2>
+            <p className="text-muted-foreground">
+              היכרות עם משפיענים, מהנדסים ויוצרים שמובילים את עולם ה-Maker
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {inspirations.map((person) => (
+              <a
+                key={person.name}
+                href={person.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:glow-primary"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-foreground transition-colors group-hover:text-primary">
+                      {person.name}
+                    </h3>
+                    <p className="mt-0.5 text-xs font-medium text-primary/80">{person.role}</p>
+                  </div>
+                  <ExternalLink className="h-4 w-4 flex-shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">{person.description}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         <p>Maker Space – אוניברסיטת בר אילן &copy; {new Date().getFullYear()}</p>
       </footer>
