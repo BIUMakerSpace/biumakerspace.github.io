@@ -28,7 +28,12 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/requests" element={<Requests />} />
+            <Route path="/my-requests" element={<MyRequests />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/forum" element={<Forum />} />
+            <Route path="/forum/:id" element={<ForumThread />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
