@@ -72,9 +72,9 @@ const MyRequests = () => {
             {prints.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">לא שלחת בקשות הדפסה</p>}
             {prints.map((r) => (
               <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                <div className="mb-2 flex items-center justify-between">
-                  <h3 className="font-bold">{r.stl_file_name}</h3>
-                  <Badge variant={statusVariant(r.status)}>{STATUS_HE[r.status] ?? r.status}</Badge>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="min-w-0 flex-1 truncate font-bold" title={r.stl_file_name}>{r.stl_file_name}</h3>
+                  <Badge variant={statusVariant(r.status)} className="shrink-0">{STATUS_HE[r.status] ?? r.status}</Badge>
                 </div>
                 <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
                 <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
