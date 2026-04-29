@@ -1,4 +1,5 @@
 import heroImage from "@/assets/hero-maker.jpg";
+import arduinoPlaylistThumb from "@/assets/arduino-playlist-thumb.png";
 import ResourceCard from "@/components/ResourceCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Cpu, Users, Lightbulb, ArrowDown, Play, FileText, BookOpen, Wrench } from "lucide-react";
@@ -67,6 +68,7 @@ const resources = [
     url: "https://www.youtube.com/playlist?list=PLGs0VKk2DiYw-L-RibttcvK-WBZm8WLEP",
     type: "video" as const,
     embedDisabled: true,
+    thumbnail: arduinoPlaylistThumb,
   },
   {
     title: "רמזור תנועה עם ארדואינו",
