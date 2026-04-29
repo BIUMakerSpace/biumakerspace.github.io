@@ -75,14 +75,16 @@ const Admin = () => {
   }, [user, isAdmin, loading, navigate]);
 
   const loadAll = async () => {
-    const [a, b, c] = await Promise.all([
+    const [a, b, c, d] = await Promise.all([
       supabase.from("catalog_items").select("*").order("name"),
       supabase.from("print_requests").select("*").order("created_at", { ascending: false }),
       supabase.from("lend_requests").select("*, lend_request_items(quantity, catalog_items(name))").order("created_at", { ascending: false }),
+      supabase.from("item_requests").select("*").order("created_at", { ascending: false }),
     ]);
     setItems(a.data ?? []);
     setPrintReqs(b.data ?? []);
     setLendReqs((c.data as LendReq[]) ?? []);
+    setItemReqs(d.data ?? []);
   };
 
   useEffect(() => { if (isAdmin) loadAll(); }, [isAdmin]);
