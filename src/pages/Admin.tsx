@@ -131,7 +131,7 @@ const Admin = () => {
     a.href = data.signedUrl; a.download = name; a.click();
   };
 
-  const updateLendStatus = async (id: string, updates: Partial<LendReq>) => {
+  const updateLendStatus = async (id: string, updates: { status?: string; delivered_at?: string; returned_at?: string }) => {
     const { error } = await supabase.from("lend_requests").update(updates).eq("id", id);
     if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
   };

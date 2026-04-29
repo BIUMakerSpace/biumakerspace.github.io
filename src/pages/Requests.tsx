@@ -116,12 +116,16 @@ const Requests = () => {
       const path = `${user.id}/${Date.now()}-${pFile.name}`;
       const { error: upErr } = await supabase.storage.from("stl-files").upload(path, pFile);
       if (upErr) throw upErr;
-      const { error: insErr } = await supabase.from("print_requests").insert({
+      const { error: insErr } = await supabase.from("print_requests").insert([{
         user_id: user.id,
-        ...parsed.data,
+        requester_name: parsed.data.requester_name,
+        requester_email: parsed.data.requester_email,
+        requester_phone: parsed.data.requester_phone,
+        purpose: parsed.data.purpose,
+        filament_color: parsed.data.filament_color,
         stl_file_path: path,
         stl_file_name: pFile.name,
-      });
+      }]);
       if (insErr) throw insErr;
       toast.success("הבקשה נשלחה!", { description: "ניצור קשר בקרוב" });
       setPPurpose(""); setPColor(""); setPFile(null);
@@ -151,7 +155,13 @@ const Requests = () => {
     try {
       const { data: req, error: reqErr } = await supabase
         .from("lend_requests")
-        .insert({ user_id: user.id, ...parsed.data })
+        .insert([{
+          user_id: user.id,
+          requester_name: parsed.data.requester_name,
+          requester_email: parsed.data.requester_email,
+          requester_phone: parsed.data.requester_phone,
+          notes: parsed.data.notes ?? null,
+        }])
         .select()
         .single();
       if (reqErr) throw reqErr;
