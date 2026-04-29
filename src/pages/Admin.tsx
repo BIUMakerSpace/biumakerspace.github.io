@@ -58,7 +58,7 @@ const Admin = () => {
   const [iDesc, setIDesc] = useState("");
   const [iQty, setIQty] = useState(1);
   const [iImage, setIImage] = useState<File | null>(null);
-  const [iSubmitting, setISubmitting] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (loading) return;
