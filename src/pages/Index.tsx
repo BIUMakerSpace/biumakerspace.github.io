@@ -251,10 +251,10 @@ const Index = () => {
             </p>
           </div>
           <Tabs defaultValue="video" dir="rtl">
-            <TabsList className="mx-auto mb-8 flex w-fit flex-wrap">
+            <TabsList className="mx-auto mb-8 grid h-auto w-full max-w-2xl grid-cols-2 gap-1 sm:flex sm:w-fit sm:flex-wrap">
               <TabsTrigger value="video" className="gap-1.5"><Play className="h-3.5 w-3.5" />סרטונים</TabsTrigger>
               <TabsTrigger value="guide" className="gap-1.5"><BookOpen className="h-3.5 w-3.5" />מדריכים</TabsTrigger>
-              <TabsTrigger value="ideas" className="gap-1.5"><Rocket className="h-3.5 w-3.5" />רעיונות לפרויקטים</TabsTrigger>
+              <TabsTrigger value="ideas" className="gap-1.5"><Rocket className="h-3.5 w-3.5" />רעיונות</TabsTrigger>
               <TabsTrigger value="inspiration" className="gap-1.5"><Sparkles className="h-3.5 w-3.5" />השראה</TabsTrigger>
             </TabsList>
 
