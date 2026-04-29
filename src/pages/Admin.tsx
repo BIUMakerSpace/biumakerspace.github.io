@@ -46,12 +46,19 @@ interface LendReq {
   lend_request_items: { quantity: number; catalog_items: { name: string } }[];
 }
 
+interface ItemReq {
+  id: string; item_name: string; description: string | null; reference_link: string | null;
+  requester_name: string; requester_email: string; requester_phone: string;
+  status: string; created_at: string;
+}
+
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [printReqs, setPrintReqs] = useState<PrintReq[]>([]);
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
+  const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
 
   // New item form
   const [iName, setIName] = useState("");
