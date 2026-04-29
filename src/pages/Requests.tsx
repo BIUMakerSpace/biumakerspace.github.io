@@ -198,6 +198,35 @@ const Requests = () => {
     }
   };
 
+  const submitItemRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const parsed = itemReqSchema.safeParse({
+      item_name: riName, description: riDesc, reference_link: riLink,
+      requester_name: lName, requester_email: lEmail, requester_phone: lPhone,
+    });
+    if (!parsed.success) { toast.error("יש למלא את כל השדות בצורה תקינה"); return; }
+    setRiSubmitting(true);
+    try {
+      const { error } = await supabase.from("item_requests").insert({
+        user_id: user.id,
+        requester_name: parsed.data.requester_name,
+        requester_email: parsed.data.requester_email,
+        requester_phone: parsed.data.requester_phone,
+        item_name: parsed.data.item_name,
+        description: parsed.data.description || null,
+        reference_link: parsed.data.reference_link || null,
+      });
+      if (error) throw error;
+      toast.success("הבקשה נשלחה!", { description: "נבחן הוספת הפריט לקטלוג" });
+      setRiName(""); setRiDesc(""); setRiLink(""); setReqOpen(false);
+    } catch (err) {
+      toast.error("שגיאה בשליחה", { description: (err as Error).message });
+    } finally {
+      setRiSubmitting(false);
+    }
+  };
+
   if (loading || !user) return null;
 
   return (
