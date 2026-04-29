@@ -69,6 +69,54 @@ const Admin = () => {
   const [iSubmitting, setISubmitting] = useState(false);
   const [search, setSearch] = useState("");
 
+  // Edit item dialog state
+  const [editItem, setEditItem] = useState<CatalogItem | null>(null);
+  const [eName, setEName] = useState("");
+  const [eDesc, setEDesc] = useState("");
+  const [eTotal, setETotal] = useState(1);
+  const [eAvailable, setEAvailable] = useState(1);
+  const [eImage, setEImage] = useState<File | null>(null);
+  const [eSubmitting, setESubmitting] = useState(false);
+
+  const openEdit = (item: CatalogItem) => {
+    setEditItem(item);
+    setEName(item.name);
+    setEDesc(item.description ?? "");
+    setETotal(item.quantity_total);
+    setEAvailable(item.quantity_available);
+    setEImage(null);
+  };
+
+  const saveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editItem) return;
+    setESubmitting(true);
+    try {
+      let imageUrl = editItem.image_url;
+      if (eImage) {
+        const path = `${Date.now()}-${eImage.name}`;
+        const { error: upErr } = await supabase.storage.from("catalog-images").upload(path, eImage);
+        if (upErr) throw upErr;
+        imageUrl = supabase.storage.from("catalog-images").getPublicUrl(path).data.publicUrl;
+      }
+      const { error } = await supabase.from("catalog_items").update({
+        name: eName,
+        description: eDesc || null,
+        quantity_total: eTotal,
+        quantity_available: Math.min(eAvailable, eTotal),
+        image_url: imageUrl,
+      }).eq("id", editItem.id);
+      if (error) throw error;
+      toast.success("הפריט עודכן");
+      setEditItem(null);
+      loadAll();
+    } catch (err) {
+      toast.error("שגיאה", { description: (err as Error).message });
+    } finally {
+      setESubmitting(false);
+    }
+  };
+
   useEffect(() => {
     if (loading) return;
     if (!user) navigate("/auth", { replace: true });
