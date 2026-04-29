@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
