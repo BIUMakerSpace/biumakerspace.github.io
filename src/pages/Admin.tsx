@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface CatalogItem {
@@ -67,6 +68,54 @@ const Admin = () => {
   const [iImage, setIImage] = useState<File | null>(null);
   const [iSubmitting, setISubmitting] = useState(false);
   const [search, setSearch] = useState("");
+
+  // Edit item dialog state
+  const [editItem, setEditItem] = useState<CatalogItem | null>(null);
+  const [eName, setEName] = useState("");
+  const [eDesc, setEDesc] = useState("");
+  const [eTotal, setETotal] = useState(1);
+  const [eAvailable, setEAvailable] = useState(1);
+  const [eImage, setEImage] = useState<File | null>(null);
+  const [eSubmitting, setESubmitting] = useState(false);
+
+  const openEdit = (item: CatalogItem) => {
+    setEditItem(item);
+    setEName(item.name);
+    setEDesc(item.description ?? "");
+    setETotal(item.quantity_total);
+    setEAvailable(item.quantity_available);
+    setEImage(null);
+  };
+
+  const saveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editItem) return;
+    setESubmitting(true);
+    try {
+      let imageUrl = editItem.image_url;
+      if (eImage) {
+        const path = `${Date.now()}-${eImage.name}`;
+        const { error: upErr } = await supabase.storage.from("catalog-images").upload(path, eImage);
+        if (upErr) throw upErr;
+        imageUrl = supabase.storage.from("catalog-images").getPublicUrl(path).data.publicUrl;
+      }
+      const { error } = await supabase.from("catalog_items").update({
+        name: eName,
+        description: eDesc || null,
+        quantity_total: eTotal,
+        quantity_available: Math.min(eAvailable, eTotal),
+        image_url: imageUrl,
+      }).eq("id", editItem.id);
+      if (error) throw error;
+      toast.success("הפריט עודכן");
+      setEditItem(null);
+      loadAll();
+    } catch (err) {
+      toast.error("שגיאה", { description: (err as Error).message });
+    } finally {
+      setESubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (loading) return;
@@ -190,7 +239,8 @@ const Admin = () => {
                           <Input type="number" value={item.quantity_available} onChange={(e) => updateItemQty(item.id, parseInt(e.target.value) || 0, item.quantity_total)} className="h-7 w-16" />
                           <span>/ סה״כ:</span>
                           <Input type="number" value={item.quantity_total} onChange={(e) => updateItemQty(item.id, item.quantity_available, parseInt(e.target.value) || 0)} className="h-7 w-16" />
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteItem(item.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(item)} aria-label="ערוך"><Pencil className="h-3.5 w-3.5" /></Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteItem(item.id)} aria-label="מחק"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                       </div>
                     </div>
@@ -389,6 +439,34 @@ const Admin = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
+          <DialogContent dir="rtl" className="max-w-lg">
+            <DialogHeader><DialogTitle>עריכת פריט</DialogTitle></DialogHeader>
+            {editItem && (
+              <form onSubmit={saveEdit} className="space-y-3">
+                {(eImage || editItem.image_url) && (
+                  <img
+                    src={eImage ? URL.createObjectURL(eImage) : editItem.image_url!}
+                    alt={eName}
+                    className="mx-auto h-32 rounded-md object-contain bg-muted p-2"
+                  />
+                )}
+                <div><Label>שם</Label><Input value={eName} onChange={(e) => setEName(e.target.value)} required /></div>
+                <div><Label>תיאור</Label><Textarea value={eDesc} onChange={(e) => setEDesc(e.target.value)} rows={3} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>סה״כ</Label><Input type="number" min={0} value={eTotal} onChange={(e) => setETotal(parseInt(e.target.value) || 0)} required /></div>
+                  <div><Label>זמין</Label><Input type="number" min={0} max={eTotal} value={eAvailable} onChange={(e) => setEAvailable(parseInt(e.target.value) || 0)} required /></div>
+                </div>
+                <div><Label>החלפת תמונה</Label><input type="file" accept="image/*" onChange={(e) => setEImage(e.target.files?.[0] ?? null)} className="block w-full text-sm" /></div>
+                <DialogFooter className="gap-2 sm:justify-start">
+                  <Button type="submit" disabled={eSubmitting}>{eSubmitting ? "שומר..." : "שמור"}</Button>
+                  <Button type="button" variant="outline" onClick={() => setEditItem(null)}>ביטול</Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
