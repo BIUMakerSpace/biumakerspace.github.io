@@ -183,19 +183,28 @@ const Admin = () => {
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
 
-  const downloadCsvTemplate = () => {
+  const buildAndDownloadCsv = (rows: (string | number)[][], filename: string) => {
     const headers = ["name", "description", "quantity_total", "quantity_available", "image_url"];
-    const rows = items.length
-      ? items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""])
-      : [["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]];
     const csv = "\uFEFF" + [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = items.length ? "catalog-export.csv" : "catalog-template.csv";
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const downloadCsvFormat = () => {
+    buildAndDownloadCsv([["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]], "catalog-template.csv");
+  };
+
+  const downloadCsvCatalog = () => {
+    if (!items.length) return;
+    buildAndDownloadCsv(
+      items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""]),
+      "catalog-export.csv"
+    );
   };
 
   const parseCsv = (text: string): string[][] => {
@@ -306,25 +315,36 @@ const Admin = () => {
               </form>
 
               <div>
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-lg font-bold">פריטים קיימים ({items.length})</h2>
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" className="gap-1.5" onClick={downloadCsvTemplate}>
-                      <FileDown className="h-3.5 w-3.5" />הורד CSV
-                    </Button>
-                    <Button size="sm" variant="outline" className="gap-1.5" asChild>
+                <div className="rounded-2xl border border-border bg-card p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">כלי קטלוג</p>
+                  <h2 className="mt-1 text-lg font-bold">ניהול מרוכז דרך CSV</h2>
+                  <p className="text-sm text-muted-foreground">ייצוא, ייבוא והורדת תבנית לעריכה ב-Excel או Google Sheets.</p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button size="sm" className="gap-1.5" asChild>
                       <label className="cursor-pointer">
                         <Upload className="h-3.5 w-3.5" />העלה CSV
                         <input type="file" accept=".csv,text/csv" className="hidden" onChange={handleCsvUpload} />
                       </label>
                     </Button>
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={downloadCsvFormat}>
+                      <FileDown className="h-3.5 w-3.5" />הורד תבנית
+                    </Button>
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={downloadCsvCatalog} disabled={!items.length}>
+                      <Download className="h-3.5 w-3.5" />הורד קטלוג נוכחי
+                    </Button>
                   </div>
+
+                  <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
+                    <li><strong className="text-foreground">העלה CSV:</strong> מוסיף פריטים חדשים בלבד מהקובץ. לא מוחק ולא מעדכן פריטים קיימים.</li>
+                    <li><strong className="text-foreground">הורד תבנית:</strong> קובץ ריק עם כותרות העמודות ושורת דוגמה.</li>
+                    <li><strong className="text-foreground">הורד קטלוג נוכחי:</strong> ייצוא של כל הפריטים הקיימים ({items.length}) לקובץ CSV.</li>
+                  </ul>
                 </div>
-                <p className="mb-4 rounded-md border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-                  <strong>הורד CSV:</strong> מוריד את כל הקטלוג הנוכחי כקובץ (או תבנית ריקה אם הקטלוג ריק) לעריכה ב-Excel/Sheets.
-                  <br />
-                  <strong>העלה CSV:</strong> מוסיף פריטים חדשים בלבד מהקובץ לקטלוג. לא מוחק ולא מעדכן פריטים קיימים — שורות חדשות בלבד נוספות.
-                </p>
+
+                <h2 className="mb-4 mt-6 border-t border-border pt-6 text-xl font-bold">
+                  פריטים קיימים <span className="text-muted-foreground">({items.length})</span>
+                </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3 rounded-lg border border-border bg-card p-3">
