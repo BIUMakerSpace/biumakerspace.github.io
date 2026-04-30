@@ -52,31 +52,31 @@ export const normalizeCategory = (v: unknown): CatalogCategory => {
 
 // ---- General (high-level) categories ----
 export type GeneralCategory =
+  | "sensors"
   | "electronics"
   | "compute"
   | "connectivity_power"
-  | "tools"
-  | "other";
+  | "tools_other";
 
 export const GENERAL_CATEGORIES: GeneralCategory[] = [
+  "sensors",
   "electronics",
   "compute",
   "connectivity_power",
-  "tools",
-  "other",
+  "tools_other",
 ];
 
 export const GENERAL_CATEGORY_LABELS: Record<GeneralCategory, string> = {
+  sensors: "חיישנים",
   electronics: "אלקטרוניקה",
   compute: "בקרים וזיכרון",
   connectivity_power: "חיבורים ומתח",
-  tools: "כלים ואביזרים",
-  other: "אחר",
+  tools_other: "כלים ואחר",
 };
 
 // Map detailed category -> general category (mirror of DB backfill)
 export const CATEGORY_TO_GENERAL: Record<CatalogCategory, GeneralCategory> = {
-  sensors: "electronics",
+  sensors: "sensors",
   actuators: "electronics",
   displays: "electronics",
   leds: "electronics",
@@ -87,11 +87,11 @@ export const CATEGORY_TO_GENERAL: Record<CatalogCategory, GeneralCategory> = {
   storage_memory: "compute",
   wires_connectors: "connectivity_power",
   power: "connectivity_power",
-  tools: "tools",
-  other: "other",
+  tools: "tools_other",
+  other: "tools_other",
 };
 
 export const normalizeGeneralCategory = (v: unknown): GeneralCategory => {
   const s = String(v ?? "").trim().toLowerCase();
-  return (GENERAL_CATEGORIES as string[]).includes(s) ? (s as GeneralCategory) : "other";
+  return (GENERAL_CATEGORIES as string[]).includes(s) ? (s as GeneralCategory) : "tools_other";
 };
