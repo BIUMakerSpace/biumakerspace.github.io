@@ -63,7 +63,7 @@ const ResourceCard = ({ title, description, url, type, isHebrew, embedDisabled, 
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-5"
+        className="block p-4 sm:p-5"
       >
         <div className="mb-3 flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
