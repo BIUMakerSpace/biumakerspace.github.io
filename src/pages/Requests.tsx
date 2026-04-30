@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
 
 interface CatalogItem {
   id: string;
@@ -19,6 +21,7 @@ interface CatalogItem {
   description: string | null;
   image_url: string | null;
   quantity_available: number;
+  category: string;
 }
 
 const printSchema = z.object({
@@ -50,6 +53,7 @@ const Requests = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [cart, setCart] = useState<Record<string, number>>({});
+  const [catalogCategory, setCatalogCategory] = useState<CatalogCategory | "all">("all");
 
   // Print form state
   const [pName, setPName] = useState("");
