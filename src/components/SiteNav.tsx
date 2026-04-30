@@ -12,7 +12,7 @@ const SiteNav = () => {
   const links = [
     { to: "/", label: "בית" },
     { to: "/catalog", label: "קטלוג" },
-    { to: "/requests", label: "בקשות" },
+    { to: "/requests", label: "הדפסה" },
     { to: "/blog", label: "בלוג" },
     { to: "/forum", label: "פורום" },
     ...(user ? [{ to: "/my-requests", label: "הבקשות שלי" }] : []),
