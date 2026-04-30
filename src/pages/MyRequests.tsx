@@ -43,10 +43,11 @@ const MyRequests = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("print_requests").select("*").order("created_at", { ascending: false })
+    supabase.from("print_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
       .then(({ data }) => setPrints(data ?? []));
     supabase.from("lend_requests")
       .select("*, lend_request_items(quantity, catalog_items(name))")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setLends((data as LendReq[]) ?? []));
   }, [user]);
