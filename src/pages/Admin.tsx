@@ -599,6 +599,12 @@ const Admin = () => {
                   <div><Label>סה״כ</Label><Input type="number" min={0} value={eTotal} onChange={(e) => setETotal(parseInt(e.target.value) || 0)} required /></div>
                   <div><Label>זמין</Label><Input type="number" min={0} max={eTotal} value={eAvailable} onChange={(e) => setEAvailable(parseInt(e.target.value) || 0)} required /></div>
                 </div>
+                <div>
+                  <Label>קטגוריה</Label>
+                  <select value={eCategory} onChange={(e) => setECategory(e.target.value as CatalogCategory)} className="block h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)}
+                  </select>
+                </div>
                 <div><Label>החלפת תמונה</Label><input type="file" accept="image/*" onChange={(e) => setEImage(e.target.files?.[0] ?? null)} className="block w-full text-sm" /></div>
                 <DialogFooter className="gap-2 sm:justify-start">
                   <Button type="submit" disabled={eSubmitting}>{eSubmitting ? "שומר..." : "שמור"}</Button>
