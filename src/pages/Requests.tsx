@@ -109,17 +109,6 @@ const Requests = () => {
           </p>
         </div>
 
-        <Link
-          to="/catalog"
-          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm transition-colors hover:bg-primary/10"
-        >
-          <span className="flex items-center gap-2 text-foreground">
-            <ShoppingBag className="h-4 w-4 text-primary" />
-            מחפשים להשאיל ציוד? עברו לקטלוג
-          </span>
-          <ArrowLeft className="h-4 w-4 text-primary" />
-        </Link>
-
         <form onSubmit={submitPrint} className="space-y-5 rounded-2xl border border-border bg-card p-6 md:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
