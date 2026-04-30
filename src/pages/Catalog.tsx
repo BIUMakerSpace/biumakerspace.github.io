@@ -265,9 +265,6 @@ const Catalog = () => {
             <p className="text-sm text-muted-foreground md:text-base">חפשו ציוד, הוסיפו לעגלה ושלחו בקשת השאלה</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-1.5">
-              <Link to="/requests"><Printer className="h-4 w-4" />הדפסת תלת מימד</Link>
-            </Button>
             <Button variant="outline" size="sm" onClick={() => setReqOpen(true)} className="gap-1.5">
               <PackagePlus className="h-4 w-4" />בקש פריט חדש
             </Button>
