@@ -344,9 +344,10 @@ const Requests = () => {
                 {pSubmitting ? "שולח..." : "שלח בקשה"}
               </Button>
             </form>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="lend">
+        {mode === "lend" && (
             <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
               {/* Catalog */}
               <div>
