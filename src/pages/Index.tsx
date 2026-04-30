@@ -302,7 +302,7 @@ const Index = () => {
                     href={idea.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col rounded-lg border border-border bg-card p-5 transition-all duration-300 hover:border-primary/50 hover:glow-primary"
+                    className="group flex flex-col rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:border-primary/50 hover:glow-primary sm:p-5"
                   >
                     <div className="mb-3 flex items-center justify-between">
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
