@@ -27,6 +27,7 @@ interface CatalogItem {
   quantity_available: number;
   quantity_total: number;
   category: string;
+  general_category: string;
 }
 
 const Catalog = () => {
