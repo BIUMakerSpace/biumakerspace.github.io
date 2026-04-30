@@ -192,7 +192,7 @@ const Admin = () => {
   };
 
   const buildAndDownloadCsv = (rows: (string | number)[][], filename: string) => {
-    const headers = ["name", "description", "quantity_total", "quantity_available", "image_url"];
+    const headers = ["name", "description", "category", "quantity_total", "quantity_available", "image_url"];
     const csv = "\uFEFF" + [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -204,13 +204,16 @@ const Admin = () => {
   };
 
   const downloadCsvFormat = () => {
-    buildAndDownloadCsv([["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]], "catalog-template.csv");
+    buildAndDownloadCsv(
+      [["דוגמה: מברג", "תיאור הפריט", "tools", 5, 5, ""]],
+      "catalog-template.csv"
+    );
   };
 
   const downloadCsvCatalog = () => {
     if (!items.length) return;
     buildAndDownloadCsv(
-      items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""]),
+      items.map((it) => [it.name, it.description ?? "", normalizeCategory(it.category), it.quantity_total, it.quantity_available, it.image_url ?? ""]),
       "catalog-export.csv"
     );
   };
@@ -252,7 +255,7 @@ const Admin = () => {
       if (rows.length < 2) { toast.error("הקובץ ריק"); return; }
       const headers = rows[0].map((h) => h.trim().toLowerCase());
       const idx = (k: string) => headers.indexOf(k);
-      const iN = idx("name"), iD = idx("description"), iT = idx("quantity_total"), iA = idx("quantity_available"), iU = idx("image_url");
+      const iN = idx("name"), iD = idx("description"), iT = idx("quantity_total"), iA = idx("quantity_available"), iU = idx("image_url"), iC = idx("category");
       if (iN === -1) { toast.error("חסרה עמודת name"); return; }
       const records = rows.slice(1).map((r) => {
         const total = iT !== -1 ? parseInt(r[iT]) || 0 : 1;
@@ -263,6 +266,7 @@ const Admin = () => {
           quantity_total: total,
           quantity_available: Math.min(avail, total),
           image_url: iU !== -1 ? (r[iU]?.trim() || null) : null,
+          category: iC !== -1 ? normalizeCategory(r[iC]) : "other",
         };
       }).filter((r) => r.name);
       if (!records.length) { toast.error("אין שורות תקינות"); return; }
