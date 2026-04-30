@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
 
 interface CatalogItem {
   id: string;
@@ -19,6 +21,7 @@ interface CatalogItem {
   image_url: string | null;
   quantity_total: number;
   quantity_available: number;
+  category: string;
 }
 
 interface PrintReq {
@@ -65,6 +68,7 @@ const Admin = () => {
   const [iName, setIName] = useState("");
   const [iDesc, setIDesc] = useState("");
   const [iQty, setIQty] = useState(1);
+  const [iCategory, setICategory] = useState<CatalogCategory>("other");
   const [iImage, setIImage] = useState<File | null>(null);
   const [iSubmitting, setISubmitting] = useState(false);
   const [search, setSearch] = useState("");
@@ -75,6 +79,7 @@ const Admin = () => {
   const [eDesc, setEDesc] = useState("");
   const [eTotal, setETotal] = useState(1);
   const [eAvailable, setEAvailable] = useState(1);
+  const [eCategory, setECategory] = useState<CatalogCategory>("other");
   const [eImage, setEImage] = useState<File | null>(null);
   const [eSubmitting, setESubmitting] = useState(false);
 
@@ -84,6 +89,7 @@ const Admin = () => {
     setEDesc(item.description ?? "");
     setETotal(item.quantity_total);
     setEAvailable(item.quantity_available);
+    setECategory(normalizeCategory(item.category));
     setEImage(null);
   };
 
@@ -104,6 +110,7 @@ const Admin = () => {
         description: eDesc || null,
         quantity_total: eTotal,
         quantity_available: Math.min(eAvailable, eTotal),
+        category: eCategory,
         image_url: imageUrl,
       }).eq("id", editItem.id);
       if (error) throw error;
@@ -153,10 +160,11 @@ const Admin = () => {
       const { error } = await supabase.from("catalog_items").insert({
         name: iName, description: iDesc || null, image_url: imageUrl,
         quantity_total: iQty, quantity_available: iQty,
+        category: iCategory,
       });
       if (error) throw error;
       toast.success("פריט נוסף");
-      setIName(""); setIDesc(""); setIQty(1); setIImage(null);
+      setIName(""); setIDesc(""); setIQty(1); setICategory("other"); setIImage(null);
       (document.getElementById("img-input") as HTMLInputElement).value = "";
       loadAll();
     } catch (err) {
@@ -184,7 +192,7 @@ const Admin = () => {
   };
 
   const buildAndDownloadCsv = (rows: (string | number)[][], filename: string) => {
-    const headers = ["name", "description", "quantity_total", "quantity_available", "image_url"];
+    const headers = ["name", "description", "category", "quantity_total", "quantity_available", "image_url"];
     const csv = "\uFEFF" + [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -196,13 +204,16 @@ const Admin = () => {
   };
 
   const downloadCsvFormat = () => {
-    buildAndDownloadCsv([["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]], "catalog-template.csv");
+    buildAndDownloadCsv(
+      [["דוגמה: מברג", "תיאור הפריט", "tools", 5, 5, ""]],
+      "catalog-template.csv"
+    );
   };
 
   const downloadCsvCatalog = () => {
     if (!items.length) return;
     buildAndDownloadCsv(
-      items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""]),
+      items.map((it) => [it.name, it.description ?? "", normalizeCategory(it.category), it.quantity_total, it.quantity_available, it.image_url ?? ""]),
       "catalog-export.csv"
     );
   };
@@ -244,7 +255,7 @@ const Admin = () => {
       if (rows.length < 2) { toast.error("הקובץ ריק"); return; }
       const headers = rows[0].map((h) => h.trim().toLowerCase());
       const idx = (k: string) => headers.indexOf(k);
-      const iN = idx("name"), iD = idx("description"), iT = idx("quantity_total"), iA = idx("quantity_available"), iU = idx("image_url");
+      const iN = idx("name"), iD = idx("description"), iT = idx("quantity_total"), iA = idx("quantity_available"), iU = idx("image_url"), iC = idx("category");
       if (iN === -1) { toast.error("חסרה עמודת name"); return; }
       const records = rows.slice(1).map((r) => {
         const total = iT !== -1 ? parseInt(r[iT]) || 0 : 1;
@@ -255,6 +266,7 @@ const Admin = () => {
           quantity_total: total,
           quantity_available: Math.min(avail, total),
           image_url: iU !== -1 ? (r[iU]?.trim() || null) : null,
+          category: iC !== -1 ? normalizeCategory(r[iC]) : "other",
         };
       }).filter((r) => r.name);
       if (!records.length) { toast.error("אין שורות תקינות"); return; }
@@ -309,6 +321,12 @@ const Admin = () => {
                 <h2 className="text-lg font-bold">הוספת פריט</h2>
                 <div><Label>שם הפריט</Label><Input value={iName} onChange={(e) => setIName(e.target.value)} required /></div>
                 <div><Label>תיאור</Label><Textarea value={iDesc} onChange={(e) => setIDesc(e.target.value)} rows={2} /></div>
+                <div>
+                  <Label>קטגוריה</Label>
+                  <select value={iCategory} onChange={(e) => setICategory(e.target.value as CatalogCategory)} className="block h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)}
+                  </select>
+                </div>
                 <div><Label>כמות</Label><Input type="number" min={1} value={iQty} onChange={(e) => setIQty(parseInt(e.target.value) || 1)} required /></div>
                 <div><Label>תמונה</Label><input id="img-input" type="file" accept="image/*" onChange={(e) => setIImage(e.target.files?.[0] ?? null)} className="block w-full text-sm" /></div>
                 <Button type="submit" disabled={iSubmitting} className="w-full gap-1.5"><Plus className="h-4 w-4" />{iSubmitting ? "מוסיף..." : "הוסף לקטלוג"}</Button>
@@ -357,7 +375,8 @@ const Admin = () => {
                             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteItem(item.id)} aria-label="מחק"><Trash2 className="h-3.5 w-3.5" /></Button>
                           </div>
                         </div>
-                        {item.description && <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
+                        <Badge variant="secondary" className="mt-1 w-fit text-[10px]">{CATEGORY_LABELS[normalizeCategory(item.category)]}</Badge>
+                        {item.description && <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                           <span>זמין:</span>
                           <Input type="number" value={item.quantity_available} onChange={(e) => updateItemQty(item.id, parseInt(e.target.value) || 0, item.quantity_total)} className="h-7 w-16" />
@@ -579,6 +598,12 @@ const Admin = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div><Label>סה״כ</Label><Input type="number" min={0} value={eTotal} onChange={(e) => setETotal(parseInt(e.target.value) || 0)} required /></div>
                   <div><Label>זמין</Label><Input type="number" min={0} max={eTotal} value={eAvailable} onChange={(e) => setEAvailable(parseInt(e.target.value) || 0)} required /></div>
+                </div>
+                <div>
+                  <Label>קטגוריה</Label>
+                  <select value={eCategory} onChange={(e) => setECategory(e.target.value as CatalogCategory)} className="block h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)}
+                  </select>
                 </div>
                 <div><Label>החלפת תמונה</Label><input type="file" accept="image/*" onChange={(e) => setEImage(e.target.files?.[0] ?? null)} className="block w-full text-sm" /></div>
                 <DialogFooter className="gap-2 sm:justify-start">

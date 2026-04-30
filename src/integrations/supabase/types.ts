@@ -52,6 +52,7 @@ export type Database = {
       }
       catalog_items: {
         Row: {
+          category: string
           created_at: string
           description: string | null
           id: string
@@ -61,6 +62,7 @@ export type Database = {
           quantity_total: number
         }
         Insert: {
+          category?: string
           created_at?: string
           description?: string | null
           id?: string
@@ -70,6 +72,7 @@ export type Database = {
           quantity_total?: number
         }
         Update: {
+          category?: string
           created_at?: string
           description?: string | null
           id?: string

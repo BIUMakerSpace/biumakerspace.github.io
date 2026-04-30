@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Catalog from "./pages/Catalog";
 import Requests from "./pages/Requests";
 import MyRequests from "./pages/MyRequests";
 import Admin from "./pages/Admin";
@@ -27,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/catalog" element={<Catalog />} />
             <Route path="/requests" element={<Requests />} />
             <Route path="/my-requests" element={<MyRequests />} />
             <Route path="/admin" element={<Admin />} />
