@@ -330,7 +330,7 @@ const Index = () => {
                     href={person.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:glow-primary"
+                    className="group flex flex-col rounded-lg border border-border bg-card p-4 transition-all duration-300 hover:border-primary/50 hover:glow-primary sm:p-6"
                   >
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
