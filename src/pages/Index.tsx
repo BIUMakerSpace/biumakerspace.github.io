@@ -257,22 +257,22 @@ const Index = () => {
       </section>
 
       {/* Resources */}
-      <section id="resources" className="py-20">
-        <div className="container mx-auto max-w-5xl px-6">
-          <div className="mb-12 text-center">
-            <h2 className="mb-3 text-3xl font-black text-foreground md:text-4xl">
+      <section id="resources" className="py-12 md:py-20">
+        <div className="container mx-auto max-w-5xl px-5 md:px-6">
+          <div className="mb-8 text-center md:mb-12">
+            <h2 className="mb-3 text-2xl font-black text-foreground sm:text-3xl md:text-4xl">
               חומרי לימוד <span className="text-gradient">ומשאבים</span>
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground md:text-base">
               סרטונים, מדריכים, רעיונות לפרויקטים והשראה מיוצרים בעולם
             </p>
           </div>
           <Tabs defaultValue="video" dir="rtl">
             <TabsList className="mx-auto mb-8 grid h-auto w-full max-w-2xl grid-cols-2 gap-1 sm:flex sm:w-fit sm:flex-wrap">
-              <TabsTrigger value="video" className="gap-1.5"><Play className="h-3.5 w-3.5" />סרטונים</TabsTrigger>
-              <TabsTrigger value="guide" className="gap-1.5"><BookOpen className="h-3.5 w-3.5" />מדריכים</TabsTrigger>
-              <TabsTrigger value="ideas" className="gap-1.5"><Rocket className="h-3.5 w-3.5" />רעיונות</TabsTrigger>
-              <TabsTrigger value="inspiration" className="gap-1.5"><Sparkles className="h-3.5 w-3.5" />השראה</TabsTrigger>
+              <TabsTrigger value="video" className="gap-1.5 py-2"><Play className="h-3.5 w-3.5" />סרטונים</TabsTrigger>
+              <TabsTrigger value="guide" className="gap-1.5 py-2"><BookOpen className="h-3.5 w-3.5" />מדריכים</TabsTrigger>
+              <TabsTrigger value="ideas" className="gap-1.5 py-2"><Rocket className="h-3.5 w-3.5" />רעיונות</TabsTrigger>
+              <TabsTrigger value="inspiration" className="gap-1.5 py-2"><Sparkles className="h-3.5 w-3.5" />השראה</TabsTrigger>
             </TabsList>
 
             <TabsContent value="video">
