@@ -581,6 +581,10 @@ const Admin = () => {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="colors">
+            <FilamentColorsManager />
+          </TabsContent>
         </Tabs>
 
         <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
