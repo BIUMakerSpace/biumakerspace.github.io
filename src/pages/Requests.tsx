@@ -52,7 +52,10 @@ const itemReqSchema = z.object({
 const Requests = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [mode, setMode] = useState<"choose" | "print" | "lend">("choose");
   const [items, setItems] = useState<CatalogItem[]>([]);
+  const [colors, setColors] = useState<FilamentColor[]>([]);
+  const [colorsLoading, setColorsLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [catalogCategory, setCatalogCategory] = useState<CatalogCategory | "all">("all");
 
