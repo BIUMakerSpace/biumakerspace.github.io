@@ -142,11 +142,13 @@ const Catalog = () => {
           <div className="flex justify-center">
             <Button
               size="sm"
-              variant="ghost"
+              variant={showAdvanced ? "default" : "secondary"}
               onClick={() => setShowAdvanced((s) => !s)}
-              className="text-xs text-muted-foreground"
+              className="rounded-full gap-2 shadow-sm"
             >
+              <SlidersHorizontal className="h-4 w-4" />
               {showAdvanced ? "הסתר סינון מתקדם" : "סינון מתקדם"}
+              {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </div>
 
