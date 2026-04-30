@@ -3,17 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import SiteNav from "@/components/SiteNav";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info } from "lucide-react";
+import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
+import { fetchActiveFilamentColors, type FilamentColor } from "@/lib/filamentColors";
 
 interface CatalogItem {
   id: string;
