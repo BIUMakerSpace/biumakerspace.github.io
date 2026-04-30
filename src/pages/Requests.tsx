@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Upload, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Printer, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { fetchActiveFilamentColors, type FilamentColor } from "@/lib/filamentColors";
