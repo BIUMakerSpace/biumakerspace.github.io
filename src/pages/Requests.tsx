@@ -380,7 +380,8 @@ const Requests = () => {
                       );
                     })}
                   </div>
-                )}
+                  );
+                })()}
               </div>
 
               {/* Cart + form */}
