@@ -183,19 +183,28 @@ const Admin = () => {
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
 
-  const downloadCsvTemplate = () => {
+  const buildAndDownloadCsv = (rows: (string | number)[][], filename: string) => {
     const headers = ["name", "description", "quantity_total", "quantity_available", "image_url"];
-    const rows = items.length
-      ? items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""])
-      : [["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]];
     const csv = "\uFEFF" + [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = items.length ? "catalog-export.csv" : "catalog-template.csv";
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const downloadCsvFormat = () => {
+    buildAndDownloadCsv([["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]], "catalog-template.csv");
+  };
+
+  const downloadCsvCatalog = () => {
+    if (!items.length) return;
+    buildAndDownloadCsv(
+      items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""]),
+      "catalog-export.csv"
+    );
   };
 
   const parseCsv = (text: string): string[][] => {
