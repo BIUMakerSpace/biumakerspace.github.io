@@ -149,33 +149,41 @@ const FilamentColorsManager = () => {
             אין צבעים מוגדרים
           </p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {colors.map((c, idx) => (
-              <li key={c.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-                <span
-                  className="h-8 w-8 shrink-0 rounded-full border border-border"
-                  style={{ backgroundColor: c.hex ?? "transparent" }}
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <p className={`font-semibold ${!c.is_active ? "text-muted-foreground line-through" : ""}`}>{c.name}</p>
-                  {c.hex && <p className="text-xs text-muted-foreground">{c.hex}</p>}
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <div className="flex flex-col">
-                    <Button size="icon" variant="ghost" className="h-5 w-7" onClick={() => move(idx, -1)} disabled={idx === 0} aria-label="העבר למעלה">
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-5 w-7" onClick={() => move(idx, 1)} disabled={idx === colors.length - 1} aria-label="העבר למטה">
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </Button>
+              <li key={c.id} className="rounded-lg border border-border bg-card p-4">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="h-9 w-9 shrink-0 rounded-full border border-border"
+                    style={{ backgroundColor: c.hex ?? "transparent" }}
+                    aria-hidden
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className={`font-semibold ${!c.is_active ? "text-muted-foreground line-through" : ""}`}>{c.name}</p>
+                    {c.hex && <p className="text-xs text-muted-foreground">{c.hex}</p>}
                   </div>
-                  <Switch checked={c.is_active} onCheckedChange={() => toggleActive(c)} aria-label="פעיל" className="mx-1" />
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(c)} aria-label="ערוך">
-                    <Pencil className="h-3.5 w-3.5" />
+                  <div className="flex shrink-0 items-center gap-2 rounded-md border border-border px-3 py-2">
+                    <span className="text-xs font-medium text-muted-foreground">פעיל</span>
+                    <Switch checked={c.is_active} onCheckedChange={() => toggleActive(c)} aria-label="פעיל" />
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => move(idx, -1)} disabled={idx === 0}>
+                    <ArrowUp className="h-3.5 w-3.5" />
+                    למעלה
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => remove(c.id)} aria-label="מחק">
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => move(idx, 1)} disabled={idx === colors.length - 1}>
+                    <ArrowDown className="h-3.5 w-3.5" />
+                    למטה
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => openEdit(c)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    עריכה
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive" onClick={() => remove(c.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
+                    מחיקה
                   </Button>
                 </div>
               </li>
