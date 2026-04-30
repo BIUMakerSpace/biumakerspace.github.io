@@ -110,6 +110,7 @@ const Admin = () => {
         description: eDesc || null,
         quantity_total: eTotal,
         quantity_available: Math.min(eAvailable, eTotal),
+        category: eCategory,
         image_url: imageUrl,
       }).eq("id", editItem.id);
       if (error) throw error;
@@ -159,10 +160,11 @@ const Admin = () => {
       const { error } = await supabase.from("catalog_items").insert({
         name: iName, description: iDesc || null, image_url: imageUrl,
         quantity_total: iQty, quantity_available: iQty,
+        category: iCategory,
       });
       if (error) throw error;
       toast.success("פריט נוסף");
-      setIName(""); setIDesc(""); setIQty(1); setIImage(null);
+      setIName(""); setIDesc(""); setIQty(1); setICategory("other"); setIImage(null);
       (document.getElementById("img-input") as HTMLInputElement).value = "";
       loadAll();
     } catch (err) {
