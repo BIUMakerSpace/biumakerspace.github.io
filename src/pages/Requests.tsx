@@ -104,6 +104,10 @@ const Requests = () => {
     supabase.from("catalog_items").select("*").order("name").then(({ data }) => {
       setItems(data ?? []);
     });
+    fetchActiveFilamentColors()
+      .then((c) => setColors(c))
+      .catch(() => setColors([]))
+      .finally(() => setColorsLoading(false));
   }, []);
 
   const addToCart = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
