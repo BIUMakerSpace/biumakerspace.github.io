@@ -7,7 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, Package, ShoppingBag } from "lucide-react";
-import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
+import {
+  CATEGORIES,
+  CATEGORY_LABELS,
+  CATEGORY_TO_GENERAL,
+  GENERAL_CATEGORIES,
+  GENERAL_CATEGORY_LABELS,
+  normalizeCategory,
+  normalizeGeneralCategory,
+  type CatalogCategory,
+  type GeneralCategory,
+} from "@/lib/categories";
 
 interface CatalogItem {
   id: string;
@@ -17,13 +27,16 @@ interface CatalogItem {
   quantity_available: number;
   quantity_total: number;
   category: string;
+  general_category: string;
 }
 
 const Catalog = () => {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [generalCategory, setGeneralCategory] = useState<GeneralCategory | "all">("all");
   const [category, setCategory] = useState<CatalogCategory | "all">("all");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [details, setDetails] = useState<CatalogItem | null>(null);
 
   useEffect(() => {
@@ -33,9 +46,17 @@ const Catalog = () => {
     });
   }, []);
 
+  const itemGeneral = (it: CatalogItem): GeneralCategory => {
+    const g = normalizeGeneralCategory(it.general_category);
+    if (g !== "other") return g;
+    // fallback: derive from detailed category if general_category is missing/other
+    return CATEGORY_TO_GENERAL[normalizeCategory(it.category)];
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return items.filter((it) => {
+      if (generalCategory !== "all" && itemGeneral(it) !== generalCategory) return false;
       if (category !== "all" && normalizeCategory(it.category) !== category) return false;
       if (!q) return true;
       return (
@@ -43,14 +64,30 @@ const Catalog = () => {
         (it.description ?? "").toLowerCase().includes(q)
       );
     });
-  }, [items, search, category]);
+  }, [items, search, category, generalCategory]);
 
-  const counts = useMemo(() => {
+  const generalCounts = useMemo(() => {
     const c: Record<string, number> = { all: items.length };
-    for (const cat of CATEGORIES) c[cat] = 0;
-    for (const it of items) c[normalizeCategory(it.category)]++;
+    for (const g of GENERAL_CATEGORIES) c[g] = 0;
+    for (const it of items) c[itemGeneral(it)]++;
     return c;
   }, [items]);
+
+  // Detailed sub-categories visible in "advanced" view, scoped to selected general
+  const visibleDetailed = useMemo(() => {
+    if (generalCategory === "all") return CATEGORIES;
+    return CATEGORIES.filter((c) => CATEGORY_TO_GENERAL[c] === generalCategory);
+  }, [generalCategory]);
+
+  const detailedCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const cat of CATEGORIES) c[cat] = 0;
+    for (const it of items) {
+      if (generalCategory !== "all" && itemGeneral(it) !== generalCategory) continue;
+      c[normalizeCategory(it.category)]++;
+    }
+    return c;
+  }, [items, generalCategory]);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -74,27 +111,71 @@ const Catalog = () => {
             />
           </div>
 
+          {/* Main 5 general categories */}
           <div className="flex flex-wrap justify-center gap-2">
             <Button
               size="sm"
-              variant={category === "all" ? "default" : "outline"}
-              onClick={() => setCategory("all")}
+              variant={generalCategory === "all" ? "default" : "outline"}
+              onClick={() => {
+                setGeneralCategory("all");
+                setCategory("all");
+              }}
               className="rounded-full"
             >
-              הכל ({counts.all})
+              הכל ({generalCounts.all})
             </Button>
-            {CATEGORIES.map((cat) => (
+            {GENERAL_CATEGORIES.map((g) => (
               <Button
-                key={cat}
+                key={g}
                 size="sm"
-                variant={category === cat ? "default" : "outline"}
-                onClick={() => setCategory(cat)}
+                variant={generalCategory === g ? "default" : "outline"}
+                onClick={() => {
+                  setGeneralCategory(g);
+                  setCategory("all");
+                }}
                 className="rounded-full"
               >
-                {CATEGORY_LABELS[cat]} ({counts[cat]})
+                {GENERAL_CATEGORY_LABELS[g]} ({generalCounts[g]})
               </Button>
             ))}
           </div>
+
+          {/* Advanced toggle */}
+          <div className="flex justify-center">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowAdvanced((s) => !s)}
+              className="text-xs text-muted-foreground"
+            >
+              {showAdvanced ? "הסתר סינון מתקדם" : "סינון מתקדם"}
+            </Button>
+          </div>
+
+          {showAdvanced && (
+            <div className="flex flex-wrap justify-center gap-2 border-t border-border pt-3">
+              <Button
+                size="sm"
+                variant={category === "all" ? "default" : "outline"}
+                onClick={() => setCategory("all")}
+                className="rounded-full"
+              >
+                כל תתי-הקטגוריות
+              </Button>
+              {visibleDetailed.map((cat) => (
+                <Button
+                  key={cat}
+                  size="sm"
+                  variant={category === cat ? "default" : "outline"}
+                  onClick={() => setCategory(cat)}
+                  className="rounded-full"
+                  disabled={detailedCounts[cat] === 0}
+                >
+                  {CATEGORY_LABELS[cat]} ({detailedCounts[cat]})
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
 
         {loading ? (

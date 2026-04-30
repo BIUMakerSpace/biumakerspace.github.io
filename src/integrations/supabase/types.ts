@@ -55,6 +55,7 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          general_category: string
           id: string
           image_url: string | null
           name: string
@@ -65,6 +66,7 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          general_category?: string
           id?: string
           image_url?: string | null
           name: string
@@ -75,6 +77,7 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          general_category?: string
           id?: string
           image_url?: string | null
           name?: string
