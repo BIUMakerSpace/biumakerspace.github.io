@@ -519,7 +519,7 @@ const Catalog = () => {
             {cartCount > 0 && (
               <span
                 key={bumpKey}
-                className="inline-flex h-6 min-w-[1.5rem] animate-scale-in items-center justify-center rounded-full bg-primary-foreground px-1.5 text-xs font-bold text-primary"
+                className="inline-flex h-6 min-w-[1.5rem] animate-in zoom-in-50 items-center justify-center rounded-full bg-primary-foreground px-1.5 text-xs font-bold text-primary"
               >
                 {cartCount}
               </span>
