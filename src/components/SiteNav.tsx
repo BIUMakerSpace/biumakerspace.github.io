@@ -12,9 +12,9 @@ const SiteNav = () => {
   const links = [
     { to: "/", label: "בית" },
     { to: "/catalog", label: "קטלוג" },
+    { to: "/requests", label: "בקשות" },
     { to: "/blog", label: "בלוג" },
     { to: "/forum", label: "פורום" },
-    { to: "/requests", label: "בקשות" },
     ...(user ? [{ to: "/my-requests", label: "הבקשות שלי" }] : []),
     ...(isAdmin ? [{ to: "/admin", label: "ניהול" }] : []),
   ];
