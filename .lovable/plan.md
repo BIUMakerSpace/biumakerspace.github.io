@@ -1,67 +1,38 @@
-## Overview
+## Mobile review of the homepage
 
-Redesign the `/requests` page so users first **choose** what they want to do (3D print or borrow equipment) on a clean landing screen, then the relevant form/catalog opens. Replace the free-text filament color field with a **dropdown** populated from a new database table that admins can manage.
+Issues observed on the current `/` page at mobile widths:
 
-## 1. New database table — `filament_colors`
+1. **Hero** uses `text-5xl` (huge on small screens), full viewport height, and only contains a logo + tagline — no call-to-action. Lots of vertical empty space before any actionable content.
+2. **Features section** (Cpu / Users / Lightbulb) stacks into 3 tall full-width blocks (per the screenshot), each with a ton of vertical padding — user has to scroll a long way to reach resources.
+3. **Resources tabs** — already a 2x2 grid on mobile, but icons + Hebrew labels can clip; touch targets small.
+4. **Resource / project / inspiration cards** — `p-6` on cards is heavy on mobile; titles wrap awkwardly.
+5. **Section padding** — `py-20` everywhere is too tall on phone.
+6. **No quick path** from the hero to "Catalog / Requests / Blog" on mobile (the nav is hidden behind the hamburger).
 
-Add a small admin-managed list of available filament colors.
+## What the plan does
 
-Fields:
-- `name` (text, required) — Hebrew display name (e.g. "שחור", "כחול")
-- `hex` (text, optional) — color swatch like `#1a1a1a` for visual preview
-- `is_active` (boolean, default true) — admins can hide a color without deleting it
-- `sort_order` (integer, default 0) — controls dropdown ordering
+### Hero (mobile-first)
+- Reduce hero height on mobile: `min-h-[80vh]` instead of full viewport.
+- Smaller heading on mobile: `text-4xl` then scale up.
+- Tighten paragraph: `text-base` on mobile.
+- Add two primary CTAs under the tagline: **בקשה חדשה** (→ `/requests`) and **קטלוג** (→ `/catalog`). Stacked full-width on mobile, side-by-side on `sm:`.
+- Keep the bouncing arrow but reduce its top margin on mobile.
 
-Access rules:
-- Anyone (including signed-out) can read active colors (so the form dropdown works).
-- Only admins can add, edit, or delete colors.
+### Features strip
+- On mobile: switch from 3 stacked tall blocks to a compact **horizontal row of 3 small cards** (icon + short title only, description hidden on mobile). On `md:` restore the current 3-column layout with descriptions.
+- Reduce section padding to `py-10 md:py-20`.
 
-Seed initial colors: שחור, לבן, אפור, כחול, אדום, ירוק, צהוב, כתום (so the app works immediately after migration).
+### Resources section
+- Section padding `py-12 md:py-20`.
+- Tabs: ensure each trigger is full-width within its grid cell, larger touch target (`py-2`), allow text to wrap to two lines if needed.
+- Card grids stay 1 column on mobile (already are at default), but reduce internal padding from `p-5/p-6` to `p-4` on mobile, `sm:p-5`/`sm:p-6` larger.
+- Section heading: `text-2xl md:text-4xl` instead of `text-3xl md:text-4xl` to reduce mobile weight.
 
-## 2. Requests page redesign (`src/pages/Requests.tsx`)
+### Footer
+- Smaller text on mobile, comfortable spacing.
 
-Replace the current always-visible Tabs with a **chooser-first** flow:
+### Files touched
+- `src/pages/Index.tsx` — all of the above.
+- `src/components/ResourceCard.tsx` — only if its padding is too heavy on mobile (will check; tweak `p-*` if needed).
 
-```text
-                    ┌───────────────────────────────────┐
-                    │            בקשות                   │
-                    │  מה תרצו לבקש היום?                │
-                    └───────────────────────────────────┘
-       ┌──────────────────────┐    ┌──────────────────────┐
-       │  🖨  הדפסת תלת מימד   │    │  🛍  השאלת ציוד       │
-       │  שלחו קובץ STL להדפסה │    │  השאילו רכיבים וכלים │
-       │       [התחל]          │    │       [התחל]          │
-       └──────────────────────┘    └──────────────────────┘
-```
-
-- **Initial state**: two large, equally weighted choice cards (printing vs. lending). No form visible until one is picked.
-- **After selection**: the chosen flow takes over the page, with a **"חזרה לבחירה"** back button at the top to return to the chooser.
-- Drives state with a single `mode: "choose" | "print" | "lend"` instead of always-mounted Tabs.
-- Existing form logic (validation, submission, cart) is preserved — only the wrapping UX changes.
-
-### Filament color dropdown
-
-- Replace the free-text `Input` for `pColor` with a `Select` (shadcn) populated from `filament_colors` (active only, ordered by `sort_order`).
-- If a `hex` value exists, render a small color swatch next to each option.
-- Validation continues to require a non-empty value.
-- Loading state: show a disabled "טוען צבעים..." placeholder while fetching.
-
-## 3. Admin section — filament colors manager (`src/pages/Admin.tsx`)
-
-Add a new tab **"צבעי פילמנט"** alongside the existing tabs, with:
-
-- Form to add a new color (name + optional hex picker + active toggle).
-- Table/list of existing colors showing swatch, name, active status, with **edit**, **toggle active**, **delete**, and **reorder** (up/down arrows for `sort_order`) actions.
-- Inline edit dialog reusing the existing dialog pattern from the catalog edit flow.
-
-## Technical notes
-
-- New file: `src/lib/filamentColors.ts` — small typed helper `fetchFilamentColors()` and the `FilamentColor` type, used by both Requests and Admin.
-- Migration adds the table, RLS policies (public read for active rows; admin-only write via existing `has_role`), seeds defaults, and adds an `updated_at` trigger reusing the existing `set_updated_at()` function.
-- No changes to `print_requests` schema — `filament_color` remains a text column storing the chosen color name (keeps history readable even if the color is later removed from the active list).
-- All UI follows existing semantic tokens (no hardcoded colors), `dir="rtl"`, and the project's button/card styles. New chooser cards use `lg` buttons, large icons, and `hover:shadow-md` consistent with other cards.
-
-## Out of scope
-
-- Changing the look of the lend catalog grid or the print form fields beyond the color dropdown.
-- Color picker UI in the form (just selection from the admin list).
+No new dependencies, no backend changes, no design-system token changes (still amber/charcoal, DM Serif Display + Inter).
