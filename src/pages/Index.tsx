@@ -216,16 +216,16 @@ const Index = () => {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center" dir="rtl">
-              <Link to="/requests" className="sm:w-auto">
+              <Link to="/catalog" className="sm:w-auto">
                 <Button size="lg" className="w-full gap-2 sm:w-auto">
-                  <FileText className="h-4 w-4" />
-                  בקשה חדשה
+                  <ShoppingBag className="h-4 w-4" />
+                  השאלת ציוד
                 </Button>
               </Link>
-              <Link to="/catalog" className="sm:w-auto">
+              <Link to="/requests" className="sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
-                  <ShoppingBag className="h-4 w-4" />
-                  קטלוג
+                  <FileText className="h-4 w-4" />
+                  הדפסת תלת מימד
                 </Button>
               </Link>
             </div>
