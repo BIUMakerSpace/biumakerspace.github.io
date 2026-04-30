@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
 
 interface CatalogItem {
   id: string;
@@ -19,6 +21,7 @@ interface CatalogItem {
   image_url: string | null;
   quantity_total: number;
   quantity_available: number;
+  category: string;
 }
 
 interface PrintReq {
@@ -65,6 +68,7 @@ const Admin = () => {
   const [iName, setIName] = useState("");
   const [iDesc, setIDesc] = useState("");
   const [iQty, setIQty] = useState(1);
+  const [iCategory, setICategory] = useState<CatalogCategory>("other");
   const [iImage, setIImage] = useState<File | null>(null);
   const [iSubmitting, setISubmitting] = useState(false);
   const [search, setSearch] = useState("");
@@ -75,6 +79,7 @@ const Admin = () => {
   const [eDesc, setEDesc] = useState("");
   const [eTotal, setETotal] = useState(1);
   const [eAvailable, setEAvailable] = useState(1);
+  const [eCategory, setECategory] = useState<CatalogCategory>("other");
   const [eImage, setEImage] = useState<File | null>(null);
   const [eSubmitting, setESubmitting] = useState(false);
 
@@ -84,6 +89,7 @@ const Admin = () => {
     setEDesc(item.description ?? "");
     setETotal(item.quantity_total);
     setEAvailable(item.quantity_available);
+    setECategory(normalizeCategory(item.category));
     setEImage(null);
   };
 
