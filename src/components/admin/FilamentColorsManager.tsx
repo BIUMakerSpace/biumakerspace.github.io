@@ -162,13 +162,15 @@ const FilamentColorsManager = () => {
                     <p className={`font-semibold ${!c.is_active ? "text-muted-foreground line-through" : ""}`}>{c.name}</p>
                     {c.hex && <p className="text-xs text-muted-foreground">{c.hex}</p>}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2 rounded-md border border-border px-3 py-2">
-                    <span className="text-xs font-medium text-muted-foreground">פעיל</span>
-                    <Switch checked={c.is_active} onCheckedChange={() => toggleActive(c)} aria-label="פעיל" />
-                  </div>
+                  <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${c.is_active ? "border-primary/30 text-primary" : "border-border text-muted-foreground"}`}>
+                    {c.is_active ? "פעיל" : "לא פעיל"}
+                  </span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toggleActive(c)}>
+                    {c.is_active ? "השבתה" : "הפעלה"}
+                  </Button>
                   <Button variant="outline" size="sm" className="gap-1.5" onClick={() => move(idx, -1)} disabled={idx === 0}>
                     <ArrowUp className="h-3.5 w-3.5" />
                     למעלה
