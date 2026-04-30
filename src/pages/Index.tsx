@@ -194,30 +194,45 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <SiteNav />
       {/* Hero */}
-      <section className="relative h-[calc(100vh-3.5rem)] overflow-hidden">
+      <section className="relative min-h-[80vh] overflow-hidden md:h-[calc(100vh-3.5rem)]">
         <img
           src={heroImage}
           alt="Maker Space workbench with Arduino and electronics"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="hero-overlay absolute inset-0" />
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-          <div className="animate-fade-in-up">
-            <span className="mb-4 inline-block rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+        <div className="relative z-10 flex min-h-[80vh] flex-col items-center justify-center px-5 py-16 text-center md:h-full md:py-0">
+          <div className="animate-fade-in-up w-full max-w-xl">
+            <span className="mb-4 inline-block rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary sm:text-sm">
               אוניברסיטת בר אילן
             </span>
-            <h1 className="mb-4 text-5xl font-black leading-tight tracking-tight text-foreground md:text-7xl">
+            <h1 className="mb-4 text-4xl font-black leading-tight tracking-tight text-foreground sm:text-5xl md:text-7xl">
               <span className="text-gradient">Maker Space</span>
             </h1>
-            <p className="mx-auto max-w-xl text-lg text-muted-foreground md:text-xl">
+            <p className="mx-auto max-w-xl text-base text-muted-foreground sm:text-lg md:text-xl">
               המרחב שלכם ליצור, לבנות ולחדש.
               <br />
               מהרעיון למציאות – עם הכלים, הידע והקהילה.
             </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center" dir="rtl">
+              <Link to="/requests" className="sm:w-auto">
+                <Button size="lg" className="w-full gap-2 sm:w-auto">
+                  <FileText className="h-4 w-4" />
+                  בקשה חדשה
+                </Button>
+              </Link>
+              <Link to="/catalog" className="sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full gap-2 sm:w-auto">
+                  <ShoppingBag className="h-4 w-4" />
+                  קטלוג
+                </Button>
+              </Link>
+            </div>
           </div>
           <a
             href="#resources"
-            className="mt-12 animate-bounce text-muted-foreground transition-colors hover:text-primary"
+            className="mt-10 hidden animate-bounce text-muted-foreground transition-colors hover:text-primary md:mt-12 md:block"
           >
             <ArrowDown className="h-6 w-6" />
           </a>
@@ -225,16 +240,16 @@ const Index = () => {
       </section>
 
       {/* Features */}
-      <section className="border-b border-border py-20">
-        <div className="container mx-auto max-w-5xl px-6">
-          <div className="grid gap-8 md:grid-cols-3">
+      <section className="border-b border-border py-10 md:py-20">
+        <div className="container mx-auto max-w-5xl px-5 md:px-6">
+          <div className="grid grid-cols-3 gap-3 md:gap-8" dir="rtl">
             {features.map((f) => (
               <div key={f.title} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <f.icon className="h-7 w-7" />
+                <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary md:mb-4 md:h-14 md:w-14">
+                  <f.icon className="h-5 w-5 md:h-7 md:w-7" />
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-foreground">{f.title}</h3>
-                <p className="text-sm text-muted-foreground">{f.description}</p>
+                <h3 className="mb-1 text-xs font-bold leading-tight text-foreground sm:text-sm md:mb-2 md:text-lg">{f.title}</h3>
+                <p className="hidden text-sm text-muted-foreground md:block">{f.description}</p>
               </div>
             ))}
           </div>
