@@ -178,6 +178,86 @@ const Admin = () => {
     if (error) toast.error(error.message); else loadAll();
   };
 
+  const csvEscape = (v: unknown) => {
+    const s = v == null ? "" : String(v);
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  const downloadCsvTemplate = () => {
+    const headers = ["name", "description", "quantity_total", "quantity_available", "image_url"];
+    const rows = items.length
+      ? items.map((it) => [it.name, it.description ?? "", it.quantity_total, it.quantity_available, it.image_url ?? ""])
+      : [["דוגמה: מברג", "תיאור הפריט", 5, 5, ""]];
+    const csv = "\uFEFF" + [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = items.length ? "catalog-export.csv" : "catalog-template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const parseCsv = (text: string): string[][] => {
+    const rows: string[][] = [];
+    let cur: string[] = [];
+    let field = "";
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; }
+          else inQuotes = false;
+        } else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ",") { cur.push(field); field = ""; }
+        else if (c === "\n" || c === "\r") {
+          if (c === "\r" && text[i + 1] === "\n") i++;
+          cur.push(field); field = "";
+          if (cur.some((v) => v !== "")) rows.push(cur);
+          cur = [];
+        } else field += c;
+      }
+    }
+    if (field !== "" || cur.length) { cur.push(field); if (cur.some((v) => v !== "")) rows.push(cur); }
+    return rows;
+  };
+
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const text = (await file.text()).replace(/^\uFEFF/, "");
+      const rows = parseCsv(text);
+      if (rows.length < 2) { toast.error("הקובץ ריק"); return; }
+      const headers = rows[0].map((h) => h.trim().toLowerCase());
+      const idx = (k: string) => headers.indexOf(k);
+      const iN = idx("name"), iD = idx("description"), iT = idx("quantity_total"), iA = idx("quantity_available"), iU = idx("image_url");
+      if (iN === -1) { toast.error("חסרה עמודת name"); return; }
+      const records = rows.slice(1).map((r) => {
+        const total = iT !== -1 ? parseInt(r[iT]) || 0 : 1;
+        const avail = iA !== -1 ? parseInt(r[iA]) || 0 : total;
+        return {
+          name: r[iN]?.trim(),
+          description: iD !== -1 ? (r[iD]?.trim() || null) : null,
+          quantity_total: total,
+          quantity_available: Math.min(avail, total),
+          image_url: iU !== -1 ? (r[iU]?.trim() || null) : null,
+        };
+      }).filter((r) => r.name);
+      if (!records.length) { toast.error("אין שורות תקינות"); return; }
+      const { error } = await supabase.from("catalog_items").insert(records);
+      if (error) throw error;
+      toast.success(`נוספו ${records.length} פריטים`);
+      loadAll();
+    } catch (err) {
+      toast.error("שגיאה", { description: (err as Error).message });
+    }
+  };
+
   const updatePrintStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("print_requests").update({ status }).eq("id", id);
     if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
