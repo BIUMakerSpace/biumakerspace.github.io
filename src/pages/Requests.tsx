@@ -306,13 +306,38 @@ const Requests = () => {
                     בקש פריט שלא בקטלוג
                   </Button>
                 </div>
-                {items.length === 0 ? (
-                  <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                    אין פריטים בקטלוג כרגע
-                  </p>
-                ) : (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant={catalogCategory === "all" ? "default" : "outline"}
+                    onClick={() => setCatalogCategory("all")}
+                    className="rounded-full"
+                  >
+                    הכל
+                  </Button>
+                  {CATEGORIES.map((cat) => (
+                    <Button
+                      key={cat}
+                      size="sm"
+                      variant={catalogCategory === cat ? "default" : "outline"}
+                      onClick={() => setCatalogCategory(cat)}
+                      className="rounded-full"
+                    >
+                      {CATEGORY_LABELS[cat]}
+                    </Button>
+                  ))}
+                </div>
+                {(() => {
+                  const visible = catalogCategory === "all"
+                    ? items
+                    : items.filter((it) => normalizeCategory(it.category) === catalogCategory);
+                  return visible.length === 0 ? (
+                    <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+                      אין פריטים בקטגוריה זו
+                    </p>
+                  ) : (
                   <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                    {items.map((item) => {
+                    {visible.map((item) => {
                       const inCart = cart[item.id] ?? 0;
                       const atMax = inCart >= item.quantity_available;
                       return (
@@ -335,6 +360,9 @@ const Requests = () => {
                             </span>
                           </button>
                           <div className="flex flex-1 flex-col p-3">
+                            <Badge variant="secondary" className="mb-1.5 w-fit text-[10px]">
+                              {CATEGORY_LABELS[normalizeCategory(item.category)]}
+                            </Badge>
                             <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{item.name}</h3>
                             <p className="mt-1 text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
                             <Button
