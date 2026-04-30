@@ -318,7 +318,26 @@ const Requests = () => {
                 </div>
                 <div>
                   <Label htmlFor="p-color">צבע פילמנט</Label>
-                  <Input id="p-color" value={pColor} onChange={(e) => setPColor(e.target.value)} placeholder="לדוגמה: שחור, כחול" required />
+                  <Select value={pColor} onValueChange={setPColor} disabled={colorsLoading || colors.length === 0}>
+                    <SelectTrigger id="p-color">
+                      <SelectValue placeholder={colorsLoading ? "טוען צבעים..." : colors.length === 0 ? "אין צבעים זמינים" : "בחרו צבע"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colors.map((c) => (
+                        <SelectItem key={c.id} value={c.name}>
+                          <span className="inline-flex items-center gap-2">
+                            {c.hex && (
+                              <span
+                                className="inline-block h-3.5 w-3.5 rounded-full border border-border"
+                                style={{ backgroundColor: c.hex }}
+                              />
+                            )}
+                            {c.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div>
