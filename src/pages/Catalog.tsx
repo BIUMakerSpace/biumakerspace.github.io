@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Package, ShoppingBag } from "lucide-react";
+import { Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import {
   CATEGORIES,
   CATEGORY_LABELS,
@@ -47,9 +47,7 @@ const Catalog = () => {
   }, []);
 
   const itemGeneral = (it: CatalogItem): GeneralCategory => {
-    const g = normalizeGeneralCategory(it.general_category);
-    if (g !== "other") return g;
-    // fallback: derive from detailed category if general_category is missing/other
+    if (it.general_category) return normalizeGeneralCategory(it.general_category);
     return CATEGORY_TO_GENERAL[normalizeCategory(it.category)];
   };
 
@@ -144,11 +142,13 @@ const Catalog = () => {
           <div className="flex justify-center">
             <Button
               size="sm"
-              variant="ghost"
+              variant={showAdvanced ? "default" : "secondary"}
               onClick={() => setShowAdvanced((s) => !s)}
-              className="text-xs text-muted-foreground"
+              className="rounded-full gap-2 shadow-sm"
             >
+              <SlidersHorizontal className="h-4 w-4" />
               {showAdvanced ? "הסתר סינון מתקדם" : "סינון מתקדם"}
+              {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </div>
 
