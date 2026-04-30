@@ -3,17 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import SiteNav from "@/components/SiteNav";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info } from "lucide-react";
+import { Printer, ShoppingBag, Plus, Minus, Trash2, Upload, PackagePlus, Info, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
+import { fetchActiveFilamentColors, type FilamentColor } from "@/lib/filamentColors";
 
 interface CatalogItem {
   id: string;
@@ -51,7 +52,10 @@ const itemReqSchema = z.object({
 const Requests = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [mode, setMode] = useState<"choose" | "print" | "lend">("choose");
   const [items, setItems] = useState<CatalogItem[]>([]);
+  const [colors, setColors] = useState<FilamentColor[]>([]);
+  const [colorsLoading, setColorsLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [catalogCategory, setCatalogCategory] = useState<CatalogCategory | "all">("all");
 
@@ -100,6 +104,10 @@ const Requests = () => {
     supabase.from("catalog_items").select("*").order("name").then(({ data }) => {
       setItems(data ?? []);
     });
+    fetchActiveFilamentColors()
+      .then((c) => setColors(c))
+      .catch(() => setColors([]))
+      .finally(() => setColorsLoading(false));
   }, []);
 
   const addToCart = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
@@ -241,16 +249,59 @@ const Requests = () => {
           <h1 className="mb-3 text-4xl font-black text-foreground md:text-5xl">
             <span className="text-gradient">בקשות</span>
           </h1>
-          <p className="text-muted-foreground">שלחו קבצים להדפסה או השאילו ציוד מהמייקרספייס</p>
+          <p className="text-muted-foreground">
+            {mode === "choose"
+              ? "מה תרצו לבקש היום?"
+              : "שלחו קבצים להדפסה או השאילו ציוד מהמייקרספייס"}
+          </p>
         </div>
 
-        <Tabs defaultValue="print" dir="rtl">
-          <TabsList className="mx-auto mb-8 flex w-fit">
-            <TabsTrigger value="print" className="gap-1.5"><Printer className="h-4 w-4" />הדפסת תלת מימד</TabsTrigger>
-            <TabsTrigger value="lend" className="gap-1.5"><ShoppingBag className="h-4 w-4" />השאלת ציוד</TabsTrigger>
-          </TabsList>
+        {mode === "choose" && (
+          <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setMode("print")}
+              className="group flex flex-col items-center gap-4 rounded-2xl border-2 border-border bg-card p-8 text-center transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <Printer className="h-8 w-8" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">הדפסת תלת מימד</h2>
+                <p className="mt-1 text-sm text-muted-foreground">שלחו קובץ STL להדפסה במייקרספייס</p>
+              </div>
+              <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                התחל <ArrowRight className="h-4 w-4 rotate-180" />
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("lend")}
+              className="group flex flex-col items-center gap-4 rounded-2xl border-2 border-border bg-card p-8 text-center transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <ShoppingBag className="h-8 w-8" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">השאלת ציוד</h2>
+                <p className="mt-1 text-sm text-muted-foreground">השאילו רכיבים, חיישנים וכלים מהקטלוג</p>
+              </div>
+              <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                התחל <ArrowRight className="h-4 w-4 rotate-180" />
+              </span>
+            </button>
+          </div>
+        )}
 
-          <TabsContent value="print">
+        {mode !== "choose" && (
+          <div className="mb-6">
+            <Button variant="ghost" size="sm" onClick={() => setMode("choose")} className="gap-1.5">
+              <ArrowRight className="h-4 w-4" /> חזרה לבחירה
+            </Button>
+          </div>
+        )}
+
+        {mode === "print" && (
             <form onSubmit={submitPrint} className="mx-auto max-w-2xl space-y-5 rounded-2xl border border-border bg-card p-8">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -267,7 +318,26 @@ const Requests = () => {
                 </div>
                 <div>
                   <Label htmlFor="p-color">צבע פילמנט</Label>
-                  <Input id="p-color" value={pColor} onChange={(e) => setPColor(e.target.value)} placeholder="לדוגמה: שחור, כחול" required />
+                  <Select value={pColor} onValueChange={setPColor} disabled={colorsLoading || colors.length === 0}>
+                    <SelectTrigger id="p-color">
+                      <SelectValue placeholder={colorsLoading ? "טוען צבעים..." : colors.length === 0 ? "אין צבעים זמינים" : "בחרו צבע"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colors.map((c) => (
+                        <SelectItem key={c.id} value={c.name}>
+                          <span className="inline-flex items-center gap-2">
+                            {c.hex && (
+                              <span
+                                className="inline-block h-3.5 w-3.5 rounded-full border border-border"
+                                style={{ backgroundColor: c.hex }}
+                              />
+                            )}
+                            {c.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div>
@@ -293,9 +363,9 @@ const Requests = () => {
                 {pSubmitting ? "שולח..." : "שלח בקשה"}
               </Button>
             </form>
-          </TabsContent>
+        )}
 
-          <TabsContent value="lend">
+        {mode === "lend" && (
             <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
               {/* Catalog */}
               <div>
@@ -425,8 +495,7 @@ const Requests = () => {
                 </form>
               </aside>
             </div>
-          </TabsContent>
-        </Tabs>
+        )}
 
         {/* Item details dialog */}
         <Dialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)}>
