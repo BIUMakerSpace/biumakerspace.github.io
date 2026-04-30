@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Package, ShoppingBag } from "lucide-react";
+import { Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import {
   CATEGORIES,
   CATEGORY_LABELS,
