@@ -306,7 +306,20 @@ const Admin = () => {
               </form>
 
               <div>
-                <h2 className="mb-4 text-lg font-bold">פריטים קיימים ({items.length})</h2>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-lg font-bold">פריטים קיימים ({items.length})</h2>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={downloadCsvTemplate}>
+                      <FileDown className="h-3.5 w-3.5" />הורד CSV
+                    </Button>
+                    <Button size="sm" variant="outline" className="gap-1.5" asChild>
+                      <label className="cursor-pointer">
+                        <Upload className="h-3.5 w-3.5" />העלה CSV
+                        <input type="file" accept=".csv,text/csv" className="hidden" onChange={handleCsvUpload} />
+                      </label>
+                    </Button>
+                  </div>
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3 rounded-lg border border-border bg-card p-3">
