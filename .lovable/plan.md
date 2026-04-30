@@ -1,57 +1,72 @@
 ## Goals
 
-1. Split CSV "download" into two distinct actions: download an empty template, and download the current catalog.
-2. Improve visual hierarchy on the catalog management section so the tools area reads as a separate, labeled panel rather than a thin button row stuck above the list.
+Add a public-facing catalog browser at `/catalog` with search + category filter, and surface it in the top nav. Categorize items into: sensors, tools, microcontrollers, other.
 
-## Changes (all in `src/pages/Admin.tsx`)
+## 1. Database
 
-### 1. Split CSV download into two functions
+Add a `category` column to `catalog_items`:
+- Type: `text` with `CHECK` allowing `'sensors' | 'tools' | 'microcontrollers' | 'other'`
+- Default `'other'`, NOT NULL
+- Backfill existing rows to `'other'`
 
-Replace `downloadCsvTemplate` with two helpers sharing a small internal builder:
+(No new RLS needed — public SELECT already exists.)
 
-- `downloadCsvFormat()` — always writes only the header row plus one example row (`דוגמה: מברג, …`). Filename: `catalog-template.csv`. Used to teach the user the expected columns.
-- `downloadCsvCatalog()` — writes the header row plus every current item. Filename: `catalog-export.csv`. Disabled when `items.length === 0`.
+## 2. New page: `src/pages/Catalog.tsx`
 
-Upload handler (`handleCsvUpload`) stays exactly as is — still INSERT-only, never deletes/updates.
-
-### 2. New "Catalog tools" panel
-
-Above the items grid, replace the current thin header+buttons row with a dedicated card:
+A public browse-only catalog (no cart, no auth required). Layout:
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│  כלי קטלוג                                              │
-│  ניהול מרוכז של הקטלוג דרך קובץ CSV                    │
-│                                                          │
-│  [⬇ הורד תבנית]  [⬇ הורד קטלוג נוכחי]  [⬆ העלה CSV]   │
-│                                                          │
-│  • הורד תבנית – קובץ ריק עם כותרות העמודות לדוגמה      │
-│  • הורד קטלוג נוכחי – ייצוא של כל הפריטים הקיימים      │
-│  • העלה CSV – מוסיף פריטים חדשים בלבד; לא מוחק/מעדכן   │
-└─────────────────────────────────────────────────────────┘
-
-פריטים קיימים (37)
-┌─────────┬─────────┐
-│ item    │ item    │
-└─────────┴─────────┘
+┌──────────────────────────────────────────────────────┐
+│  קטלוג ציוד                                          │
+│  כל הציוד הזמין במייקרספייס                          │
+│                                                       │
+│  [🔍 חיפוש פריט...........................]          │
+│  [הכל] [חיישנים] [כלים] [בקרים] [אחר]                │
+│                                                       │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐                     │
+│  │ img │ │ img │ │ img │ │ img │                     │
+│  │ name│ │ name│ │ name│ │ name│                     │
+│  │ cat │ │ cat │ │ cat │ │ cat │                     │
+│  └─────┘ └─────┘ └─────┘ └─────┘                     │
+└──────────────────────────────────────────────────────┘
 ```
 
-Implementation details:
-- Card uses `rounded-2xl border border-border bg-card p-5`, matching the "הוספת פריט" form styling on the right.
-- Inside: small uppercase eyebrow `כלי קטלוג` (`text-xs font-semibold tracking-wider text-primary uppercase`), then a bold title row (`text-lg font-bold`) with subtitle (`text-sm text-muted-foreground`).
-- Buttons row: `flex flex-wrap gap-2`. Primary action = "העלה CSV" (`variant="default"`). Two downloads = `variant="outline"`. Each keeps its lucide icon (`FileDown`, `Download`, `Upload`).
-- Bullet info list replaces the current paragraph for clearer scanning.
+- Fetch all `catalog_items` on mount.
+- Search input filters case-insensitively across `name` + `description`.
+- Category filter as toggle pill row (`Button variant="outline" / "default"`).
+- Card grid: image, name, category badge, availability count, description (line-clamp-2). Click opens a Dialog with full details.
+- "השאל פריט" button on each card → links to `/requests` (which gates auth).
+- Empty state when no matches.
+- Wired into `App.tsx` route `/catalog`.
 
-### 3. "פריטים קיימים (N)" heading
+## 3. Top nav (`SiteNav.tsx`)
 
-Promoted to its own row beneath the tools card with a top border separator: `mt-6 border-t border-border pt-6 text-xl font-bold`. The count badge stays inline.
+Insert `{ to: "/catalog", label: "קטלוג" }` right after "בית". Visible to everyone (public).
 
-### 4. Disabled state
+## 4. Admin (`Admin.tsx`)
 
-"הורד קטלוג נוכחי" is `disabled` when `items.length === 0` so users aren't offered an empty download.
+- `CatalogItem` interface gains `category: string`.
+- Add a category `<select>` to the "הוספת פריט" form and the edit dialog (4 options).
+- CSV export: include `category` column.
+- CSV import: read `category` column; default to `'other'` when missing/invalid.
+- Optional category filter in catalog management list (skip for now unless trivial).
+
+## 5. Existing Requests page
+
+- Add a category badge on each catalog card (small, muted).
+- Add the same category filter pills above the catalog grid in the lend tab so users can narrow down.
+
+## Hebrew labels
+
+- sensors → חיישנים
+- tools → כלים
+- microcontrollers → בקרים
+- other → אחר
+
+Centralize in a small `CATEGORY_LABELS` constant in a new file `src/lib/categories.ts` and reuse across Admin / Requests / Catalog.
 
 ## Out of scope
 
-- No changes to other admin tabs.
-- No DB schema changes.
-- No changes to upload behavior (already add-only).
+- No editing categories in bulk UI beyond CSV.
+- No subcategories.
+- No icon per category (keep simple with text badge).
