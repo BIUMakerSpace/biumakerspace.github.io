@@ -320,6 +320,11 @@ const Admin = () => {
                     </Button>
                   </div>
                 </div>
+                <p className="mb-4 rounded-md border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+                  <strong>הורד CSV:</strong> מוריד את כל הקטלוג הנוכחי כקובץ (או תבנית ריקה אם הקטלוג ריק) לעריכה ב-Excel/Sheets.
+                  <br />
+                  <strong>העלה CSV:</strong> מוסיף פריטים חדשים בלבד מהקובץ לקטלוג. לא מוחק ולא מעדכן פריטים קיימים — שורות חדשות בלבד נוספות.
+                </p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3 rounded-lg border border-border bg-card p-3">
