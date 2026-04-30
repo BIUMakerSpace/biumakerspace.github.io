@@ -1,9 +1,11 @@
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-maker.jpg";
 import arduinoPlaylistThumb from "@/assets/arduino-playlist-thumb.png";
 import ResourceCard from "@/components/ResourceCard";
 import SiteNav from "@/components/SiteNav";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText } from "lucide-react";
 
 const resources = [
   {
