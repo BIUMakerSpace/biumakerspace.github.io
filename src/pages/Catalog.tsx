@@ -47,9 +47,7 @@ const Catalog = () => {
   }, []);
 
   const itemGeneral = (it: CatalogItem): GeneralCategory => {
-    const g = normalizeGeneralCategory(it.general_category);
-    if (g !== "other") return g;
-    // fallback: derive from detailed category if general_category is missing/other
+    if (it.general_category) return normalizeGeneralCategory(it.general_category);
     return CATEGORY_TO_GENERAL[normalizeCategory(it.category)];
   };
 
