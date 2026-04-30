@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import SiteNav from "@/components/SiteNav";
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import {
   Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp,
-  ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus, Printer,
+  ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -265,9 +265,6 @@ const Catalog = () => {
             <p className="text-sm text-muted-foreground md:text-base">חפשו ציוד, הוסיפו לעגלה ושלחו בקשת השאלה</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-1.5">
-              <Link to="/requests"><Printer className="h-4 w-4" />הדפסת תלת מימד</Link>
-            </Button>
             <Button variant="outline" size="sm" onClick={() => setReqOpen(true)} className="gap-1.5">
               <PackagePlus className="h-4 w-4" />בקש פריט חדש
             </Button>

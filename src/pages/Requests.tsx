@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Upload, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Printer, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { fetchActiveFilamentColors, type FilamentColor } from "@/lib/filamentColors";
@@ -108,17 +108,6 @@ const Requests = () => {
             העלו קובץ STL ובחרו צבע פילמנט – אנו נדפיס וניצור קשר
           </p>
         </div>
-
-        <Link
-          to="/catalog"
-          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm transition-colors hover:bg-primary/10"
-        >
-          <span className="flex items-center gap-2 text-foreground">
-            <ShoppingBag className="h-4 w-4 text-primary" />
-            מחפשים להשאיל ציוד? עברו לקטלוג
-          </span>
-          <ArrowLeft className="h-4 w-4 text-primary" />
-        </Link>
 
         <form onSubmit={submitPrint} className="space-y-5 rounded-2xl border border-border bg-card p-6 md:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
