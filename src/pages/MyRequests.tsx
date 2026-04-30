@@ -58,9 +58,12 @@ const MyRequests = () => {
     <div className="min-h-screen bg-background" dir="rtl">
       <SiteNav />
       <main className="container mx-auto max-w-4xl px-6 py-12">
-        <div className="mb-8 flex items-end justify-between">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
           <h1 className="text-4xl font-black"><span className="text-gradient">הבקשות</span> שלי</h1>
-          <Link to="/requests"><Button variant="outline" size="sm">בקשה חדשה</Button></Link>
+          <div className="flex gap-2">
+            <Link to="/requests"><Button variant="outline" size="sm">הדפסה חדשה</Button></Link>
+            <Link to="/catalog"><Button size="sm">השאלת ציוד</Button></Link>
+          </div>
         </div>
 
         <Tabs defaultValue="print" dir="rtl">
