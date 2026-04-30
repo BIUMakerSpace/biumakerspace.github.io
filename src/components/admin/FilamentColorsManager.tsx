@@ -162,17 +162,19 @@ const FilamentColorsManager = () => {
                   {c.hex && <p className="text-xs text-muted-foreground">{c.hex}</p>}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(idx, -1)} disabled={idx === 0} aria-label="העבר למעלה">
-                    <ArrowUp className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(idx, 1)} disabled={idx === colors.length - 1} aria-label="העבר למטה">
-                    <ArrowDown className="h-3.5 w-3.5" />
-                  </Button>
-                  <Switch checked={c.is_active} onCheckedChange={() => toggleActive(c)} aria-label="פעיל" />
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(c)} aria-label="ערוך">
+                  <div className="flex flex-col">
+                    <Button size="icon" variant="ghost" className="h-5 w-7" onClick={() => move(idx, -1)} disabled={idx === 0} aria-label="העבר למעלה">
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-5 w-7" onClick={() => move(idx, 1)} disabled={idx === colors.length - 1} aria-label="העבר למטה">
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  <Switch checked={c.is_active} onCheckedChange={() => toggleActive(c)} aria-label="פעיל" className="mx-1" />
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(c)} aria-label="ערוך">
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(c.id)} aria-label="מחק">
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => remove(c.id)} aria-label="מחק">
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
