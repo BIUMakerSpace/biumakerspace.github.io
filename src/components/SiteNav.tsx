@@ -11,6 +11,7 @@ const SiteNav = () => {
 
   const links = [
     { to: "/", label: "בית" },
+    { to: "/catalog", label: "קטלוג" },
     { to: "/blog", label: "בלוג" },
     { to: "/forum", label: "פורום" },
     { to: "/requests", label: "בקשות" },
