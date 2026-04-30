@@ -249,16 +249,59 @@ const Requests = () => {
           <h1 className="mb-3 text-4xl font-black text-foreground md:text-5xl">
             <span className="text-gradient">בקשות</span>
           </h1>
-          <p className="text-muted-foreground">שלחו קבצים להדפסה או השאילו ציוד מהמייקרספייס</p>
+          <p className="text-muted-foreground">
+            {mode === "choose"
+              ? "מה תרצו לבקש היום?"
+              : "שלחו קבצים להדפסה או השאילו ציוד מהמייקרספייס"}
+          </p>
         </div>
 
-        <Tabs defaultValue="print" dir="rtl">
-          <TabsList className="mx-auto mb-8 flex w-fit">
-            <TabsTrigger value="print" className="gap-1.5"><Printer className="h-4 w-4" />הדפסת תלת מימד</TabsTrigger>
-            <TabsTrigger value="lend" className="gap-1.5"><ShoppingBag className="h-4 w-4" />השאלת ציוד</TabsTrigger>
-          </TabsList>
+        {mode === "choose" && (
+          <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setMode("print")}
+              className="group flex flex-col items-center gap-4 rounded-2xl border-2 border-border bg-card p-8 text-center transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <Printer className="h-8 w-8" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">הדפסת תלת מימד</h2>
+                <p className="mt-1 text-sm text-muted-foreground">שלחו קובץ STL להדפסה במייקרספייס</p>
+              </div>
+              <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                התחל <ArrowRight className="h-4 w-4 rotate-180" />
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("lend")}
+              className="group flex flex-col items-center gap-4 rounded-2xl border-2 border-border bg-card p-8 text-center transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <ShoppingBag className="h-8 w-8" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground">השאלת ציוד</h2>
+                <p className="mt-1 text-sm text-muted-foreground">השאילו רכיבים, חיישנים וכלים מהקטלוג</p>
+              </div>
+              <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                התחל <ArrowRight className="h-4 w-4 rotate-180" />
+              </span>
+            </button>
+          </div>
+        )}
 
-          <TabsContent value="print">
+        {mode !== "choose" && (
+          <div className="mb-6">
+            <Button variant="ghost" size="sm" onClick={() => setMode("choose")} className="gap-1.5">
+              <ArrowRight className="h-4 w-4" /> חזרה לבחירה
+            </Button>
+          </div>
+        )}
+
+        {mode === "print" && (
             <form onSubmit={submitPrint} className="mx-auto max-w-2xl space-y-5 rounded-2xl border border-border bg-card p-8">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
