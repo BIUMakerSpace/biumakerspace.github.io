@@ -60,7 +60,7 @@ const SiteNav = () => {
                 <ChevronDown className="h-3.5 w-3.5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" dir="rtl" className="min-w-[180px]">
+            <DropdownMenuContent align="end" className="min-w-[180px]">
               <DropdownMenuItem asChild>
                 <Link to="/blog" className="gap-2">
                   <BookOpen className="h-4 w-4" /> בלוג
