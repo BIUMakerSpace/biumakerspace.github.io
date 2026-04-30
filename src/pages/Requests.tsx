@@ -363,7 +363,6 @@ const Requests = () => {
                 {pSubmitting ? "שולח..." : "שלח בקשה"}
               </Button>
             </form>
-          </div>
         )}
 
         {mode === "lend" && (
