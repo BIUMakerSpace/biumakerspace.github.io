@@ -74,8 +74,7 @@ const Community = () => {
           </motion.p>
           <motion.h1
             variants={item}
-            className="font-display text-5xl font-bold leading-tight text-foreground md:text-7xl"
-            style={{ fontFamily: '"DM Serif Display", serif' }}
+            className="text-4xl font-black leading-tight tracking-tight text-foreground sm:text-5xl md:text-7xl"
           >
             מקום אחד <br />
             לכל מי שיוצר.
@@ -111,10 +110,7 @@ const Community = () => {
                   <Icon className="h-7 w-7" />
                 </div>
 
-                <h2
-                  className="mb-3 text-3xl font-bold text-foreground"
-                  style={{ fontFamily: '"DM Serif Display", serif' }}
-                >
+                <h2 className="mb-3 text-2xl font-black tracking-tight text-foreground md:text-3xl">
                   {it.title}
                 </h2>
                 <p className="mb-8 flex-1 text-base leading-relaxed text-muted-foreground">
