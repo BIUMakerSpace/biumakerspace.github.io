@@ -495,8 +495,7 @@ const Requests = () => {
                 </form>
               </aside>
             </div>
-          </TabsContent>
-        </Tabs>
+        )}
 
         {/* Item details dialog */}
         <Dialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)}>
