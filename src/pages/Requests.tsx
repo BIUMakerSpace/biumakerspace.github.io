@@ -136,7 +136,7 @@ const Requests = () => {
                         {c.hex && (
                           <span
                             className="inline-block h-3.5 w-3.5 rounded-full border border-border"
-                            style={{ backgroundColor: c.hex }}
+                            style={filamentSwatchStyle(c.hex)}
                           />
                         )}
                         {c.name}
