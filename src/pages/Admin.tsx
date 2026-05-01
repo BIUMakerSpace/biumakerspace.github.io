@@ -13,6 +13,7 @@ import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, S
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
+import CatalogTableView from "@/components/admin/CatalogTableView";
 import DeliverDialog from "@/components/admin/DeliverDialog";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
