@@ -152,7 +152,7 @@ const Catalog = () => {
     }
     setCart((c) => ({ ...c, [it.id]: current + 1 }));
     setBumpKey((k) => k + 1);
-    toast.success(`${it.name} נוסף לעגלה`);
+    toast.success(`${it.name} נוסף לעגלה`, { duration: 2000 });
   };
   const decFromCart = (id: string) => setCart((c) => {
     const n = { ...c };
