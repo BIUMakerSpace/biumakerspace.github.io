@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import {
   Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp,
-  ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus,
+  ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus, ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
