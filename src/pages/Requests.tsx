@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Printer, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { fetchActiveFilamentColors, type FilamentColor } from "@/lib/filamentColors";
+import { fetchActiveFilamentColors, filamentSwatchStyle, type FilamentColor } from "@/lib/filamentColors";
 
 const printSchema = z.object({
   requester_name: z.string().trim().min(2).max(100),
