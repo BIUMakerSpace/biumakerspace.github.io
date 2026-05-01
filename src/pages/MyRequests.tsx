@@ -6,7 +6,12 @@ import SiteNav from "@/components/SiteNav";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Printer, ShoppingBag } from "lucide-react";
+import { Printer, ShoppingBag, X } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PrintReq {
   id: string; purpose: string; filament_color: string; status: string;
@@ -20,12 +25,12 @@ interface LendReq {
 
 const STATUS_HE: Record<string, string> = {
   pending: "ממתין", printing: "מדפיס", ready: "מוכן לאיסוף",
-  completed: "הושלם", rejected: "נדחה",
+  completed: "הושלם", rejected: "נדחה", cancelled: "בוטל",
   approved: "אושר", delivered: "נמסר", returned: "הוחזר",
 };
 
 const statusVariant = (s: string): "default" | "secondary" | "destructive" | "outline" => {
-  if (s === "rejected") return "destructive";
+  if (s === "rejected" || s === "cancelled") return "destructive";
   if (s === "completed" || s === "returned") return "secondary";
   if (s === "ready" || s === "delivered" || s === "approved") return "default";
   return "outline";
@@ -41,7 +46,7 @@ const MyRequests = () => {
     if (!loading && !user) navigate("/auth", { replace: true });
   }, [user, loading, navigate]);
 
-  useEffect(() => {
+  const loadData = () => {
     if (!user) return;
     supabase.from("print_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
       .then(({ data }) => setPrints(data ?? []));
@@ -50,7 +55,25 @@ const MyRequests = () => {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setLends((data as LendReq[]) ?? []));
-  }, [user]);
+  };
+
+  useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [user]);
+
+  const cancelPrint = async (id: string) => {
+    const { error } = await supabase.from("print_requests")
+      .update({ status: "cancelled" }).eq("id", id);
+    if (error) { toast.error("ביטול נכשל"); return; }
+    toast.success("הבקשה בוטלה");
+    loadData();
+  };
+
+  const cancelLend = async (id: string) => {
+    const { error } = await supabase.from("lend_requests")
+      .update({ status: "cancelled" }).eq("id", id);
+    if (error) { toast.error("ביטול נכשל"); return; }
+    toast.success("הבקשה בוטלה");
+    loadData();
+  };
 
   if (loading || !user) return null;
 
@@ -82,7 +105,10 @@ const MyRequests = () => {
                 </div>
                 <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
                 <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                  {r.status === "pending" && <CancelButton onConfirm={() => cancelPrint(r.id)} />}
+                </div>
               </div>
             ))}
           </TabsContent>
@@ -101,9 +127,14 @@ const MyRequests = () => {
                   ))}
                 </ul>
                 {r.notes && <p className="mt-2 text-sm"><strong>הערות:</strong> {r.notes}</p>}
-                <p className="mt-1 text-xs text-muted-foreground">נשלח: {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
-                {r.delivered_at && <p className="text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
-                {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">נשלח: {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                    {r.delivered_at && <p className="text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
+                    {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                  </div>
+                  {r.status === "pending" && <CancelButton onConfirm={() => cancelLend(r.id)} />}
+                </div>
               </div>
             ))}
           </TabsContent>
@@ -112,5 +143,28 @@ const MyRequests = () => {
     </div>
   );
 };
+
+
+const CancelButton = ({ onConfirm }: { onConfirm: () => void | Promise<void> }) => (
+  <AlertDialog>
+    <AlertDialogTrigger asChild>
+      <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive">
+        <X className="h-3.5 w-3.5" />ביטול
+      </Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent dir="rtl">
+      <AlertDialogHeader>
+        <AlertDialogTitle>ביטול בקשה</AlertDialogTitle>
+        <AlertDialogDescription>פעולה זו תבטל את הבקשה ואינה ניתנת לשחזור.</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>חזרה</AlertDialogCancel>
+        <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          בטל בקשה
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+);
 
 export default MyRequests;
