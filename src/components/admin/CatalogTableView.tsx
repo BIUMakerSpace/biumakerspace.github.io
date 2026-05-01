@@ -88,9 +88,9 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+    <div className="max-h-[70vh] overflow-auto rounded-lg border border-border bg-card">
       <table className="w-full text-sm">
-        <thead className="border-b border-border bg-muted/40 text-xs uppercase text-muted-foreground">
+        <thead className="sticky top-0 z-10 border-b border-border bg-muted text-xs uppercase text-muted-foreground shadow-sm">
           <tr>
             <th className="p-2 text-right font-medium">תמונה</th>
             <th className="p-2 text-right font-medium min-w-[160px]">שם</th>
