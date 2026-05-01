@@ -621,10 +621,11 @@ const Admin = () => {
                 )}
                 <div><Label>שם</Label><Input value={eName} onChange={(e) => setEName(e.target.value)} required /></div>
                 <div><Label>תיאור</Label><Textarea value={eDesc} onChange={(e) => setEDesc(e.target.value)} rows={3} /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label>סה״כ</Label><Input type="number" min={0} value={eTotal} onChange={(e) => setETotal(parseInt(e.target.value) || 0)} required /></div>
-                  <div><Label>זמין</Label><Input type="number" min={0} max={eTotal} value={eAvailable} onChange={(e) => setEAvailable(parseInt(e.target.value) || 0)} required /></div>
+                <div className="rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">
+                  סה״כ: <strong className="text-foreground">{editItem.quantity_total}</strong> · זמין: <strong className="text-foreground">{editItem.quantity_available}</strong>
+                  <span className="block mt-0.5">הכמויות מתעדכנות אוטומטית לפי מיקומי האחסון למטה</span>
                 </div>
+                <ItemSourcesEditor itemId={editItem.id} onChanged={loadAll} />
                 <div>
                   <Label>קטגוריה</Label>
                   <select value={eCategory} onChange={(e) => setECategory(e.target.value as CatalogCategory)} className="block h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
