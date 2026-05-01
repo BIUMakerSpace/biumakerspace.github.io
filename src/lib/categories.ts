@@ -90,6 +90,7 @@ export const CATEGORY_TO_GENERAL: Record<CatalogCategory, GeneralCategory> = {
   storage_memory: "compute",
   wires_connectors: "connectivity_power",
   power: "connectivity_power",
+  switches: "electronics",
   tools: "tools_other",
   other: "tools_other",
 };
