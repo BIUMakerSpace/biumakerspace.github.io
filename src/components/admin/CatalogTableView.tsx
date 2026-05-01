@@ -59,8 +59,9 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
     return m;
   }, [cis]);
 
-  const updateField = async (id: string, field: keyof CatalogItem, value: string) => {
-    const { error } = await supabase.from("catalog_items").update({ [field]: value }).eq("id", id);
+  const updateField = async (id: string, field: "name" | "description" | "category", value: string) => {
+    const patch = { [field]: value } as Partial<CatalogItem>;
+    const { error } = await supabase.from("catalog_items").update(patch).eq("id", id);
     if (error) toast.error(error.message);
     else onChanged();
   };
