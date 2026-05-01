@@ -144,4 +144,27 @@ const MyRequests = () => {
   );
 };
 
+
+const CancelButton = ({ onConfirm }: { onConfirm: () => void | Promise<void> }) => (
+  <AlertDialog>
+    <AlertDialogTrigger asChild>
+      <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive">
+        <X className="h-3.5 w-3.5" />ביטול
+      </Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent dir="rtl">
+      <AlertDialogHeader>
+        <AlertDialogTitle>ביטול בקשה</AlertDialogTitle>
+        <AlertDialogDescription>פעולה זו תבטל את הבקשה ואינה ניתנת לשחזור.</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>חזרה</AlertDialogCancel>
+        <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          בטל בקשה
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+);
+
 export default MyRequests;
