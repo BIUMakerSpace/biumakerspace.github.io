@@ -185,6 +185,10 @@ const Catalog = () => {
       toast.error("העגלה ריקה");
       return;
     }
+    if (!lAgreed) {
+      toast.error("יש לאשר את תנאי ההשאלה");
+      return;
+    }
     const parsed = lendSchema.safeParse({
       requester_name: lName, requester_email: lEmail, requester_phone: lPhone, notes: lNotes,
     });
