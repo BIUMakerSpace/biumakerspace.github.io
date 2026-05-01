@@ -24,6 +24,8 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
   const [rows, setRows] = useState<Row[]>([]);
   const [newSourceId, setNewSourceId] = useState<string>("");
   const [newQty, setNewQty] = useState(1);
+  const [creatingNew, setCreatingNew] = useState(false);
+  const [newSourceName, setNewSourceName] = useState("");
 
   const load = async () => {
     const [a, b] = await Promise.all([
