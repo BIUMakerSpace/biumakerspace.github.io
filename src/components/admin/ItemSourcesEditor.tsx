@@ -61,6 +61,29 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
     if (error) toast.error(error.message);
     else { await load(); onChanged?.(); }
   };
+  const createAndAddNew = async () => {
+    const name = newSourceName.trim();
+    if (!name) return;
+    // Reuse if a source with this name already exists (case-insensitive)
+    const existing = sources.find((s) => s.name.trim().toLowerCase() === name.toLowerCase());
+    let sourceId = existing?.id;
+    if (!sourceId) {
+      const { data, error } = await supabase
+        .from("item_sources")
+        .insert({ name })
+        .select("id")
+        .single();
+      if (error) { toast.error(error.message); return; }
+      sourceId = data.id;
+    }
+    const { error: e2 } = await supabase
+      .from("catalog_item_sources")
+      .insert({ item_id: itemId, source_id: sourceId, quantity: Math.max(0, newQty) });
+    if (e2) { toast.error(e2.message); return; }
+    toast.success("מקור נוסף");
+    setNewSourceName(""); setNewQty(1); setCreatingNew(false);
+    await load(); onChanged?.();
+  };
 
   const total = rows.reduce((s, r) => s + r.quantity, 0);
 
