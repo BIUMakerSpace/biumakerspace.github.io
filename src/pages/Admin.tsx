@@ -387,12 +387,9 @@ const Admin = () => {
                         </div>
                         <Badge variant="secondary" className="mt-1 w-fit text-[10px]">{CATEGORY_LABELS[normalizeCategory(item.category)]}</Badge>
                         {item.description && <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                          <span>זמין:</span>
-                          <Input type="number" value={item.quantity_available} onChange={(e) => updateItemQty(item.id, parseInt(e.target.value) || 0, item.quantity_total)} className="h-7 w-16" />
-                          <span>/ סה״כ:</span>
-                          <Input type="number" value={item.quantity_total} onChange={(e) => updateItemQty(item.id, item.quantity_available, parseInt(e.target.value) || 0)} className="h-7 w-16" />
-                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          זמין: <strong className="text-foreground">{item.quantity_available}</strong> / סה״כ: <strong className="text-foreground">{item.quantity_total}</strong>
+                        </p>
                       </div>
                     </div>
                   ))}
