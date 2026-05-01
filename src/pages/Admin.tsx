@@ -11,9 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
+import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
+import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
+import DeliverDialog from "@/components/admin/DeliverDialog";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
+import { Warehouse } from "lucide-react";
 
 interface CatalogItem {
   id: string;
@@ -48,7 +52,7 @@ interface LendReq {
   created_at: string;
   delivered_at: string | null;
   returned_at: string | null;
-  lend_request_items: { quantity: number; catalog_items: { name: string } }[];
+  lend_request_items: { id: string; item_id: string; quantity: number; catalog_items: { name: string } }[];
 }
 
 interface ItemReq {
