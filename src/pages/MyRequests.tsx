@@ -46,7 +46,7 @@ const MyRequests = () => {
     if (!loading && !user) navigate("/auth", { replace: true });
   }, [user, loading, navigate]);
 
-  useEffect(() => {
+  const loadData = () => {
     if (!user) return;
     supabase.from("print_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
       .then(({ data }) => setPrints(data ?? []));
@@ -55,7 +55,25 @@ const MyRequests = () => {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setLends((data as LendReq[]) ?? []));
-  }, [user]);
+  };
+
+  useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [user]);
+
+  const cancelPrint = async (id: string) => {
+    const { error } = await supabase.from("print_requests")
+      .update({ status: "cancelled" }).eq("id", id);
+    if (error) { toast.error("ביטול נכשל"); return; }
+    toast.success("הבקשה בוטלה");
+    loadData();
+  };
+
+  const cancelLend = async (id: string) => {
+    const { error } = await supabase.from("lend_requests")
+      .update({ status: "cancelled" }).eq("id", id);
+    if (error) { toast.error("ביטול נכשל"); return; }
+    toast.success("הבקשה בוטלה");
+    loadData();
+  };
 
   if (loading || !user) return null;
 
