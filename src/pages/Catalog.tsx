@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp,
   ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus, ArrowRight,
