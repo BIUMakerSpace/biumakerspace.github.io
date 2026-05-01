@@ -215,7 +215,7 @@ const Catalog = () => {
       );
       if (itemsErr) throw itemsErr;
       toast.success("הבקשה נשלחה!", { description: "ניצור קשר בקרוב" });
-      setCart({}); setLNotes(""); setCartOpen(false);
+      setCart({}); setLNotes(""); setLAgreed(false); setCartOpen(false);
     } catch (err) {
       toast.error("שגיאה בשליחה", { description: (err as Error).message });
     } finally {
