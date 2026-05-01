@@ -77,6 +77,10 @@ const Admin = () => {
   const [iCategory, setICategory] = useState<CatalogCategory>("other");
   const [iImage, setIImage] = useState<File | null>(null);
   const [iSubmitting, setISubmitting] = useState(false);
+  const [iSourceId, setISourceId] = useState("");
+  const [iNewSourceName, setINewSourceName] = useState("");
+  const [iCreatingSource, setICreatingSource] = useState(false);
+  const [sourcesList, setSourcesList] = useState<{ id: string; name: string; is_active: boolean }[]>([]);
   const [search, setSearch] = useState("");
 
   // Edit item dialog state
@@ -147,7 +151,15 @@ const Admin = () => {
     setItemReqs(d.data ?? []);
   };
 
-  useEffect(() => { if (isAdmin) loadAll(); }, [isAdmin]);
+  const loadSourcesList = async () => {
+    const { data } = await supabase
+      .from("item_sources")
+      .select("id, name, is_active")
+      .order("sort_order").order("name");
+    setSourcesList((data ?? []) as { id: string; name: string; is_active: boolean }[]);
+  };
+
+  useEffect(() => { if (isAdmin) { loadAll(); loadSourcesList(); } }, [isAdmin]);
 
   const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,16 +173,41 @@ const Admin = () => {
         const { data } = supabase.storage.from("catalog-images").getPublicUrl(path);
         imageUrl = data.publicUrl;
       }
-      const { error } = await supabase.from("catalog_items").insert({
+
+      // Resolve storage source: either existing id or new name
+      let resolvedSourceId = iSourceId;
+      if (!resolvedSourceId && iNewSourceName.trim()) {
+        const name = iNewSourceName.trim();
+        const existing = sourcesList.find((s) => s.name.trim().toLowerCase() === name.toLowerCase());
+        if (existing) resolvedSourceId = existing.id;
+        else {
+          const { data: created, error: srcErr } = await supabase
+            .from("item_sources").insert({ name }).select("id").single();
+          if (srcErr) throw srcErr;
+          resolvedSourceId = created.id;
+        }
+      }
+
+      const { data: inserted, error } = await supabase.from("catalog_items").insert({
         name: iName, description: iDesc || null, image_url: imageUrl,
         quantity_total: iQty, quantity_available: iQty,
         category: iCategory,
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      if (resolvedSourceId) {
+        const { error: cisErr } = await supabase.from("catalog_item_sources").insert({
+          item_id: inserted.id, source_id: resolvedSourceId, quantity: iQty,
+        });
+        if (cisErr) throw cisErr;
+      }
+
       toast.success("פריט נוסף");
       setIName(""); setIDesc(""); setIQty(1); setICategory("other"); setIImage(null);
+      setISourceId(""); setINewSourceName(""); setICreatingSource(false);
       (document.getElementById("img-input") as HTMLInputElement).value = "";
       loadAll();
+      loadSourcesList();
     } catch (err) {
       toast.error("שגיאה", { description: (err as Error).message });
     } finally {
@@ -338,6 +375,43 @@ const Admin = () => {
                   </select>
                 </div>
                 <div><Label>כמות</Label><Input type="number" min={1} value={iQty} onChange={(e) => setIQty(parseInt(e.target.value) || 1)} required /></div>
+                <div className="space-y-2 rounded-md border border-border bg-background/50 p-3">
+                  <Label>מיקום אחסון <span className="text-xs font-normal text-muted-foreground">(אופציונלי)</span></Label>
+                  {!iCreatingSource ? (
+                    <>
+                      <select
+                        value={iSourceId}
+                        onChange={(e) => setISourceId(e.target.value)}
+                        className="block h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                      >
+                        <option value="">— ללא מקור —</option>
+                        {sourcesList.filter((s) => s.is_active).map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => { setICreatingSource(true); setISourceId(""); }}
+                        className="text-xs text-primary hover:underline"
+                      >+ צור מקור חדש</button>
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        placeholder="שם מקור חדש (לדוגמה: מגירה 4)"
+                        value={iNewSourceName}
+                        onChange={(e) => setINewSourceName(e.target.value)}
+                        className="h-9"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setICreatingSource(false); setINewSourceName(""); }}
+                        className="text-xs text-muted-foreground hover:underline"
+                      >ביטול</button>
+                    </>
+                  )}
+                  <p className="text-[11px] text-muted-foreground">ניתן להוסיף מיקומים נוספים לאחר היצירה דרך כפתור עריכה.</p>
+                </div>
                 <div><Label>תמונה</Label><input id="img-input" type="file" accept="image/*" onChange={(e) => setIImage(e.target.files?.[0] ?? null)} className="block w-full text-sm" /></div>
                 <Button type="submit" disabled={iSubmitting} className="w-full gap-1.5"><Plus className="h-4 w-4" />{iSubmitting ? "מוסיף..." : "הוסף לקטלוג"}</Button>
               </form>

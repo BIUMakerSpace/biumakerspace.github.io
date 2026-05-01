@@ -24,6 +24,8 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
   const [rows, setRows] = useState<Row[]>([]);
   const [newSourceId, setNewSourceId] = useState<string>("");
   const [newQty, setNewQty] = useState(1);
+  const [creatingNew, setCreatingNew] = useState(false);
+  const [newSourceName, setNewSourceName] = useState("");
 
   const load = async () => {
     const [a, b] = await Promise.all([
@@ -59,6 +61,29 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
     if (error) toast.error(error.message);
     else { await load(); onChanged?.(); }
   };
+  const createAndAddNew = async () => {
+    const name = newSourceName.trim();
+    if (!name) return;
+    // Reuse if a source with this name already exists (case-insensitive)
+    const existing = sources.find((s) => s.name.trim().toLowerCase() === name.toLowerCase());
+    let sourceId = existing?.id;
+    if (!sourceId) {
+      const { data, error } = await supabase
+        .from("item_sources")
+        .insert({ name })
+        .select("id")
+        .single();
+      if (error) { toast.error(error.message); return; }
+      sourceId = data.id;
+    }
+    const { error: e2 } = await supabase
+      .from("catalog_item_sources")
+      .insert({ item_id: itemId, source_id: sourceId, quantity: Math.max(0, newQty) });
+    if (e2) { toast.error(e2.message); return; }
+    toast.success("מקור נוסף");
+    setNewSourceName(""); setNewQty(1); setCreatingNew(false);
+    await load(); onChanged?.();
+  };
 
   const total = rows.reduce((s, r) => s + r.quantity, 0);
 
@@ -85,22 +110,51 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
           </div>
         );
       })}
-      {available.length > 0 && (
-        <div className="flex items-center gap-2 border-t border-border pt-2">
-          <select
-            value={newSourceId}
-            onChange={(e) => setNewSourceId(e.target.value)}
-            className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-sm"
+      <div className="space-y-2 border-t border-border pt-2">
+        {!creatingNew ? (
+          <div className="flex items-center gap-2">
+            <select
+              value={newSourceId}
+              onChange={(e) => setNewSourceId(e.target.value)}
+              className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-sm"
+              disabled={available.length === 0}
+            >
+              <option value="">{available.length === 0 ? "— אין מקורות זמינים —" : "— בחר מקור —"}</option>
+              {available.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <Input type="number" min={0} value={newQty} onChange={(e) => setNewQty(parseInt(e.target.value) || 0)} className="h-8 w-20" />
+            <Button type="button" size="sm" onClick={addRow} disabled={!newSourceId} className="gap-1">
+              <Plus className="h-3.5 w-3.5" />הוסף
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="שם מקור חדש (לדוגמה: מגירה 4)"
+              value={newSourceName}
+              onChange={(e) => setNewSourceName(e.target.value)}
+              className="h-8 flex-1"
+              autoFocus
+            />
+            <Input type="number" min={0} value={newQty} onChange={(e) => setNewQty(parseInt(e.target.value) || 0)} className="h-8 w-20" />
+            <Button type="button" size="sm" onClick={createAndAddNew} disabled={!newSourceName.trim()} className="gap-1">
+              <Plus className="h-3.5 w-3.5" />צור והוסף
+            </Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => { setCreatingNew(false); setNewSourceName(""); }}>
+              ביטול
+            </Button>
+          </div>
+        )}
+        {!creatingNew && (
+          <button
+            type="button"
+            onClick={() => { setCreatingNew(true); setNewSourceId(""); }}
+            className="text-xs text-primary hover:underline"
           >
-            <option value="">— בחר מקור —</option>
-            {available.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-          <Input type="number" min={0} value={newQty} onChange={(e) => setNewQty(parseInt(e.target.value) || 0)} className="h-8 w-20" />
-          <Button type="button" size="sm" onClick={addRow} disabled={!newSourceId} className="gap-1">
-            <Plus className="h-3.5 w-3.5" />הוסף
-          </Button>
-        </div>
-      )}
+            + צור מקור חדש
+          </button>
+        )}
+      </div>
     </div>
   );
 };
