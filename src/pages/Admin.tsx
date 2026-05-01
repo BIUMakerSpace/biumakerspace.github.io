@@ -639,6 +639,21 @@ const Admin = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {deliverFor && (
+          <DeliverDialog
+            open={!!deliverFor}
+            onClose={() => setDeliverFor(null)}
+            requestId={deliverFor.id}
+            items={deliverFor.lend_request_items.map((li) => ({
+              id: li.id,
+              item_id: li.item_id,
+              quantity: li.quantity,
+              name: li.catalog_items?.name ?? "",
+            }))}
+            onDelivered={loadAll}
+          />
+        )}
       </main>
     </div>
   );
