@@ -10,6 +10,7 @@ export type CatalogCategory =
   | "passive_components"
   | "wires_connectors"
   | "power"
+  | "switches"
   | "tools"
   | "other";
 
@@ -25,6 +26,7 @@ export const CATEGORIES: CatalogCategory[] = [
   "passive_components",
   "wires_connectors",
   "power",
+  "switches",
   "tools",
   "other",
 ];
@@ -41,6 +43,7 @@ export const CATEGORY_LABELS: Record<CatalogCategory, string> = {
   passive_components: "קבלים",
   wires_connectors: "חוטים ומחברים",
   power: "מתח והספק",
+  switches: "מתגים",
   tools: "כלים ואביזרים",
   other: "אחר",
 };
