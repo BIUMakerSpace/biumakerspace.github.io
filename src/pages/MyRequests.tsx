@@ -25,12 +25,12 @@ interface LendReq {
 
 const STATUS_HE: Record<string, string> = {
   pending: "ממתין", printing: "מדפיס", ready: "מוכן לאיסוף",
-  completed: "הושלם", rejected: "נדחה",
+  completed: "הושלם", rejected: "נדחה", cancelled: "בוטל",
   approved: "אושר", delivered: "נמסר", returned: "הוחזר",
 };
 
 const statusVariant = (s: string): "default" | "secondary" | "destructive" | "outline" => {
-  if (s === "rejected") return "destructive";
+  if (s === "rejected" || s === "cancelled") return "destructive";
   if (s === "completed" || s === "returned") return "secondary";
   if (s === "ready" || s === "delivered" || s === "approved") return "default";
   return "outline";
