@@ -110,22 +110,51 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
           </div>
         );
       })}
-      {available.length > 0 && (
-        <div className="flex items-center gap-2 border-t border-border pt-2">
-          <select
-            value={newSourceId}
-            onChange={(e) => setNewSourceId(e.target.value)}
-            className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-sm"
+      <div className="space-y-2 border-t border-border pt-2">
+        {!creatingNew ? (
+          <div className="flex items-center gap-2">
+            <select
+              value={newSourceId}
+              onChange={(e) => setNewSourceId(e.target.value)}
+              className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-sm"
+              disabled={available.length === 0}
+            >
+              <option value="">{available.length === 0 ? "— אין מקורות זמינים —" : "— בחר מקור —"}</option>
+              {available.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <Input type="number" min={0} value={newQty} onChange={(e) => setNewQty(parseInt(e.target.value) || 0)} className="h-8 w-20" />
+            <Button type="button" size="sm" onClick={addRow} disabled={!newSourceId} className="gap-1">
+              <Plus className="h-3.5 w-3.5" />הוסף
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="שם מקור חדש (לדוגמה: מגירה 4)"
+              value={newSourceName}
+              onChange={(e) => setNewSourceName(e.target.value)}
+              className="h-8 flex-1"
+              autoFocus
+            />
+            <Input type="number" min={0} value={newQty} onChange={(e) => setNewQty(parseInt(e.target.value) || 0)} className="h-8 w-20" />
+            <Button type="button" size="sm" onClick={createAndAddNew} disabled={!newSourceName.trim()} className="gap-1">
+              <Plus className="h-3.5 w-3.5" />צור והוסף
+            </Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => { setCreatingNew(false); setNewSourceName(""); }}>
+              ביטול
+            </Button>
+          </div>
+        )}
+        {!creatingNew && (
+          <button
+            type="button"
+            onClick={() => { setCreatingNew(true); setNewSourceId(""); }}
+            className="text-xs text-primary hover:underline"
           >
-            <option value="">— בחר מקור —</option>
-            {available.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-          <Input type="number" min={0} value={newQty} onChange={(e) => setNewQty(parseInt(e.target.value) || 0)} className="h-8 w-20" />
-          <Button type="button" size="sm" onClick={addRow} disabled={!newSourceId} className="gap-1">
-            <Plus className="h-3.5 w-3.5" />הוסף
-          </Button>
-        </div>
-      )}
+            + צור מקור חדש
+          </button>
+        )}
+      </div>
     </div>
   );
 };
