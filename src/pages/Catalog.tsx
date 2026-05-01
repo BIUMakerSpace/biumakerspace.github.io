@@ -70,7 +70,7 @@ const Catalog = () => {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
   const [bumpKey, setBumpKey] = useState(0);
-  const autoOpenedRef = useRef(false);
+  
 
   // Lend form
   const [lName, setLName] = useState("");
