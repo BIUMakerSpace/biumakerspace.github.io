@@ -161,16 +161,41 @@ const Admin = () => {
         const { data } = supabase.storage.from("catalog-images").getPublicUrl(path);
         imageUrl = data.publicUrl;
       }
-      const { error } = await supabase.from("catalog_items").insert({
+
+      // Resolve storage source: either existing id or new name
+      let resolvedSourceId = iSourceId;
+      if (!resolvedSourceId && iNewSourceName.trim()) {
+        const name = iNewSourceName.trim();
+        const existing = sourcesList.find((s) => s.name.trim().toLowerCase() === name.toLowerCase());
+        if (existing) resolvedSourceId = existing.id;
+        else {
+          const { data: created, error: srcErr } = await supabase
+            .from("item_sources").insert({ name }).select("id").single();
+          if (srcErr) throw srcErr;
+          resolvedSourceId = created.id;
+        }
+      }
+
+      const { data: inserted, error } = await supabase.from("catalog_items").insert({
         name: iName, description: iDesc || null, image_url: imageUrl,
         quantity_total: iQty, quantity_available: iQty,
         category: iCategory,
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      if (resolvedSourceId) {
+        const { error: cisErr } = await supabase.from("catalog_item_sources").insert({
+          item_id: inserted.id, source_id: resolvedSourceId, quantity: iQty,
+        });
+        if (cisErr) throw cisErr;
+      }
+
       toast.success("פריט נוסף");
       setIName(""); setIDesc(""); setIQty(1); setICategory("other"); setIImage(null);
+      setISourceId(""); setINewSourceName(""); setICreatingSource(false);
       (document.getElementById("img-input") as HTMLInputElement).value = "";
       loadAll();
+      loadSourcesList();
     } catch (err) {
       toast.error("שגיאה", { description: (err as Error).message });
     } finally {
