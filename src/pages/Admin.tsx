@@ -446,9 +446,31 @@ const Admin = () => {
                   </ul>
                 </div>
 
-                <h2 className="mb-4 mt-6 border-t border-border pt-6 text-xl font-bold">
-                  פריטים קיימים <span className="text-muted-foreground">({items.length})</span>
-                </h2>
+                <div className="mb-4 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+                  <h2 className="text-xl font-bold">
+                    פריטים קיימים <span className="text-muted-foreground">({items.length})</span>
+                  </h2>
+                  <div className="inline-flex rounded-md border border-border bg-background p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setCatalogView("cards")}
+                      className={`rounded px-3 py-1 text-xs font-medium transition ${catalogView === "cards" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >כרטיסים</button>
+                    <button
+                      type="button"
+                      onClick={() => setCatalogView("table")}
+                      className={`rounded px-3 py-1 text-xs font-medium transition ${catalogView === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >טבלה</button>
+                  </div>
+                </div>
+                {catalogView === "table" ? (
+                  <CatalogTableView
+                    items={items}
+                    onEdit={openEdit}
+                    onDelete={deleteItem}
+                    onChanged={loadAll}
+                  />
+                ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3 rounded-lg border border-border bg-card p-3">
@@ -470,6 +492,7 @@ const Admin = () => {
                     </div>
                   ))}
                 </div>
+                )}
               </div>
             </div>
           </TabsContent>
