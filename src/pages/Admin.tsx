@@ -68,6 +68,7 @@ const Admin = () => {
   const [printReqs, setPrintReqs] = useState<PrintReq[]>([]);
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
   const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
+  const [deliverFor, setDeliverFor] = useState<LendReq | null>(null);
 
   // New item form
   const [iName, setIName] = useState("");
