@@ -77,6 +77,10 @@ const Admin = () => {
   const [iCategory, setICategory] = useState<CatalogCategory>("other");
   const [iImage, setIImage] = useState<File | null>(null);
   const [iSubmitting, setISubmitting] = useState(false);
+  const [iSourceId, setISourceId] = useState("");
+  const [iNewSourceName, setINewSourceName] = useState("");
+  const [iCreatingSource, setICreatingSource] = useState(false);
+  const [sourcesList, setSourcesList] = useState<{ id: string; name: string; is_active: boolean }[]>([]);
   const [search, setSearch] = useState("");
 
   // Edit item dialog state
