@@ -83,6 +83,7 @@ const Admin = () => {
   const [iCreatingSource, setICreatingSource] = useState(false);
   const [sourcesList, setSourcesList] = useState<{ id: string; name: string; is_active: boolean }[]>([]);
   const [search, setSearch] = useState("");
+  const [catalogView, setCatalogView] = useState<"cards" | "table">("cards");
 
   // Edit item dialog state
   const [editItem, setEditItem] = useState<CatalogItem | null>(null);
