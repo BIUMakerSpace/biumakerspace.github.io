@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import {
   Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp,
-  ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus,
+  ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus, ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -70,7 +70,7 @@ const Catalog = () => {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
   const [bumpKey, setBumpKey] = useState(0);
-  const autoOpenedRef = useRef(false);
+  
 
   // Lend form
   const [lName, setLName] = useState("");
@@ -151,11 +151,6 @@ const Catalog = () => {
     setCart((c) => ({ ...c, [it.id]: current + 1 }));
     setBumpKey((k) => k + 1);
     toast.success(`${it.name} נוסף לעגלה`);
-    if (!autoOpenedRef.current) {
-      autoOpenedRef.current = true;
-      // Briefly open the cart on first add so the user sees where it lives
-      setTimeout(() => setCartOpen(true), 250);
-    }
   };
   const decFromCart = (id: string) => setCart((c) => {
     const n = { ...c };
@@ -528,10 +523,23 @@ const Catalog = () => {
         <Sheet open={cartOpen} onOpenChange={setCartOpen}>
           <SheetContent side="right" dir="rtl" className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
             <SheetHeader className="border-b border-border px-5 py-4 text-right">
-              <SheetTitle className="flex items-center gap-2 text-xl">
-                <ShoppingCart className="h-5 w-5 text-primary" />
-                העגלה שלי {cartCount > 0 && <span className="text-base text-muted-foreground">({cartCount})</span>}
-              </SheetTitle>
+              <div className="flex items-center justify-between gap-2">
+                <SheetTitle className="flex items-center gap-2 text-xl">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  העגלה שלי {cartCount > 0 && <span className="text-base text-muted-foreground">({cartCount})</span>}
+                </SheetTitle>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCartOpen(false)}
+                  className="gap-1.5"
+                  aria-label="חזרה לקטלוג"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                  חזרה
+                </Button>
+              </div>
               <SheetDescription>
                 סקרו את הפריטים, מלאו פרטים ושלחו בקשת השאלה
               </SheetDescription>
