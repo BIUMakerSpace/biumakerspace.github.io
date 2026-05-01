@@ -611,12 +611,32 @@ const Catalog = () => {
                   <Label htmlFor="l-notes" className="text-xs">הערות (לא חובה)</Label>
                   <Textarea id="l-notes" value={lNotes} onChange={(e) => setLNotes(e.target.value)} rows={2} />
                 </div>
+
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="l-agree"
+                      checked={lAgreed}
+                      onCheckedChange={(c) => setLAgreed(c === true)}
+                      className="mt-0.5"
+                    />
+                    <Label htmlFor="l-agree" className="cursor-pointer text-xs leading-relaxed text-foreground">
+                      <span className="mb-1 block font-bold">תנאי ההשאלה</span>
+                      <span className="block text-muted-foreground">
+                        אני מתחייב/ת לשמור על הפריטים, אחראי/ת לכל נזק שייגרם להם, לא להוציא אותם
+                        מהמרחב ללא אישור של אחד המדריכים, ולהחזיר את כל הציוד במצב תקין
+                        עד סוף שנת הלימודים — <span className="font-semibold text-foreground">1.7.2026</span>.
+                      </span>
+                    </Label>
+                  </div>
+                </div>
+
                 {!user ? (
                   <Button type="button" className="w-full" onClick={() => navigate("/auth")}>
                     התחברו כדי להגיש בקשה
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={lSubmitting} className="w-full">
+                  <Button type="submit" disabled={lSubmitting || !lAgreed} className="w-full">
                     {lSubmitting ? "שולח..." : `שלח בקשת השאלה (${cartCount})`}
                   </Button>
                 )}
