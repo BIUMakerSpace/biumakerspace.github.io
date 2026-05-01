@@ -50,6 +50,48 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_item_sources: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          quantity: number
+          source_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          quantity?: number
+          source_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          quantity?: number
+          source_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_item_sources_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_item_sources_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "item_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalog_items: {
         Row: {
           category: string
@@ -225,6 +267,75 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      item_sources: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lend_request_item_sources: {
+        Row: {
+          created_at: string
+          id: string
+          lend_request_item_id: string
+          quantity: number
+          source_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lend_request_item_id: string
+          quantity: number
+          source_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lend_request_item_id?: string
+          quantity?: number
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lend_request_item_sources_lend_request_item_id_fkey"
+            columns: ["lend_request_item_id"]
+            isOneToOne: false
+            referencedRelation: "lend_request_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lend_request_item_sources_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "item_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lend_request_items: {
         Row: {

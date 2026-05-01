@@ -11,9 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
+import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
+import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
+import DeliverDialog from "@/components/admin/DeliverDialog";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
+import { Warehouse } from "lucide-react";
 
 interface CatalogItem {
   id: string;
@@ -48,7 +52,7 @@ interface LendReq {
   created_at: string;
   delivered_at: string | null;
   returned_at: string | null;
-  lend_request_items: { quantity: number; catalog_items: { name: string } }[];
+  lend_request_items: { id: string; item_id: string; quantity: number; catalog_items: { name: string } }[];
 }
 
 interface ItemReq {
@@ -64,6 +68,7 @@ const Admin = () => {
   const [printReqs, setPrintReqs] = useState<PrintReq[]>([]);
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
   const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
+  const [deliverFor, setDeliverFor] = useState<LendReq | null>(null);
 
   // New item form
   const [iName, setIName] = useState("");
@@ -109,8 +114,6 @@ const Admin = () => {
       const { error } = await supabase.from("catalog_items").update({
         name: eName,
         description: eDesc || null,
-        quantity_total: eTotal,
-        quantity_available: Math.min(eAvailable, eTotal),
         category: eCategory,
         image_url: imageUrl,
       }).eq("id", editItem.id);
@@ -135,12 +138,12 @@ const Admin = () => {
     const [a, b, c, d] = await Promise.all([
       supabase.from("catalog_items").select("*").order("name"),
       supabase.from("print_requests").select("*").order("created_at", { ascending: false }),
-      supabase.from("lend_requests").select("*, lend_request_items(quantity, catalog_items(name))").order("created_at", { ascending: false }),
+      supabase.from("lend_requests").select("*, lend_request_items(id, item_id, quantity, catalog_items(name))").order("created_at", { ascending: false }),
       supabase.from("item_requests").select("*").order("created_at", { ascending: false }),
     ]);
     setItems(a.data ?? []);
     setPrintReqs(b.data ?? []);
-    setLendReqs((c.data as LendReq[]) ?? []);
+    setLendReqs((c.data as unknown as LendReq[]) ?? []);
     setItemReqs(d.data ?? []);
   };
 
@@ -308,14 +311,19 @@ const Admin = () => {
         </h1>
 
         <Tabs defaultValue="catalog" dir="rtl">
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="catalog" className="gap-1.5"><Package className="h-4 w-4" />קטלוג</TabsTrigger>
+            <TabsTrigger value="sources" className="gap-1.5"><Warehouse className="h-4 w-4" />מקורות</TabsTrigger>
             <TabsTrigger value="print" className="gap-1.5"><Printer className="h-4 w-4" />הדפסות ({printReqs.length})</TabsTrigger>
             <TabsTrigger value="lend" className="gap-1.5"><ShoppingBag className="h-4 w-4" />השאלות ({lendReqs.length})</TabsTrigger>
             <TabsTrigger value="onloan" className="gap-1.5"><ClipboardList className="h-4 w-4" />ציוד מושאל</TabsTrigger>
             <TabsTrigger value="itemreq" className="gap-1.5"><Package className="h-4 w-4" />בקשות פריטים ({itemReqs.length})</TabsTrigger>
             <TabsTrigger value="colors" className="gap-1.5"><Palette className="h-4 w-4" />צבעי פילמנט</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="sources">
+            <ItemSourcesManager />
+          </TabsContent>
 
           <TabsContent value="catalog">
             <div className="grid gap-8 lg:grid-cols-[400px_1fr]">
@@ -379,12 +387,9 @@ const Admin = () => {
                         </div>
                         <Badge variant="secondary" className="mt-1 w-fit text-[10px]">{CATEGORY_LABELS[normalizeCategory(item.category)]}</Badge>
                         {item.description && <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description}</p>}
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                          <span>זמין:</span>
-                          <Input type="number" value={item.quantity_available} onChange={(e) => updateItemQty(item.id, parseInt(e.target.value) || 0, item.quantity_total)} className="h-7 w-16" />
-                          <span>/ סה״כ:</span>
-                          <Input type="number" value={item.quantity_total} onChange={(e) => updateItemQty(item.id, item.quantity_available, parseInt(e.target.value) || 0)} className="h-7 w-16" />
-                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          זמין: <strong className="text-foreground">{item.quantity_available}</strong> / סה״כ: <strong className="text-foreground">{item.quantity_total}</strong>
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -431,11 +436,19 @@ const Admin = () => {
                       <h3 className="font-bold">{r.requester_name}</h3>
                       <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                     </div>
-                    <select value={r.status} onChange={(e) => {
-                      const updates: { status: string; delivered_at?: string; returned_at?: string } = { status: e.target.value };
-                      if (e.target.value === "delivered" && !r.delivered_at) updates.delivered_at = new Date().toISOString();
-                      if (e.target.value === "returned" && !r.returned_at) updates.returned_at = new Date().toISOString();
-                      updateLendStatus(r.id, updates);
+                    <select value={r.status} onChange={async (e) => {
+                      const next = e.target.value;
+                      if (next === "delivered" && r.status !== "delivered") {
+                        setDeliverFor(r);
+                        return;
+                      }
+                      if (next === "returned" && r.status !== "returned") {
+                        const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
+                        if (error) toast.error(error.message);
+                        else { toast.success("הוחזר"); loadAll(); }
+                        return;
+                      }
+                      updateLendStatus(r.id, { status: next });
                     }} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
                       <option value="pending">ממתין</option>
                       <option value="approved">אושר</option>
@@ -528,9 +541,11 @@ const Admin = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() =>
-                                    updateLendStatus(r.id, { status: "returned", returned_at: new Date().toISOString() })
-                                  }
+                                  onClick={async () => {
+                                    const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
+                                    if (error) toast.error(error.message);
+                                    else { toast.success("הוחזר"); loadAll(); }
+                                  }}
                                 >
                                   סמן כהוחזר
                                 </Button>
@@ -601,10 +616,11 @@ const Admin = () => {
                 )}
                 <div><Label>שם</Label><Input value={eName} onChange={(e) => setEName(e.target.value)} required /></div>
                 <div><Label>תיאור</Label><Textarea value={eDesc} onChange={(e) => setEDesc(e.target.value)} rows={3} /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label>סה״כ</Label><Input type="number" min={0} value={eTotal} onChange={(e) => setETotal(parseInt(e.target.value) || 0)} required /></div>
-                  <div><Label>זמין</Label><Input type="number" min={0} max={eTotal} value={eAvailable} onChange={(e) => setEAvailable(parseInt(e.target.value) || 0)} required /></div>
+                <div className="rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">
+                  סה״כ: <strong className="text-foreground">{editItem.quantity_total}</strong> · זמין: <strong className="text-foreground">{editItem.quantity_available}</strong>
+                  <span className="block mt-0.5">הכמויות מתעדכנות אוטומטית לפי מיקומי האחסון למטה</span>
                 </div>
+                <ItemSourcesEditor itemId={editItem.id} onChanged={loadAll} />
                 <div>
                   <Label>קטגוריה</Label>
                   <select value={eCategory} onChange={(e) => setECategory(e.target.value as CatalogCategory)} className="block h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
@@ -620,6 +636,21 @@ const Admin = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {deliverFor && (
+          <DeliverDialog
+            open={!!deliverFor}
+            onClose={() => setDeliverFor(null)}
+            requestId={deliverFor.id}
+            items={deliverFor.lend_request_items.map((li) => ({
+              id: li.id,
+              item_id: li.item_id,
+              quantity: li.quantity,
+              name: li.catalog_items?.name ?? "",
+            }))}
+            onDelivered={loadAll}
+          />
+        )}
       </main>
     </div>
   );
