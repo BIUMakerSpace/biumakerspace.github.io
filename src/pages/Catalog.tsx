@@ -621,12 +621,19 @@ const Catalog = () => {
                       className="mt-0.5"
                     />
                     <Label htmlFor="l-agree" className="cursor-pointer text-xs leading-relaxed text-foreground">
-                      <span className="mb-1 block font-bold">תנאי ההשאלה</span>
+                      <span className="mb-1.5 block text-sm font-bold">הצהרת השאלה</span>
                       <span className="block text-muted-foreground">
-                        אני מתחייב/ת לשמור על הפריטים, אחראי/ת לכל נזק שייגרם להם, לא להוציא אותם
-                        מהמרחב ללא אישור של אחד המדריכים, ולהחזיר את כל הציוד במצב תקין
-                        עד סוף שנת הלימודים — <span className="font-semibold text-foreground">1.7.2026</span>.
+                        בשליחת הבקשה אני מאשר/ת כי קראתי והבנתי את התנאים, ומתחייב/ת:
                       </span>
+                      <ul className="mt-1.5 list-disc space-y-1 pr-4 text-muted-foreground marker:text-primary">
+                        <li>לשמור על הציוד בקפידה ולהשתמש בו אך ורק למטרה שלשמה הושאל.</li>
+                        <li>לשאת באחריות מלאה לכל נזק, אובדן או גניבה של הציוד שבהשאלתי.</li>
+                        <li>לא להוציא את הציוד מהמייקרספייס ללא אישור מפורש מאחד המדריכים.</li>
+                        <li>
+                          להחזיר את כל הציוד במצב תקין ושלם לכל המאוחר עד{" "}
+                          <span className="font-semibold text-foreground">1.7.2026</span> (סוף שנת הלימודים).
+                        </li>
+                      </ul>
                     </Label>
                   </div>
                 </div>
