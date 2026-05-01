@@ -114,8 +114,6 @@ const Admin = () => {
       const { error } = await supabase.from("catalog_items").update({
         name: eName,
         description: eDesc || null,
-        quantity_total: eTotal,
-        quantity_available: Math.min(eAvailable, eTotal),
         category: eCategory,
         image_url: imageUrl,
       }).eq("id", editItem.id);
