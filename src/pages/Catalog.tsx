@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Search, Package, ShoppingBag, SlidersHorizontal, ChevronDown, ChevronUp,
   ShoppingCart, Plus, Minus, Trash2, Info, PackagePlus, ArrowRight,
@@ -78,6 +79,7 @@ const Catalog = () => {
   const [lPhone, setLPhone] = useState("");
   const [lNotes, setLNotes] = useState("");
   const [lSubmitting, setLSubmitting] = useState(false);
+  const [lAgreed, setLAgreed] = useState(false);
 
   // "Request new item" dialog
   const [reqOpen, setReqOpen] = useState(false);
@@ -183,6 +185,10 @@ const Catalog = () => {
       toast.error("העגלה ריקה");
       return;
     }
+    if (!lAgreed) {
+      toast.error("יש לאשר את תנאי ההשאלה");
+      return;
+    }
     const parsed = lendSchema.safeParse({
       requester_name: lName, requester_email: lEmail, requester_phone: lPhone, notes: lNotes,
     });
@@ -209,7 +215,7 @@ const Catalog = () => {
       );
       if (itemsErr) throw itemsErr;
       toast.success("הבקשה נשלחה!", { description: "ניצור קשר בקרוב" });
-      setCart({}); setLNotes(""); setCartOpen(false);
+      setCart({}); setLNotes(""); setLAgreed(false); setCartOpen(false);
     } catch (err) {
       toast.error("שגיאה בשליחה", { description: (err as Error).message });
     } finally {
@@ -605,12 +611,32 @@ const Catalog = () => {
                   <Label htmlFor="l-notes" className="text-xs">הערות (לא חובה)</Label>
                   <Textarea id="l-notes" value={lNotes} onChange={(e) => setLNotes(e.target.value)} rows={2} />
                 </div>
+
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="l-agree"
+                      checked={lAgreed}
+                      onCheckedChange={(c) => setLAgreed(c === true)}
+                      className="mt-0.5"
+                    />
+                    <Label htmlFor="l-agree" className="cursor-pointer text-xs leading-relaxed text-foreground">
+                      <span className="mb-1 block font-bold">תנאי ההשאלה</span>
+                      <span className="block text-muted-foreground">
+                        אני מתחייב/ת לשמור על הפריטים, אחראי/ת לכל נזק שייגרם להם, לא להוציא אותם
+                        מהמרחב ללא אישור של אחד המדריכים, ולהחזיר את כל הציוד במצב תקין
+                        עד סוף שנת הלימודים — <span className="font-semibold text-foreground">1.7.2026</span>.
+                      </span>
+                    </Label>
+                  </div>
+                </div>
+
                 {!user ? (
                   <Button type="button" className="w-full" onClick={() => navigate("/auth")}>
                     התחברו כדי להגיש בקשה
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={lSubmitting} className="w-full">
+                  <Button type="submit" disabled={lSubmitting || !lAgreed} className="w-full">
                     {lSubmitting ? "שולח..." : `שלח בקשת השאלה (${cartCount})`}
                   </Button>
                 )}
