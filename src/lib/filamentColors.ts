@@ -28,3 +28,13 @@ export async function fetchAllFilamentColors(): Promise<FilamentColor[]> {
   if (error) throw error;
   return (data ?? []) as FilamentColor[];
 }
+
+/**
+ * Returns the CSS `background` value for a filament color swatch.
+ * Supports plain hex (#rrggbb) or full CSS gradient strings stored in `hex`
+ * (e.g. `linear-gradient(90deg, #ff0000, #0000ff)`).
+ */
+export function filamentSwatchStyle(hex: string | null | undefined): React.CSSProperties {
+  if (!hex) return { backgroundColor: "transparent" };
+  return hex.includes("gradient") ? { backgroundImage: hex } : { backgroundColor: hex };
+}
