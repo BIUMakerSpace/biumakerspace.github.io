@@ -436,11 +436,19 @@ const Admin = () => {
                       <h3 className="font-bold">{r.requester_name}</h3>
                       <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                     </div>
-                    <select value={r.status} onChange={(e) => {
-                      const updates: { status: string; delivered_at?: string; returned_at?: string } = { status: e.target.value };
-                      if (e.target.value === "delivered" && !r.delivered_at) updates.delivered_at = new Date().toISOString();
-                      if (e.target.value === "returned" && !r.returned_at) updates.returned_at = new Date().toISOString();
-                      updateLendStatus(r.id, updates);
+                    <select value={r.status} onChange={async (e) => {
+                      const next = e.target.value;
+                      if (next === "delivered" && r.status !== "delivered") {
+                        setDeliverFor(r);
+                        return;
+                      }
+                      if (next === "returned" && r.status !== "returned") {
+                        const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
+                        if (error) toast.error(error.message);
+                        else { toast.success("הוחזר"); loadAll(); }
+                        return;
+                      }
+                      updateLendStatus(r.id, { status: next });
                     }} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
                       <option value="pending">ממתין</option>
                       <option value="approved">אושר</option>
