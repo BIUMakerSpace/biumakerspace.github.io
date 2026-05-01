@@ -139,12 +139,12 @@ const Admin = () => {
     const [a, b, c, d] = await Promise.all([
       supabase.from("catalog_items").select("*").order("name"),
       supabase.from("print_requests").select("*").order("created_at", { ascending: false }),
-      supabase.from("lend_requests").select("*, lend_request_items(quantity, catalog_items(name))").order("created_at", { ascending: false }),
+      supabase.from("lend_requests").select("*, lend_request_items(id, item_id, quantity, catalog_items(name))").order("created_at", { ascending: false }),
       supabase.from("item_requests").select("*").order("created_at", { ascending: false }),
     ]);
     setItems(a.data ?? []);
     setPrintReqs(b.data ?? []);
-    setLendReqs((c.data as LendReq[]) ?? []);
+    setLendReqs((c.data as unknown as LendReq[]) ?? []);
     setItemReqs(d.data ?? []);
   };
 
