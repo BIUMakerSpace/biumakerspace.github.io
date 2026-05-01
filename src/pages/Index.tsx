@@ -5,7 +5,7 @@ import ResourceCard from "@/components/ResourceCard";
 import SiteNav from "@/components/SiteNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen } from "lucide-react";
 
 const resources = [
   {
@@ -252,6 +252,55 @@ const Index = () => {
                 <p className="hidden text-sm text-muted-foreground md:block">{f.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Opening Hours */}
+      <section className="border-b border-border bg-muted/30 py-12 md:py-20" dir="rtl">
+        <div className="container mx-auto max-w-5xl px-5 md:px-6">
+          <div className="grid gap-6 md:grid-cols-2 md:gap-10">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Clock className="h-6 w-6" />
+              </div>
+              <h2 className="mb-3 text-2xl font-black tracking-tight text-foreground md:text-3xl">
+                שעות פעילות עם <span className="text-gradient">מדריכים</span>
+              </h2>
+              <p className="mb-5 text-base leading-relaxed text-muted-foreground">
+                מדריכים נמצאים במרחב וזמינים לעזרה, ייעוץ והדרכה בימים הבאים:
+              </p>
+              <ul className="space-y-3">
+                {[
+                  { day: "ראשון", hours: "18:00 – 20:00" },
+                  { day: "שלישי", hours: "18:00 – 20:00" },
+                  { day: "חמישי", hours: "18:00 – 20:00" },
+                ].map((slot) => (
+                  <li
+                    key={slot.day}
+                    className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-3"
+                  >
+                    <span className="text-base font-bold text-foreground">יום {slot.day}</span>
+                    <span className="font-mono text-base text-primary">{slot.hours}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <DoorOpen className="h-6 w-6" />
+              </div>
+              <h2 className="mb-3 text-2xl font-black tracking-tight text-foreground md:text-3xl">
+                המרחב <span className="text-gradient">פתוח תמיד</span>
+              </h2>
+              <p className="mb-4 text-base leading-relaxed text-muted-foreground">
+                גם מחוץ לשעות עם המדריכים, סטודנטים מוזמנים להגיע ולעבוד במרחב בכל זמן שנוח להם.
+              </p>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                בואו ליצור, להתנסות ולבנות — בקצב שלכם.
+              </p>
+            </div>
           </div>
         </div>
       </section>
