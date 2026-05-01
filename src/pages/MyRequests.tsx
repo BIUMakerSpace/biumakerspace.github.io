@@ -105,7 +105,10 @@ const MyRequests = () => {
                 </div>
                 <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
                 <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                  {r.status === "pending" && <CancelButton onConfirm={() => cancelPrint(r.id)} />}
+                </div>
               </div>
             ))}
           </TabsContent>
@@ -124,9 +127,14 @@ const MyRequests = () => {
                   ))}
                 </ul>
                 {r.notes && <p className="mt-2 text-sm"><strong>הערות:</strong> {r.notes}</p>}
-                <p className="mt-1 text-xs text-muted-foreground">נשלח: {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
-                {r.delivered_at && <p className="text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
-                {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">נשלח: {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                    {r.delivered_at && <p className="text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
+                    {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                  </div>
+                  {r.status === "pending" && <CancelButton onConfirm={() => cancelLend(r.id)} />}
+                </div>
               </div>
             ))}
           </TabsContent>
