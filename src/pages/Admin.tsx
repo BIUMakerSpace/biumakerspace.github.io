@@ -151,7 +151,15 @@ const Admin = () => {
     setItemReqs(d.data ?? []);
   };
 
-  useEffect(() => { if (isAdmin) loadAll(); }, [isAdmin]);
+  const loadSourcesList = async () => {
+    const { data } = await supabase
+      .from("item_sources")
+      .select("id, name, is_active")
+      .order("sort_order").order("name");
+    setSourcesList((data ?? []) as { id: string; name: string; is_active: boolean }[]);
+  };
+
+  useEffect(() => { if (isAdmin) { loadAll(); loadSourcesList(); } }, [isAdmin]);
 
   const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
