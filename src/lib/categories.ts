@@ -38,7 +38,7 @@ export const CATEGORY_LABELS: Record<CatalogCategory, string> = {
   microcontrollers: "בקרים וערכות",
   communication: "תקשורת",
   storage_memory: "אחסון וזיכרון",
-  passive_components: "רכיבים פסיביים",
+  passive_components: "קבלים",
   wires_connectors: "חוטים ומחברים",
   power: "מתח והספק",
   tools: "כלים ואביזרים",
