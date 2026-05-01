@@ -151,11 +151,6 @@ const Catalog = () => {
     setCart((c) => ({ ...c, [it.id]: current + 1 }));
     setBumpKey((k) => k + 1);
     toast.success(`${it.name} נוסף לעגלה`);
-    if (!autoOpenedRef.current) {
-      autoOpenedRef.current = true;
-      // Briefly open the cart on first add so the user sees where it lives
-      setTimeout(() => setCartOpen(true), 250);
-    }
   };
   const decFromCart = (id: string) => setCart((c) => {
     const n = { ...c };
