@@ -500,31 +500,61 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="print">
-            <div className="space-y-3">
-              {printReqs.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
-              {printReqs.map((r) => (
-                <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold">{r.requester_name}</h3>
-                      <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
-                    </div>
-                    <select value={r.status} onChange={(e) => updatePrintStatus(r.id, e.target.value)} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                      <option value="pending">ממתין</option>
-                      <option value="printing">מדפיס</option>
-                      <option value="ready">מוכן לאיסוף</option>
-                      <option value="completed">הושלם</option>
-                      <option value="rejected">נדחה</option>
-                    </select>
+            {(() => {
+              const PRINT_STATUSES = [
+                { value: "pending", label: "ממתין" },
+                { value: "printing", label: "מדפיס" },
+                { value: "ready", label: "מוכן לאיסוף" },
+                { value: "completed", label: "הושלם" },
+                { value: "rejected", label: "נדחה" },
+                { value: "cancelled", label: "בוטל" },
+              ];
+              const filtered = printStatusFilter === "all"
+                ? printReqs
+                : printReqs.filter((r) => r.status === printStatusFilter);
+              return (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm text-muted-foreground">סינון לפי סטטוס:</span>
+                    <Button size="sm" variant={printStatusFilter === "all" ? "default" : "outline"} onClick={() => setPrintStatusFilter("all")}>
+                      הכל ({printReqs.length})
+                    </Button>
+                    {PRINT_STATUSES.map((s) => {
+                      const count = printReqs.filter((r) => r.status === s.value).length;
+                      return (
+                        <Button key={s.value} size="sm" variant={printStatusFilter === s.value ? "default" : "outline"} onClick={() => setPrintStatusFilter(s.value)}>
+                          {s.label} ({count})
+                        </Button>
+                      );
+                    })}
                   </div>
-                  <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
-                  <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
-                  <Button size="sm" variant="outline" className="mt-2 gap-1.5" onClick={() => downloadStl(r.stl_file_path, r.stl_file_name)}>
-                    <Download className="h-3.5 w-3.5" />{r.stl_file_name}
-                  </Button>
+                  {filtered.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
+                  {filtered.map((r) => (
+                    <div key={r.id} className="rounded-lg border border-border bg-card p-5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <div>
+                          <h3 className="font-bold">{r.requester_name}</h3>
+                          <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                        </div>
+                        <select value={r.status} onChange={(e) => updatePrintStatus(r.id, e.target.value)} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
+                          <option value="pending">ממתין</option>
+                          <option value="printing">מדפיס</option>
+                          <option value="ready">מוכן לאיסוף</option>
+                          <option value="completed">הושלם</option>
+                          <option value="rejected">נדחה</option>
+                          <option value="cancelled">בוטל</option>
+                        </select>
+                      </div>
+                      <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
+                      <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
+                      <Button size="sm" variant="outline" className="mt-2 gap-1.5" onClick={() => downloadStl(r.stl_file_path, r.stl_file_name)}>
+                        <Download className="h-3.5 w-3.5" />{r.stl_file_name}
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </TabsContent>
 
           <TabsContent value="lend">
