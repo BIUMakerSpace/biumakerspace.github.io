@@ -79,6 +79,12 @@ const resources = [
     url: "https://www.instructables.com/Traffic-Lights-With-an-Arduino/",
     type: "project" as const,
   },
+  {
+    title: "Keyestudio 48-in-1 Sensor Kit – מדריך רשמי",
+    description: "המדריך המלא של ערכת 48 החיישנים של Keyestudio – הסברים, סכמות חיבור ודוגמאות קוד לכל חיישן",
+    url: "/tutorials/keyestudio-48-in-1-sensor-kit.pdf",
+    type: "pdf" as const,
+  },
 ];
 
 const features = [
