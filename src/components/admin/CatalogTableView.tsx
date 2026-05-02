@@ -182,7 +182,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <tr key={item.id} className="border-b border-border last:border-0 hover:bg-muted/20">
               <td className="p-2">
                 {item.image_url
@@ -253,8 +253,10 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
               </td>
             </tr>
           ))}
-          {items.length === 0 && (
-            <tr><td colSpan={7 + sources.length} className="p-8 text-center text-sm text-muted-foreground">אין פריטים</td></tr>
+          {filteredItems.length === 0 && (
+            <tr><td colSpan={7 + sources.length} className="p-8 text-center text-sm text-muted-foreground">
+              {items.length === 0 ? "אין פריטים" : "לא נמצאו פריטים התואמים לסינון"}
+            </td></tr>
           )}
         </tbody>
       </table>
@@ -264,6 +266,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
           הוסף מיקומי אחסון בלשונית "מקורות" כדי לקבל עמודה לכל מקור
         </p>
       )}
+      </div>
     </div>
   );
 };
