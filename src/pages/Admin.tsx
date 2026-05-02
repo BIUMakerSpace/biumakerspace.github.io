@@ -904,6 +904,13 @@ const Admin = () => {
             onDelivered={loadAll}
           />
         )}
+
+        <CreateLendForUser
+          open={!!createLendFor}
+          onClose={() => setCreateLendFor(null)}
+          user={createLendFor}
+          onCreated={loadAll}
+        />
       </main>
     </div>
   );
