@@ -558,47 +558,77 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="lend">
-            <div className="space-y-3">
-              {lendReqs.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
-              {lendReqs.map((r) => (
-                <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold">{r.requester_name}</h3>
-                      <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
-                    </div>
-                    <select value={r.status} onChange={async (e) => {
-                      const next = e.target.value;
-                      if (next === "delivered" && r.status !== "delivered") {
-                        setDeliverFor(r);
-                        return;
-                      }
-                      if (next === "returned" && r.status !== "returned") {
-                        const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
-                        if (error) toast.error(error.message);
-                        else { toast.success("הוחזר"); loadAll(); }
-                        return;
-                      }
-                      updateLendStatus(r.id, { status: next });
-                    }} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                      <option value="pending">ממתין</option>
-                      <option value="approved">אושר</option>
-                      <option value="delivered">נמסר</option>
-                      <option value="returned">הוחזר</option>
-                      <option value="rejected">נדחה</option>
-                    </select>
+            {(() => {
+              const LEND_STATUSES = [
+                { value: "pending", label: "ממתין" },
+                { value: "approved", label: "אושר" },
+                { value: "delivered", label: "נמסר" },
+                { value: "returned", label: "הוחזר" },
+                { value: "rejected", label: "נדחה" },
+                { value: "cancelled", label: "בוטל" },
+              ];
+              const filtered = lendStatusFilter === "all"
+                ? lendReqs
+                : lendReqs.filter((r) => r.status === lendStatusFilter);
+              return (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm text-muted-foreground">סינון לפי סטטוס:</span>
+                    <Button size="sm" variant={lendStatusFilter === "all" ? "default" : "outline"} onClick={() => setLendStatusFilter("all")}>
+                      הכל ({lendReqs.length})
+                    </Button>
+                    {LEND_STATUSES.map((s) => {
+                      const count = lendReqs.filter((r) => r.status === s.value).length;
+                      return (
+                        <Button key={s.value} size="sm" variant={lendStatusFilter === s.value ? "default" : "outline"} onClick={() => setLendStatusFilter(s.value)}>
+                          {s.label} ({count})
+                        </Button>
+                      );
+                    })}
                   </div>
-                  <ul className="text-sm">
-                    {r.lend_request_items?.map((li, idx) => (
-                      <li key={idx}>• {li.catalog_items?.name} × {li.quantity}</li>
-                    ))}
-                  </ul>
-                  {r.notes && <p className="mt-2 text-sm"><strong>הערות:</strong> {r.notes}</p>}
-                  {r.delivered_at && <p className="mt-1 text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
-                  {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                  {filtered.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
+                  {filtered.map((r) => (
+                    <div key={r.id} className="rounded-lg border border-border bg-card p-5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <div>
+                          <h3 className="font-bold">{r.requester_name}</h3>
+                          <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                        </div>
+                        <select value={r.status} onChange={async (e) => {
+                          const next = e.target.value;
+                          if (next === "delivered" && r.status !== "delivered") {
+                            setDeliverFor(r);
+                            return;
+                          }
+                          if (next === "returned" && r.status !== "returned") {
+                            const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
+                            if (error) toast.error(error.message);
+                            else { toast.success("הוחזר"); loadAll(); }
+                            return;
+                          }
+                          updateLendStatus(r.id, { status: next });
+                        }} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
+                          <option value="pending">ממתין</option>
+                          <option value="approved">אושר</option>
+                          <option value="delivered">נמסר</option>
+                          <option value="returned">הוחזר</option>
+                          <option value="rejected">נדחה</option>
+                          <option value="cancelled">בוטל</option>
+                        </select>
+                      </div>
+                      <ul className="text-sm">
+                        {r.lend_request_items?.map((li, idx) => (
+                          <li key={idx}>• {li.catalog_items?.name} × {li.quantity}</li>
+                        ))}
+                      </ul>
+                      {r.notes && <p className="mt-2 text-sm"><strong>הערות:</strong> {r.notes}</p>}
+                      {r.delivered_at && <p className="mt-1 text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
+                      {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </TabsContent>
 
           <TabsContent value="onloan">
