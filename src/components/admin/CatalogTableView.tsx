@@ -87,13 +87,86 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
     onChanged();
   };
 
+  const filteredItems = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((it) => {
+      if (categoryFilter !== "all" && normalizeCategory(it.category) !== categoryFilter) return false;
+      if (availabilityFilter === "available" && it.quantity_available <= 0) return false;
+      if (availabilityFilter === "out" && it.quantity_available > 0) return false;
+      if (sourceFilter !== "all") {
+        const cell = grid.get(it.id)?.get(sourceFilter);
+        if (!cell || cell.qty <= 0) return false;
+      }
+      if (q) {
+        const hay = `${it.name} ${it.description ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [items, search, categoryFilter, availabilityFilter, sourceFilter, grid]);
+
+  const hasActiveFilter = search.trim() !== "" || categoryFilter !== "all" || availabilityFilter !== "all" || sourceFilter !== "all";
+
   if (loading && sources.length === 0) {
     return <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">טוען…</p>;
   }
 
   return (
-    <div className="max-h-[70vh] overflow-auto rounded-lg border border-border bg-card">
-      <table className="w-full text-sm">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
+        <div className="relative min-w-[200px] flex-1">
+          <Search className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="חיפוש לפי שם או תיאור…"
+            className="h-9 pr-8"
+          />
+        </div>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="h-9 rounded-md border border-input bg-background px-2 text-xs"
+        >
+          <option value="all">כל הקטגוריות</option>
+          {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c as CatalogCategory]}</option>)}
+        </select>
+        <select
+          value={availabilityFilter}
+          onChange={(e) => setAvailabilityFilter(e.target.value as "all" | "available" | "out")}
+          className="h-9 rounded-md border border-input bg-background px-2 text-xs"
+        >
+          <option value="all">כל הזמינויות</option>
+          <option value="available">זמין במלאי</option>
+          <option value="out">אזל</option>
+        </select>
+        {sources.length > 0 && (
+          <select
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-xs"
+          >
+            <option value="all">כל המקורות</option>
+            {sources.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+        )}
+        {hasActiveFilter && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-9 gap-1"
+            onClick={() => { setSearch(""); setCategoryFilter("all"); setAvailabilityFilter("all"); setSourceFilter("all"); }}
+          >
+            <X className="h-3.5 w-3.5" />נקה
+          </Button>
+        )}
+        <span className="ms-auto text-xs text-muted-foreground">
+          {filteredItems.length} מתוך {items.length}
+        </span>
+      </div>
+
+      <div className="max-h-[70vh] overflow-auto rounded-lg border border-border bg-card">
+        <table className="w-full text-sm">
         <thead className="sticky top-0 z-10 border-b border-border bg-muted text-xs uppercase text-muted-foreground shadow-sm">
           <tr>
             <th className="p-2 text-right font-medium">תמונה</th>
