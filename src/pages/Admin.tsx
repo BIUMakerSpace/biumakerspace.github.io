@@ -176,7 +176,17 @@ const Admin = () => {
     setSourcesList((data ?? []) as { id: string; name: string; is_active: boolean }[]);
   };
 
-  useEffect(() => { if (isAdmin) { loadAll(); loadSourcesList(); } }, [isAdmin]);
+  const loadUsers = async () => {
+    const [{ data: profs }, { data: roles }] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, phone, created_at").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("user_id, role"),
+    ]);
+    const roleMap = new Map<string, "admin" | "user">();
+    (roles ?? []).forEach((r: { user_id: string; role: "admin" | "user" }) => roleMap.set(r.user_id, r.role));
+    setUsers(((profs ?? []) as UserProfile[]).map((p) => ({ ...p, role: roleMap.get(p.id) ?? "user" })));
+  };
+
+  useEffect(() => { if (isAdmin) { loadAll(); loadSourcesList(); loadUsers(); } }, [isAdmin]);
 
   const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
