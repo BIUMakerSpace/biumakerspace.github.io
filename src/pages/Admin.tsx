@@ -383,6 +383,7 @@ const Admin = () => {
             <TabsTrigger value="onloan" className="gap-1.5"><ClipboardList className="h-4 w-4" />ציוד מושאל</TabsTrigger>
             <TabsTrigger value="itemreq" className="gap-1.5"><Package className="h-4 w-4" />בקשות פריטים ({itemReqs.length})</TabsTrigger>
             <TabsTrigger value="colors" className="gap-1.5"><Palette className="h-4 w-4" />צבעי פילמנט</TabsTrigger>
+            <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" />משתמשים ({users.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="sources">
