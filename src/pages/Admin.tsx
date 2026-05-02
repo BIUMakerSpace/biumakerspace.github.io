@@ -63,6 +63,15 @@ interface ItemReq {
   status: string; created_at: string;
 }
 
+interface UserProfile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  created_at: string;
+  role?: "admin" | "user";
+}
+
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
@@ -71,6 +80,9 @@ const Admin = () => {
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
   const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
   const [deliverFor, setDeliverFor] = useState<LendReq | null>(null);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [userSearch, setUserSearch] = useState("");
+  const [createLendFor, setCreateLendFor] = useState<UserProfile | null>(null);
 
   // New item form
   const [iName, setIName] = useState("");
