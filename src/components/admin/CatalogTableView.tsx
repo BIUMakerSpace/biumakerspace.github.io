@@ -36,6 +36,10 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
   const [sources, setSources] = useState<Source[]>([]);
   const [cis, setCis] = useState<CISRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "out">("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
 
   const load = async () => {
     setLoading(true);
