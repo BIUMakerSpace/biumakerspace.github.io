@@ -9,12 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette } from "lucide-react";
+import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
 import CatalogTableView from "@/components/admin/CatalogTableView";
 import DeliverDialog from "@/components/admin/DeliverDialog";
+import CreateLendForUser from "@/components/admin/CreateLendForUser";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
@@ -62,6 +63,15 @@ interface ItemReq {
   status: string; created_at: string;
 }
 
+interface UserProfile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  created_at: string;
+  role?: "admin" | "user";
+}
+
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
@@ -70,6 +80,9 @@ const Admin = () => {
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
   const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
   const [deliverFor, setDeliverFor] = useState<LendReq | null>(null);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [userSearch, setUserSearch] = useState("");
+  const [createLendFor, setCreateLendFor] = useState<UserProfile | null>(null);
 
   // New item form
   const [iName, setIName] = useState("");
@@ -163,7 +176,17 @@ const Admin = () => {
     setSourcesList((data ?? []) as { id: string; name: string; is_active: boolean }[]);
   };
 
-  useEffect(() => { if (isAdmin) { loadAll(); loadSourcesList(); } }, [isAdmin]);
+  const loadUsers = async () => {
+    const [{ data: profs }, { data: roles }] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, phone, created_at").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("user_id, role"),
+    ]);
+    const roleMap = new Map<string, "admin" | "user">();
+    (roles ?? []).forEach((r: { user_id: string; role: "admin" | "user" }) => roleMap.set(r.user_id, r.role));
+    setUsers(((profs ?? []) as UserProfile[]).map((p) => ({ ...p, role: roleMap.get(p.id) ?? "user" })));
+  };
+
+  useEffect(() => { if (isAdmin) { loadAll(); loadSourcesList(); loadUsers(); } }, [isAdmin]);
 
   const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -360,6 +383,7 @@ const Admin = () => {
             <TabsTrigger value="onloan" className="gap-1.5"><ClipboardList className="h-4 w-4" />ציוד מושאל</TabsTrigger>
             <TabsTrigger value="itemreq" className="gap-1.5"><Package className="h-4 w-4" />בקשות פריטים ({itemReqs.length})</TabsTrigger>
             <TabsTrigger value="colors" className="gap-1.5"><Palette className="h-4 w-4" />צבעי פילמנט</TabsTrigger>
+            <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" />משתמשים ({users.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="sources">
@@ -761,6 +785,74 @@ const Admin = () => {
           <TabsContent value="colors">
             <FilamentColorsManager />
           </TabsContent>
+
+          <TabsContent value="users">
+            {(() => {
+              const q = userSearch.trim().toLowerCase();
+              const filteredUsers = q
+                ? users.filter((u) =>
+                    (u.full_name ?? "").toLowerCase().includes(q) ||
+                    (u.email ?? "").toLowerCase().includes(q) ||
+                    (u.phone ?? "").toLowerCase().includes(q)
+                  )
+                : users;
+              return (
+                <div>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div className="relative max-w-sm flex-1">
+                      <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="חיפוש לפי שם, אימייל או טלפון..."
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        className="pr-9"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">{filteredUsers.length} מתוך {users.length}</p>
+                  </div>
+
+                  {filteredUsers.length === 0 ? (
+                    <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין משתמשים</p>
+                  ) : (
+                    <div className="overflow-hidden rounded-lg border border-border bg-card">
+                      <table className="w-full text-sm">
+                        <thead className="border-b border-border bg-muted/50 text-right">
+                          <tr>
+                            <th className="p-3 font-semibold">שם</th>
+                            <th className="p-3 font-semibold">אימייל</th>
+                            <th className="p-3 font-semibold">טלפון</th>
+                            <th className="p-3 font-semibold">תפקיד</th>
+                            <th className="p-3 font-semibold">הצטרף</th>
+                            <th className="p-3 font-semibold">פעולה</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredUsers.map((u) => (
+                            <tr key={u.id} className="border-b border-border last:border-0">
+                              <td className="p-3 font-medium">{u.full_name ?? "—"}</td>
+                              <td className="p-3 text-xs text-muted-foreground">{u.email ?? "—"}</td>
+                              <td className="p-3 text-xs text-muted-foreground">{u.phone ?? "—"}</td>
+                              <td className="p-3">
+                                <Badge variant={u.role === "admin" ? "default" : "secondary"}>
+                                  {u.role === "admin" ? "מנהל" : "משתמש"}
+                                </Badge>
+                              </td>
+                              <td className="p-3 text-xs">{new Date(u.created_at).toLocaleDateString("he-IL")}</td>
+                              <td className="p-3">
+                                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setCreateLendFor(u)}>
+                                  <Plus className="h-3.5 w-3.5" />צור השאלה
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </TabsContent>
         </Tabs>
 
         <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
@@ -812,6 +904,13 @@ const Admin = () => {
             onDelivered={loadAll}
           />
         )}
+
+        <CreateLendForUser
+          open={!!createLendFor}
+          onClose={() => setCreateLendFor(null)}
+          user={createLendFor}
+          onCreated={loadAll}
+        />
       </main>
     </div>
   );
