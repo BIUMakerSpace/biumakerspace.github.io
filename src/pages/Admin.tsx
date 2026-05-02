@@ -84,6 +84,8 @@ const Admin = () => {
   const [sourcesList, setSourcesList] = useState<{ id: string; name: string; is_active: boolean }[]>([]);
   const [search, setSearch] = useState("");
   const [catalogView, setCatalogView] = useState<"cards" | "table">("cards");
+  const [printStatusFilter, setPrintStatusFilter] = useState<string>("all");
+  const [lendStatusFilter, setLendStatusFilter] = useState<string>("all");
 
   // Edit item dialog state
   const [editItem, setEditItem] = useState<CatalogItem | null>(null);
