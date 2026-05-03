@@ -369,13 +369,13 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <SiteNav />
-      <main className="container mx-auto max-w-6xl px-6 py-12">
-        <h1 className="mb-8 text-4xl font-black text-foreground">
+      <main className="container mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-12">
+        <h1 className="mb-6 text-2xl font-black text-foreground sm:mb-8 sm:text-4xl">
           <span className="text-gradient">ניהול</span> מייקרספייס
         </h1>
 
         <Tabs defaultValue="catalog" dir="rtl">
-          <TabsList className="mb-6 flex-wrap">
+          <TabsList className="mb-6 flex h-auto w-full flex-wrap justify-start gap-1">
             <TabsTrigger value="catalog" className="gap-1.5"><Package className="h-4 w-4" />קטלוג</TabsTrigger>
             <TabsTrigger value="sources" className="gap-1.5"><Warehouse className="h-4 w-4" />מקורות</TabsTrigger>
             <TabsTrigger value="print" className="gap-1.5"><Printer className="h-4 w-4" />הדפסות ({printReqs.filter((r) => r.status === "pending").length})</TabsTrigger>
