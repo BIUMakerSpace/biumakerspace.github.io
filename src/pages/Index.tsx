@@ -309,26 +309,24 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <div className="relative w-full" style={{ paddingTop: "75%" }}>
-              <iframe
-                src="/opening_meeting.pdf#view=FitH"
-                title="Maker Space – מצגת מפגש הפתיחה"
-                className="absolute inset-0 h-full w-full"
-              />
+          <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-2xl border border-border bg-card p-6 text-center shadow-sm md:flex-row md:gap-6 md:p-8 md:text-right">
+            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary md:h-16 md:w-16">
+              <FileText className="h-7 w-7 md:h-8 md:w-8" />
             </div>
-            <div className="flex flex-col items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-3 sm:flex-row sm:px-6">
-              <p className="text-xs text-muted-foreground sm:text-sm">
-                לא רואים את המצגת? אפשר להוריד אותה ישירות.
+            <div className="flex-1">
+              <h3 className="mb-1 text-lg font-bold text-foreground md:text-xl">מצגת מפגש הפתיחה</h3>
+              <p className="text-sm text-muted-foreground">
+                כל מה שהצגנו במפגש – זמין להורדה כקובץ PDF.
               </p>
-              <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer">
-                <Button size="sm" variant="outline" className="gap-2">
-                  <Download className="h-4 w-4" />
-                  הורדת המצגת
-                </Button>
-              </a>
             </div>
+            <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
+              <Button size="lg" className="w-full gap-2 md:w-auto">
+                <Download className="h-4 w-4" />
+                הורדת המצגת
+              </Button>
+            </a>
           </div>
+
         </div>
       </section>
 
