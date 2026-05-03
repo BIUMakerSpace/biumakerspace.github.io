@@ -693,8 +693,8 @@ const Admin = () => {
                       אין ציוד מושאל כרגע
                     </p>
                   ) : (
-                    <div className="overflow-hidden rounded-lg border border-border bg-card">
-                      <table className="w-full text-sm">
+                    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+                      <table className="w-full min-w-[640px] text-sm">
                         <thead className="border-b border-border bg-muted/50 text-right">
                           <tr>
                             <th className="p-3 font-semibold">שואל</th>
