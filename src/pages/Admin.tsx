@@ -15,6 +15,7 @@ import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
 import CatalogTableView from "@/components/admin/CatalogTableView";
 import DeliverDialog from "@/components/admin/DeliverDialog";
+import ReturnDialog from "@/components/admin/ReturnDialog";
 import CreateLendForUser from "@/components/admin/CreateLendForUser";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +81,7 @@ const Admin = () => {
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
   const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
   const [deliverFor, setDeliverFor] = useState<LendReq | null>(null);
+  const [returnFor, setReturnFor] = useState<LendReq | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [userSearch, setUserSearch] = useState("");
   const [createLendFor, setCreateLendFor] = useState<UserProfile | null>(null);
@@ -625,9 +627,7 @@ const Admin = () => {
                             return;
                           }
                           if (next === "returned" && r.status !== "returned") {
-                            const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
-                            if (error) toast.error(error.message);
-                            else { toast.success("הוחזר"); loadAll(); }
+                            setReturnFor(r);
                             return;
                           }
                           updateLendStatus(r.id, { status: next });
@@ -726,11 +726,7 @@ const Admin = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={async () => {
-                                    const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
-                                    if (error) toast.error(error.message);
-                                    else { toast.success("הוחזר"); loadAll(); }
-                                  }}
+                                  onClick={() => setReturnFor(r)}
                                 >
                                   סמן כהוחזר
                                 </Button>
@@ -902,6 +898,15 @@ const Admin = () => {
               name: li.catalog_items?.name ?? "",
             }))}
             onDelivered={loadAll}
+          />
+        )}
+
+        {returnFor && (
+          <ReturnDialog
+            open={!!returnFor}
+            onClose={() => setReturnFor(null)}
+            requestId={returnFor.id}
+            onReturned={loadAll}
           />
         )}
 
