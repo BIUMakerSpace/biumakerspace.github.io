@@ -908,7 +908,6 @@ const Admin = () => {
             requestId={returnFor.id}
             onReturned={loadAll}
           />
-          />
         )}
 
         <CreateLendForUser
