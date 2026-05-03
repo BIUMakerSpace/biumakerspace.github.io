@@ -369,13 +369,13 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <SiteNav />
-      <main className="container mx-auto max-w-6xl px-6 py-12">
-        <h1 className="mb-8 text-4xl font-black text-foreground">
+      <main className="container mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-12">
+        <h1 className="mb-6 text-2xl font-black text-foreground sm:mb-8 sm:text-4xl">
           <span className="text-gradient">ניהול</span> מייקרספייס
         </h1>
 
         <Tabs defaultValue="catalog" dir="rtl">
-          <TabsList className="mb-6 flex-wrap">
+          <TabsList className="mb-6 flex h-auto w-full flex-wrap justify-start gap-1">
             <TabsTrigger value="catalog" className="gap-1.5"><Package className="h-4 w-4" />קטלוג</TabsTrigger>
             <TabsTrigger value="sources" className="gap-1.5"><Warehouse className="h-4 w-4" />מקורות</TabsTrigger>
             <TabsTrigger value="print" className="gap-1.5"><Printer className="h-4 w-4" />הדפסות ({printReqs.filter((r) => r.status === "pending").length})</TabsTrigger>
@@ -391,8 +391,8 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="catalog">
-            <div className="grid gap-8 lg:grid-cols-[400px_1fr]">
-              <form onSubmit={addItem} className="space-y-4 rounded-2xl border border-border bg-card p-6 h-fit">
+            <div className="grid gap-6 lg:grid-cols-[400px_1fr] lg:gap-8">
+              <form onSubmit={addItem} className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6 h-fit">
                 <h2 className="text-lg font-bold">הוספת פריט</h2>
                 <div><Label>שם הפריט</Label><Input value={iName} onChange={(e) => setIName(e.target.value)} required /></div>
                 <div><Label>תיאור</Label><Textarea value={iDesc} onChange={(e) => setIDesc(e.target.value)} rows={2} /></div>
@@ -554,11 +554,11 @@ const Admin = () => {
                   </div>
                   {filtered.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
                   {filtered.map((r) => (
-                    <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <div>
+                    <div key={r.id} className="rounded-lg border border-border bg-card p-4 sm:p-5">
+                      <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
                           <h3 className="font-bold">{r.requester_name}</h3>
-                          <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                          <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
                         <select value={r.status} onChange={(e) => updatePrintStatus(r.id, e.target.value)} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
                           <option value="pending">ממתין</option>
@@ -612,11 +612,11 @@ const Admin = () => {
                   </div>
                   {filtered.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
                   {filtered.map((r) => (
-                    <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <div>
+                    <div key={r.id} className="rounded-lg border border-border bg-card p-4 sm:p-5">
+                      <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
                           <h3 className="font-bold">{r.requester_name}</h3>
-                          <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                          <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
                         <select value={r.status} onChange={async (e) => {
                           const next = e.target.value;
@@ -673,8 +673,8 @@ const Admin = () => {
               );
               return (
                 <div>
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div className="relative max-w-sm flex-1">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="relative w-full sm:max-w-sm sm:flex-1">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder="חיפוש לפי שם, אימייל, טלפון או פריט..."
@@ -693,8 +693,8 @@ const Admin = () => {
                       אין ציוד מושאל כרגע
                     </p>
                   ) : (
-                    <div className="overflow-hidden rounded-lg border border-border bg-card">
-                      <table className="w-full text-sm">
+                    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+                      <table className="w-full min-w-[640px] text-sm">
                         <thead className="border-b border-border bg-muted/50 text-right">
                           <tr>
                             <th className="p-3 font-semibold">שואל</th>
@@ -750,11 +750,11 @@ const Admin = () => {
             <div className="space-y-3">
               {itemReqs.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות לפריטים חדשים</p>}
               {itemReqs.map((r) => (
-                <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                  <div className="mb-2 flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-bold">{r.item_name}</h3>
-                      <p className="text-xs text-muted-foreground">{r.requester_name} · {r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                <div key={r.id} className="rounded-lg border border-border bg-card p-4 sm:p-5">
+                  <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-bold break-words">{r.item_name}</h3>
+                      <p className="text-xs text-muted-foreground break-words">{r.requester_name} · {r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                     </div>
                     <select
                       value={r.status}
@@ -798,8 +798,8 @@ const Admin = () => {
                 : users;
               return (
                 <div>
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div className="relative max-w-sm flex-1">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="relative w-full sm:max-w-sm sm:flex-1">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder="חיפוש לפי שם, אימייל או טלפון..."
@@ -814,8 +814,8 @@ const Admin = () => {
                   {filteredUsers.length === 0 ? (
                     <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין משתמשים</p>
                   ) : (
-                    <div className="overflow-hidden rounded-lg border border-border bg-card">
-                      <table className="w-full text-sm">
+                    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+                      <table className="w-full min-w-[720px] text-sm">
                         <thead className="border-b border-border bg-muted/50 text-right">
                           <tr>
                             <th className="p-3 font-semibold">שם</th>
