@@ -798,8 +798,8 @@ const Admin = () => {
                 : users;
               return (
                 <div>
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div className="relative max-w-sm flex-1">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="relative w-full sm:max-w-sm sm:flex-1">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder="חיפוש לפי שם, אימייל או טלפון..."
@@ -814,8 +814,8 @@ const Admin = () => {
                   {filteredUsers.length === 0 ? (
                     <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין משתמשים</p>
                   ) : (
-                    <div className="overflow-hidden rounded-lg border border-border bg-card">
-                      <table className="w-full text-sm">
+                    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+                      <table className="w-full min-w-[720px] text-sm">
                         <thead className="border-b border-border bg-muted/50 text-right">
                           <tr>
                             <th className="p-3 font-semibold">שם</th>
