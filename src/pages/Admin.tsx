@@ -726,11 +726,7 @@ const Admin = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={async () => {
-                                    const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
-                                    if (error) toast.error(error.message);
-                                    else { toast.success("הוחזר"); loadAll(); }
-                                  }}
+                                  onClick={() => setReturnFor(r)}
                                 >
                                   סמן כהוחזר
                                 </Button>
