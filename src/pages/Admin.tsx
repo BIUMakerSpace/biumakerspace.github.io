@@ -15,6 +15,7 @@ import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
 import CatalogTableView from "@/components/admin/CatalogTableView";
 import DeliverDialog from "@/components/admin/DeliverDialog";
+import ReturnDialog from "@/components/admin/ReturnDialog";
 import CreateLendForUser from "@/components/admin/CreateLendForUser";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
