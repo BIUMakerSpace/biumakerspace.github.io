@@ -5,7 +5,7 @@ import ResourceCard from "@/components/ResourceCard";
 import SiteNav from "@/components/SiteNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen, Presentation, Download } from "lucide-react";
 
 const resources = [
   {
@@ -285,6 +285,46 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* About the project */}
+      <section id="about" className="border-b border-border py-12 md:py-20" dir="rtl">
+        <div className="container mx-auto max-w-5xl px-5 md:px-6">
+          <div className="mb-8 text-center md:mb-10">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary">
+              <Presentation className="h-3.5 w-3.5" />
+              על הפרויקט
+            </span>
+            <h2 className="mb-3 text-2xl font-black tracking-tight text-foreground sm:text-3xl md:text-4xl">
+              מפגש <span className="text-gradient">הפתיחה</span>
+            </h2>
+            <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
+              המצגת המלאה ממפגש הפתיחה של ה-Maker Space – על הרעיון, הציוד, ההדרכות, וכל מה שצריך לדעת כדי להתחיל.
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <div className="relative w-full" style={{ paddingTop: "75%" }}>
+              <iframe
+                src="/opening_meeting.pdf#view=FitH"
+                title="Maker Space – מצגת מפגש הפתיחה"
+                className="absolute inset-0 h-full w-full"
+              />
+            </div>
+            <div className="flex flex-col items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-3 sm:flex-row sm:px-6">
+              <p className="text-xs text-muted-foreground sm:text-sm">
+                לא רואים את המצגת? אפשר להוריד אותה ישירות.
+              </p>
+              <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer">
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  הורדת המצגת
+                </Button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* Opening Hours */}
       <section className="border-b border-border bg-muted/30 py-12 md:py-20" dir="rtl">
