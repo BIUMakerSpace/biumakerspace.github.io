@@ -627,9 +627,7 @@ const Admin = () => {
                             return;
                           }
                           if (next === "returned" && r.status !== "returned") {
-                            const { error } = await supabase.functions.invoke("return-lend-request", { body: { request_id: r.id } });
-                            if (error) toast.error(error.message);
-                            else { toast.success("הוחזר"); loadAll(); }
+                            setReturnFor(r);
                             return;
                           }
                           updateLendStatus(r.id, { status: next });
