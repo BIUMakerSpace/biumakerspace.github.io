@@ -266,6 +266,26 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
+
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:justify-center" dir="rtl">
+              <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="sm:w-auto">
+                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                  <Download className="h-4 w-4" />
+                  מצגת מפגש הפתיחה
+                </Button>
+              </a>
+              <a
+                href="https://gamma.app/docs/-tkm32divpo9tsdr?mode=doc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sm:w-auto"
+              >
+                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                  <BookOpen className="h-4 w-4" />
+                  מבוא לארדואינו – הפרויקט הראשון
+                </Button>
+              </a>
+            </div>
           </div>
           <a
             href="#resources"
@@ -293,42 +313,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About the project */}
-      <section id="about" className="border-b border-border py-12 md:py-20" dir="rtl">
-        <div className="container mx-auto max-w-5xl px-5 md:px-6">
-          <div className="mb-8 text-center md:mb-10">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary">
-              <Presentation className="h-3.5 w-3.5" />
-              על הפרויקט
-            </span>
-            <h2 className="mb-3 text-2xl font-black tracking-tight text-foreground sm:text-3xl md:text-4xl">
-              מפגש <span className="text-gradient">הפתיחה</span>
-            </h2>
-            <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
-              המצגת המלאה ממפגש הפתיחה של ה-Maker Space – על הרעיון, הציוד, ההדרכות, וכל מה שצריך לדעת כדי להתחיל.
-            </p>
-          </div>
-
-          <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-2xl border border-border bg-card p-6 text-center shadow-sm md:flex-row md:gap-6 md:p-8 md:text-right">
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary md:h-16 md:w-16">
-              <FileText className="h-7 w-7 md:h-8 md:w-8" />
-            </div>
-            <div className="flex-1">
-              <h3 className="mb-1 text-lg font-bold text-foreground md:text-xl">מצגת מפגש הפתיחה</h3>
-              <p className="text-sm text-muted-foreground">
-                כל מה שהצגנו במפגש – זמין להורדה כקובץ PDF.
-              </p>
-            </div>
-            <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
-              <Button size="lg" className="w-full gap-2 md:w-auto">
-                <Download className="h-4 w-4" />
-                הורדת המצגת
-              </Button>
-            </a>
-          </div>
-
-        </div>
-      </section>
 
 
       {/* Opening Hours */}
