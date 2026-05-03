@@ -5,7 +5,7 @@ import ResourceCard from "@/components/ResourceCard";
 import SiteNav from "@/components/SiteNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen, Presentation, Download } from "lucide-react";
 
 const resources = [
   {
