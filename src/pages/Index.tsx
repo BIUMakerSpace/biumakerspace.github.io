@@ -9,6 +9,13 @@ import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkle
 
 const resources = [
   {
+    title: "מבוא לארדואינו – הפרויקט הראשון",
+    description: "מצגת מבוא מקיפה בעברית לארדואינו והפרויקט הראשון שלכם – צעד אחר צעד",
+    url: "https://gamma.app/docs/-tkm32divpo9tsdr?mode=doc",
+    type: "article" as const,
+    isHebrew: true,
+  },
+  {
     title: "ארדואינו ב-100 שניות",
     description: "הסבר מהיר ותמציתי על מה זה ארדואינו ולמה הוא כל כך פופולרי",
     url: "https://www.youtube.com/watch?v=1ENiVwk8idM",
