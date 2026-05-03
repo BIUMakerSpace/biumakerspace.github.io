@@ -81,6 +81,7 @@ const Admin = () => {
   const [lendReqs, setLendReqs] = useState<LendReq[]>([]);
   const [itemReqs, setItemReqs] = useState<ItemReq[]>([]);
   const [deliverFor, setDeliverFor] = useState<LendReq | null>(null);
+  const [returnFor, setReturnFor] = useState<LendReq | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [userSearch, setUserSearch] = useState("");
   const [createLendFor, setCreateLendFor] = useState<UserProfile | null>(null);
