@@ -160,6 +160,12 @@ const inspirations = [
     description: "פרויקטי הנדסה ענקיים ויצירתיים שמשלבים מדע, הומור ובניית גאדג׳טים מטורפים",
     url: "https://www.youtube.com/@MarkRober",
   },
+  {
+    name: "Instructables",
+    role: "קהילת DIY עולמית",
+    description: "אלפי מדריכים ופרויקטים מאנשים מכל העולם - מקור השראה אינסופי ליוצרים",
+    url: "https://www.instructables.com/",
+  },
 ];
 
 const projectIdeas = [
