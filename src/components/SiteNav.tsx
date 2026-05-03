@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, User as UserIcon, Menu, X } from "lucide-react";
+import logo from "@/assets/biu-cs-logo.png";
 
 const SiteNav = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -23,7 +24,10 @@ const SiteNav = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md" dir="rtl">
       <div className="container mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:px-6">
-        <Link to="/" className="text-lg font-black text-gradient" onClick={closeMenu}>Maker Space</Link>
+        <Link to="/" className="flex items-center gap-2 text-lg font-black text-gradient" onClick={closeMenu}>
+          <img src={logo} alt="BIU-CS Maker Space" className="h-8 w-8 object-contain" />
+          BIU-CS Maker Space
+        </Link>
 
         {/* Desktop */}
         <div className="hidden items-center gap-1 md:flex">
