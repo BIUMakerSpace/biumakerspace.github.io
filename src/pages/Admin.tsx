@@ -901,6 +901,16 @@ const Admin = () => {
           />
         )}
 
+        {returnFor && (
+          <ReturnDialog
+            open={!!returnFor}
+            onClose={() => setReturnFor(null)}
+            requestId={returnFor.id}
+            onReturned={loadAll}
+          />
+          />
+        )}
+
         <CreateLendForUser
           open={!!createLendFor}
           onClose={() => setCreateLendFor(null)}
