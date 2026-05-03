@@ -391,8 +391,8 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="catalog">
-            <div className="grid gap-8 lg:grid-cols-[400px_1fr]">
-              <form onSubmit={addItem} className="space-y-4 rounded-2xl border border-border bg-card p-6 h-fit">
+            <div className="grid gap-6 lg:grid-cols-[400px_1fr] lg:gap-8">
+              <form onSubmit={addItem} className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6 h-fit">
                 <h2 className="text-lg font-bold">הוספת פריט</h2>
                 <div><Label>שם הפריט</Label><Input value={iName} onChange={(e) => setIName(e.target.value)} required /></div>
                 <div><Label>תיאור</Label><Textarea value={iDesc} onChange={(e) => setIDesc(e.target.value)} rows={2} /></div>
