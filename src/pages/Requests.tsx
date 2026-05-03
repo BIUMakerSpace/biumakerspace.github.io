@@ -58,6 +58,7 @@ const Requests = () => {
     e.preventDefault();
     if (!user) return;
     if (!pFile) { toast.error("יש לצרף קובץ STL"); return; }
+    if (!/\.stl$/i.test(pFile.name)) { toast.error("יש לצרף קובץ בפורמט STL בלבד"); return; }
     if (pFile.size > 50 * 1024 * 1024) { toast.error("הקובץ גדול מדי (מקסימום 50MB)"); return; }
     const parsed = printSchema.safeParse({
       requester_name: pName, requester_email: pEmail, requester_phone: pPhone,
@@ -153,17 +154,22 @@ const Requests = () => {
           </div>
           <div>
             <Label htmlFor="stl-file-input">קובץ STL</Label>
-            <div className="mt-1 flex items-center gap-3 rounded-md border border-dashed border-border bg-background p-4">
-              <Upload className="h-5 w-5 text-muted-foreground" />
+            <label
+              htmlFor="stl-file-input"
+              className="mt-1 flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-border bg-background p-4 hover:bg-accent/40"
+            >
+              <Upload className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <span className="flex-1 truncate text-sm text-muted-foreground">
+                {pFile ? pFile.name : "בחרו קובץ STL להעלאה"}
+              </span>
               <input
                 id="stl-file-input"
                 type="file"
-                accept=".stl,.STL"
                 onChange={(e) => setPFile(e.target.files?.[0] ?? null)}
-                className="flex-1 text-sm"
+                className="sr-only"
                 required
               />
-            </div>
+            </label>
             <p className="mt-1 text-xs text-muted-foreground">קבצי STL בלבד, עד 50MB</p>
           </div>
           <Button type="submit" disabled={pSubmitting} size="lg" className="w-full">
