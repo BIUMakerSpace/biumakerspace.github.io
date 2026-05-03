@@ -612,11 +612,11 @@ const Admin = () => {
                   </div>
                   {filtered.length === 0 && <p className="rounded-lg border border-border bg-card p-8 text-center text-sm text-muted-foreground">אין בקשות</p>}
                   {filtered.map((r) => (
-                    <div key={r.id} className="rounded-lg border border-border bg-card p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <div>
+                    <div key={r.id} className="rounded-lg border border-border bg-card p-4 sm:p-5">
+                      <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
                           <h3 className="font-bold">{r.requester_name}</h3>
-                          <p className="text-xs text-muted-foreground">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
+                          <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
                         <select value={r.status} onChange={async (e) => {
                           const next = e.target.value;
