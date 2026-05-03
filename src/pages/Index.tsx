@@ -266,6 +266,26 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
+
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:justify-center" dir="rtl">
+              <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="sm:w-auto">
+                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                  <Download className="h-4 w-4" />
+                  מצגת מפגש הפתיחה
+                </Button>
+              </a>
+              <a
+                href="https://gamma.app/docs/-tkm32divpo9tsdr?mode=doc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sm:w-auto"
+              >
+                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                  <BookOpen className="h-4 w-4" />
+                  מבוא לארדואינו – הפרויקט הראשון
+                </Button>
+              </a>
+            </div>
           </div>
           <a
             href="#resources"
