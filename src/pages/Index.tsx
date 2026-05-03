@@ -85,6 +85,24 @@ const resources = [
     url: "/tutorials/keyestudio-48-in-1-sensor-kit.pdf",
     type: "pdf" as const,
   },
+  {
+    title: "סרטון הדרכה - Maker Space",
+    description: "סרטון הדרכה נוסף לעולם היצירה והבנייה",
+    url: "https://youtu.be/8hyL9DXYFZc",
+    type: "video" as const,
+  },
+  {
+    title: "סרטון השראה ויצירה",
+    description: "סרטון מעולם היצירה והפרויקטים",
+    url: "https://youtu.be/zfp0IJoXcFg",
+    type: "video" as const,
+  },
+  {
+    title: "פרויקט יצירתי",
+    description: "סרטון נוסף עם רעיונות ופרויקטים",
+    url: "https://youtu.be/i7LFZxQcCQo",
+    type: "video" as const,
+  },
 ];
 
 const features = [
