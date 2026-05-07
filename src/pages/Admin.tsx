@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users } from "lucide-react";
+import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users, Mail, Heart, AlertTriangle } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
@@ -17,10 +17,20 @@ import CatalogTableView from "@/components/admin/CatalogTableView";
 import DeliverDialog from "@/components/admin/DeliverDialog";
 import ReturnDialog from "@/components/admin/ReturnDialog";
 import CreateLendForUser from "@/components/admin/CreateLendForUser";
+import EmailDialog from "@/components/admin/EmailDialog";
+import EmailTemplatesManager from "@/components/admin/EmailTemplatesManager";
+import WishlistManager from "@/components/admin/WishlistManager";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
 import { Warehouse } from "lucide-react";
+import {
+  PRINT_STATUS_HE, LEND_STATUS_HE, nextPrintStatuses, nextLendStatuses,
+  PRINT_EMAIL_KEY, LEND_EMAIL_KEY,
+} from "@/lib/requestStates";
+
+const daysSince = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+const STALE_DAYS = 14;
 
 interface CatalogItem {
   id: string;
