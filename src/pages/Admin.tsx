@@ -663,25 +663,16 @@ const Admin = () => {
                           <h3 className="font-bold">{r.requester_name}</h3>
                           <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
-                        <select value={r.status} onChange={async (e) => {
-                          const next = e.target.value;
-                          if (next === "delivered" && r.status !== "delivered") {
-                            setDeliverFor(r);
-                            return;
-                          }
-                          if (next === "returned" && r.status !== "returned") {
-                            setReturnFor(r);
-                            return;
-                          }
-                          updateLendStatus(r.id, { status: next });
-                        }} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                          <option value="pending">ממתין</option>
-                          <option value="approved">אושר</option>
-                          <option value="delivered">נמסר</option>
-                          <option value="returned">הוחזר</option>
-                          <option value="rejected">נדחה</option>
-                          <option value="cancelled">בוטל</option>
-                        </select>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge variant="outline">{LEND_STATUS_HE[r.status] ?? r.status}</Badge>
+                          {nextLendStatuses(r.status).map((n) => (
+                            <Button key={n} size="sm" variant={n === "rejected" ? "outline" : "default"}
+                              className={n === "rejected" ? "text-destructive" : ""}
+                              onClick={() => transitionLend(r, n)}>
+                              {n === "rejected" ? "דחה" : n === "approved" && r.status === "rejected" ? "החזר לאישור" : `העבר ל“${LEND_STATUS_HE[n]}”`}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                       <ul className="text-sm">
                         {r.lend_request_items?.map((li, idx) => (
