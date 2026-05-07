@@ -379,6 +379,33 @@ const Admin = () => {
     if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
   };
 
+  // Apply a print transition. If the new status has an email template, open the email
+  // dialog first; the actual update happens after the admin sends or skips the email.
+  const transitionPrint = (req: PrintReq, next: string) => {
+    const apply = async () => {
+      const updates: { status: string; delivered_at?: string } = { status: next };
+      const { error } = await supabase.from("print_requests").update(updates).eq("id", req.id);
+      if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
+    };
+    const tplKey = PRINT_EMAIL_KEY[next];
+    if (tplKey) {
+      setEmailFor({ templateKey: tplKey, email: req.requester_email, name: req.requester_name, onConfirm: apply });
+    } else apply();
+  };
+
+  const transitionLend = (req: LendReq, next: string) => {
+    if (next === "delivered") { setDeliverFor(req); return; }
+    if (next === "returned") { setReturnFor(req); return; }
+    const apply = async () => {
+      const { error } = await supabase.from("lend_requests").update({ status: next }).eq("id", req.id);
+      if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
+    };
+    const tplKey = LEND_EMAIL_KEY[next];
+    if (tplKey) {
+      setEmailFor({ templateKey: tplKey, email: req.requester_email, name: req.requester_name, onConfirm: apply });
+    } else apply();
+  };
+
   if (loading || !isAdmin) return null;
 
   return (
