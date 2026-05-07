@@ -31,8 +31,9 @@ export default function EmailDialog({
     supabase.from("email_templates").select("subject, body").eq("key", templateKey).maybeSingle()
       .then(({ data }) => {
         const fn = firstName(recipientName);
-        setSubject((data?.subject ?? "").replaceAll("{first_name}", fn));
-        setBody((data?.body ?? "").replaceAll("{first_name}", fn));
+        const re = /\{first_name\}/g;
+        setSubject((data?.subject ?? "").replace(re, fn));
+        setBody((data?.body ?? "").replace(re, fn));
         setLoading(false);
       });
   }, [open, templateKey, recipientName]);
