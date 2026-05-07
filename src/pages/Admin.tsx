@@ -95,6 +95,9 @@ const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [userSearch, setUserSearch] = useState("");
   const [createLendFor, setCreateLendFor] = useState<UserProfile | null>(null);
+  const [emailFor, setEmailFor] = useState<{
+    templateKey: string; email: string; name: string; onConfirm: () => Promise<void> | void;
+  } | null>(null);
 
   // New item form
   const [iName, setIName] = useState("");
