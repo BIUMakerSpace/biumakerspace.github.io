@@ -603,14 +603,16 @@ const Admin = () => {
                           <h3 className="font-bold">{r.requester_name}</h3>
                           <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
-                        <select value={r.status} onChange={(e) => updatePrintStatus(r.id, e.target.value)} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                          <option value="pending">ממתין</option>
-                          <option value="printing">מדפיס</option>
-                          <option value="ready">מוכן לאיסוף</option>
-                          <option value="completed">הושלם</option>
-                          <option value="rejected">נדחה</option>
-                          <option value="cancelled">בוטל</option>
-                        </select>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge variant="outline">{PRINT_STATUS_HE[r.status] ?? r.status}</Badge>
+                          {nextPrintStatuses(r.status).map((n) => (
+                            <Button key={n} size="sm" variant={n === "rejected" ? "outline" : "default"}
+                              className={n === "rejected" ? "text-destructive" : ""}
+                              onClick={() => transitionPrint(r, n)}>
+                              {n === "rejected" ? "דחה" : n === "approved" && r.status === "rejected" ? "החזר לאישור" : `העבר ל“${PRINT_STATUS_HE[n]}”`}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                       <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
                       <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
