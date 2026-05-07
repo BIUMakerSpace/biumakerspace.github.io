@@ -943,7 +943,17 @@ const Admin = () => {
               quantity: li.quantity,
               name: li.catalog_items?.name ?? "",
             }))}
-            onDelivered={loadAll}
+            onDelivered={() => {
+              const req = deliverFor;
+              loadAll();
+              // After successful deliver, prompt email
+              setEmailFor({
+                templateKey: LEND_EMAIL_KEY.delivered,
+                email: req.requester_email,
+                name: req.requester_name,
+                onConfirm: () => loadAll(),
+              });
+            }}
           />
         )}
 
@@ -962,6 +972,17 @@ const Admin = () => {
           user={createLendFor}
           onCreated={loadAll}
         />
+
+        {emailFor && (
+          <EmailDialog
+            open={!!emailFor}
+            onClose={() => setEmailFor(null)}
+            templateKey={emailFor.templateKey}
+            recipientEmail={emailFor.email}
+            recipientName={emailFor.name}
+            onDone={() => emailFor.onConfirm()}
+          />
+        )}
       </main>
     </div>
   );
