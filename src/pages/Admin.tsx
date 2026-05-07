@@ -887,6 +887,14 @@ const Admin = () => {
               );
             })()}
           </TabsContent>
+
+          <TabsContent value="wishlist">
+            <WishlistManager />
+          </TabsContent>
+
+          <TabsContent value="emails">
+            <EmailTemplatesManager />
+          </TabsContent>
         </Tabs>
 
         <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
