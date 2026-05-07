@@ -383,8 +383,7 @@ const Admin = () => {
   // dialog first; the actual update happens after the admin sends or skips the email.
   const transitionPrint = (req: PrintReq, next: string) => {
     const apply = async () => {
-      const updates: { status: string; delivered_at?: string } = { status: next };
-      const { error } = await supabase.from("print_requests").update(updates).eq("id", req.id);
+      const { error } = await supabase.from("print_requests").update({ status: next }).eq("id", req.id);
       if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
     };
     const tplKey = PRINT_EMAIL_KEY[next];
