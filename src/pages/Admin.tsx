@@ -758,7 +758,16 @@ const Admin = () => {
                                 </ul>
                               </td>
                               <td className="p-3 text-xs">
-                                {r.delivered_at ? new Date(r.delivered_at).toLocaleDateString("he-IL") : "—"}
+                                {r.delivered_at ? (
+                                  <div className="flex flex-col gap-1">
+                                    <span>{new Date(r.delivered_at).toLocaleDateString("he-IL")}</span>
+                                    {daysSince(r.delivered_at) > STALE_DAYS && (
+                                      <Badge variant="destructive" className="w-fit gap-1 text-[10px]">
+                                        <AlertTriangle className="h-3 w-3" />מעל {STALE_DAYS} ימים ({daysSince(r.delivered_at)})
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ) : "—"}
                               </td>
                               <td className="p-3">
                                 <Button
