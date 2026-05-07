@@ -393,7 +393,11 @@ const Admin = () => {
   };
 
   const transitionLend = (req: LendReq, next: string) => {
-    if (next === "delivered") { setDeliverFor(req); return; }
+    if (next === "delivered") {
+      setDeliverFor(req);
+      // After deliver dialog success, prompt email
+      return;
+    }
     if (next === "returned") { setReturnFor(req); return; }
     const apply = async () => {
       const { error } = await supabase.from("lend_requests").update({ status: next }).eq("id", req.id);
