@@ -6,7 +6,7 @@ import SiteNav from "@/components/SiteNav";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Printer, ShoppingBag, X } from "lucide-react";
+import { Printer, ShoppingBag, X, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -132,6 +132,11 @@ const MyRequests = () => {
                     <p className="text-xs text-muted-foreground">נשלח: {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                     {r.delivered_at && <p className="text-xs text-muted-foreground">נמסר: {new Date(r.delivered_at).toLocaleDateString("he-IL")}</p>}
                     {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
+                    {r.status === "delivered" && r.delivered_at && Math.floor((Date.now() - new Date(r.delivered_at).getTime()) / 86400000) > 14 && (
+                      <Badge variant="destructive" className="mt-1 w-fit gap-1 text-[10px]">
+                        <AlertTriangle className="h-3 w-3" />מושאל מעל שבועיים – בבקשה החזרו
+                      </Badge>
+                    )}
                   </div>
                   {r.status === "pending" && <CancelButton onConfirm={() => cancelLend(r.id)} />}
                 </div>

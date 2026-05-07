@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users } from "lucide-react";
+import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users, Mail, Heart, AlertTriangle } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
@@ -17,10 +17,20 @@ import CatalogTableView from "@/components/admin/CatalogTableView";
 import DeliverDialog from "@/components/admin/DeliverDialog";
 import ReturnDialog from "@/components/admin/ReturnDialog";
 import CreateLendForUser from "@/components/admin/CreateLendForUser";
+import EmailDialog from "@/components/admin/EmailDialog";
+import EmailTemplatesManager from "@/components/admin/EmailTemplatesManager";
+import WishlistManager from "@/components/admin/WishlistManager";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
 import { Warehouse } from "lucide-react";
+import {
+  PRINT_STATUS_HE, LEND_STATUS_HE, nextPrintStatuses, nextLendStatuses,
+  PRINT_EMAIL_KEY, LEND_EMAIL_KEY,
+} from "@/lib/requestStates";
+
+const daysSince = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+const STALE_DAYS = 14;
 
 interface CatalogItem {
   id: string;
@@ -85,6 +95,9 @@ const Admin = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [userSearch, setUserSearch] = useState("");
   const [createLendFor, setCreateLendFor] = useState<UserProfile | null>(null);
+  const [emailFor, setEmailFor] = useState<{
+    templateKey: string; email: string; name: string; onConfirm: () => Promise<void> | void;
+  } | null>(null);
 
   // New item form
   const [iName, setIName] = useState("");
@@ -366,6 +379,36 @@ const Admin = () => {
     if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
   };
 
+  // Apply a print transition. If the new status has an email template, open the email
+  // dialog first; the actual update happens after the admin sends or skips the email.
+  const transitionPrint = (req: PrintReq, next: string) => {
+    const apply = async () => {
+      const { error } = await supabase.from("print_requests").update({ status: next }).eq("id", req.id);
+      if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
+    };
+    const tplKey = PRINT_EMAIL_KEY[next];
+    if (tplKey) {
+      setEmailFor({ templateKey: tplKey, email: req.requester_email, name: req.requester_name, onConfirm: apply });
+    } else apply();
+  };
+
+  const transitionLend = (req: LendReq, next: string) => {
+    if (next === "delivered") {
+      setDeliverFor(req);
+      // After deliver dialog success, prompt email
+      return;
+    }
+    if (next === "returned") { setReturnFor(req); return; }
+    const apply = async () => {
+      const { error } = await supabase.from("lend_requests").update({ status: next }).eq("id", req.id);
+      if (error) toast.error(error.message); else { toast.success("עודכן"); loadAll(); }
+    };
+    const tplKey = LEND_EMAIL_KEY[next];
+    if (tplKey) {
+      setEmailFor({ templateKey: tplKey, email: req.requester_email, name: req.requester_name, onConfirm: apply });
+    } else apply();
+  };
+
   if (loading || !isAdmin) return null;
 
   return (
@@ -386,6 +429,8 @@ const Admin = () => {
             <TabsTrigger value="itemreq" className="gap-1.5"><Package className="h-4 w-4" />בקשות פריטים ({itemReqs.length})</TabsTrigger>
             <TabsTrigger value="colors" className="gap-1.5"><Palette className="h-4 w-4" />צבעי פילמנט</TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" />משתמשים ({users.length})</TabsTrigger>
+            <TabsTrigger value="wishlist" className="gap-1.5"><Heart className="h-4 w-4" />רשימת קניות</TabsTrigger>
+            <TabsTrigger value="emails" className="gap-1.5"><Mail className="h-4 w-4" />תבניות מייל</TabsTrigger>
           </TabsList>
 
           <TabsContent value="sources">
@@ -562,14 +607,16 @@ const Admin = () => {
                           <h3 className="font-bold">{r.requester_name}</h3>
                           <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
-                        <select value={r.status} onChange={(e) => updatePrintStatus(r.id, e.target.value)} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                          <option value="pending">ממתין</option>
-                          <option value="printing">מדפיס</option>
-                          <option value="ready">מוכן לאיסוף</option>
-                          <option value="completed">הושלם</option>
-                          <option value="rejected">נדחה</option>
-                          <option value="cancelled">בוטל</option>
-                        </select>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge variant="outline">{PRINT_STATUS_HE[r.status] ?? r.status}</Badge>
+                          {nextPrintStatuses(r.status).map((n) => (
+                            <Button key={n} size="sm" variant={n === "rejected" ? "outline" : "default"}
+                              className={n === "rejected" ? "text-destructive" : ""}
+                              onClick={() => transitionPrint(r, n)}>
+                              {n === "rejected" ? "דחה" : n === "approved" && r.status === "rejected" ? "החזר לאישור" : `העבר ל“${PRINT_STATUS_HE[n]}”`}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                       <p className="text-sm"><strong>מטרה:</strong> {r.purpose}</p>
                       <p className="text-sm"><strong>צבע:</strong> {r.filament_color}</p>
@@ -620,25 +667,16 @@ const Admin = () => {
                           <h3 className="font-bold">{r.requester_name}</h3>
                           <p className="text-xs text-muted-foreground break-words">{r.requester_email} · {r.requester_phone} · {new Date(r.created_at).toLocaleDateString("he-IL")}</p>
                         </div>
-                        <select value={r.status} onChange={async (e) => {
-                          const next = e.target.value;
-                          if (next === "delivered" && r.status !== "delivered") {
-                            setDeliverFor(r);
-                            return;
-                          }
-                          if (next === "returned" && r.status !== "returned") {
-                            setReturnFor(r);
-                            return;
-                          }
-                          updateLendStatus(r.id, { status: next });
-                        }} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                          <option value="pending">ממתין</option>
-                          <option value="approved">אושר</option>
-                          <option value="delivered">נמסר</option>
-                          <option value="returned">הוחזר</option>
-                          <option value="rejected">נדחה</option>
-                          <option value="cancelled">בוטל</option>
-                        </select>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge variant="outline">{LEND_STATUS_HE[r.status] ?? r.status}</Badge>
+                          {nextLendStatuses(r.status).map((n) => (
+                            <Button key={n} size="sm" variant={n === "rejected" ? "outline" : "default"}
+                              className={n === "rejected" ? "text-destructive" : ""}
+                              onClick={() => transitionLend(r, n)}>
+                              {n === "rejected" ? "דחה" : n === "approved" && r.status === "rejected" ? "החזר לאישור" : `העבר ל“${LEND_STATUS_HE[n]}”`}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                       <ul className="text-sm">
                         {r.lend_request_items?.map((li, idx) => (
@@ -720,7 +758,16 @@ const Admin = () => {
                                 </ul>
                               </td>
                               <td className="p-3 text-xs">
-                                {r.delivered_at ? new Date(r.delivered_at).toLocaleDateString("he-IL") : "—"}
+                                {r.delivered_at ? (
+                                  <div className="flex flex-col gap-1">
+                                    <span>{new Date(r.delivered_at).toLocaleDateString("he-IL")}</span>
+                                    {daysSince(r.delivered_at) > STALE_DAYS && (
+                                      <Badge variant="destructive" className="w-fit gap-1 text-[10px]">
+                                        <AlertTriangle className="h-3 w-3" />מעל {STALE_DAYS} ימים ({daysSince(r.delivered_at)})
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ) : "—"}
                               </td>
                               <td className="p-3">
                                 <Button
@@ -849,6 +896,14 @@ const Admin = () => {
               );
             })()}
           </TabsContent>
+
+          <TabsContent value="wishlist">
+            <WishlistManager />
+          </TabsContent>
+
+          <TabsContent value="emails">
+            <EmailTemplatesManager />
+          </TabsContent>
         </Tabs>
 
         <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
@@ -897,7 +952,17 @@ const Admin = () => {
               quantity: li.quantity,
               name: li.catalog_items?.name ?? "",
             }))}
-            onDelivered={loadAll}
+            onDelivered={() => {
+              const req = deliverFor;
+              loadAll();
+              // After successful deliver, prompt email
+              setEmailFor({
+                templateKey: LEND_EMAIL_KEY.delivered,
+                email: req.requester_email,
+                name: req.requester_name,
+                onConfirm: () => loadAll(),
+              });
+            }}
           />
         )}
 
@@ -916,6 +981,17 @@ const Admin = () => {
           user={createLendFor}
           onCreated={loadAll}
         />
+
+        {emailFor && (
+          <EmailDialog
+            open={!!emailFor}
+            onClose={() => setEmailFor(null)}
+            templateKey={emailFor.templateKey}
+            recipientEmail={emailFor.email}
+            recipientName={emailFor.name}
+            onDone={() => emailFor.onConfirm()}
+          />
+        )}
       </main>
     </div>
   );
