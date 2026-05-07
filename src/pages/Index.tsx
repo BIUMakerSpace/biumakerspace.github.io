@@ -5,7 +5,7 @@ import ResourceCard from "@/components/ResourceCard";
 import SiteNav from "@/components/SiteNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen, Presentation, Download } from "lucide-react";
+import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen, Presentation, Download, Video } from "lucide-react";
 
 const resources = [
   {
@@ -283,6 +283,17 @@ const Index = () => {
                 <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
                   <BookOpen className="h-4 w-4" />
                   מבוא לארדואינו – הפרויקט הראשון
+                </Button>
+              </a>
+              <a
+                href="https://biu-ac-il.zoom.us/rec/share/bExVxbRRpgEOeDesnxC7Zf-kKp33QrqSU-4zm9lO_hZcS1tanYT5Y3OAlZEFcAM.eeOlkhOwfrJSzlv3?from=hub"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sm:w-auto"
+              >
+                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                  <Video className="h-4 w-4" />
+                  הקלטת המדריך
                 </Button>
               </a>
             </div>
