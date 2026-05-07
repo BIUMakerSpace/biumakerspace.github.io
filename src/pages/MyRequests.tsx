@@ -134,7 +134,7 @@ const MyRequests = () => {
                     {r.returned_at && <p className="text-xs text-muted-foreground">הוחזר: {new Date(r.returned_at).toLocaleDateString("he-IL")}</p>}
                     {r.status === "delivered" && r.delivered_at && Math.floor((Date.now() - new Date(r.delivered_at).getTime()) / 86400000) > 14 && (
                       <Badge variant="destructive" className="mt-1 w-fit gap-1 text-[10px]">
-                        <AlertTriangle className="h-3 w-3" />מושאל מעל שבועיים – בבקשה החזרו
+                        <AlertTriangle className="h-3 w-3" />השאלה ארוכה
                       </Badge>
                     )}
                   </div>
