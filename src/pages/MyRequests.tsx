@@ -6,7 +6,7 @@ import SiteNav from "@/components/SiteNav";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Printer, ShoppingBag, X } from "lucide-react";
+import { Printer, ShoppingBag, X, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
