@@ -293,7 +293,7 @@ const Index = () => {
               >
                 <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
                   <Video className="h-4 w-4" />
-                  הקלטת המדריך
+                  מבוא לארדואינו (הקלטה)
                 </Button>
               </a>
             </div>
