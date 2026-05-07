@@ -543,27 +543,33 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          estimated_cost: number | null
           id: string
           link: string | null
           name: string
+          quantity_pref: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          estimated_cost?: number | null
           id?: string
           link?: string | null
           name: string
+          quantity_pref?: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          estimated_cost?: number | null
           id?: string
           link?: string | null
           name?: string
+          quantity_pref?: string
           updated_at?: string
         }
         Relationships: []
