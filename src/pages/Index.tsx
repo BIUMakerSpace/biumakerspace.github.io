@@ -269,7 +269,7 @@ const Index = () => {
 
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:justify-center" dir="rtl">
               <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="sm:w-auto">
-                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full gap-2 bg-background/70 backdrop-blur sm:w-auto">
                   <Download className="h-4 w-4" />
                   מצגת מפגש הפתיחה
                 </Button>
@@ -280,7 +280,7 @@ const Index = () => {
                 rel="noopener noreferrer"
                 className="sm:w-auto"
               >
-                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full gap-2 bg-background/70 backdrop-blur sm:w-auto">
                   <BookOpen className="h-4 w-4" />
                   מבוא לארדואינו – הפרויקט הראשון
                 </Button>
@@ -291,12 +291,13 @@ const Index = () => {
                 rel="noopener noreferrer"
                 className="sm:w-auto"
               >
-                <Button size="lg" variant="ghost" className="w-full gap-2 sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full gap-2 bg-background/70 backdrop-blur sm:w-auto">
                   <Video className="h-4 w-4" />
                   מבוא לארדואינו (הקלטה)
                 </Button>
               </a>
             </div>
+
           </div>
           <a
             href="#resources"
