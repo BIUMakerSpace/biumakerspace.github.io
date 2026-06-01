@@ -642,30 +642,19 @@ const Catalog = () => {
                     >
                       {termsOpen ? "הסתר תנאים מלאים" : "הצג תנאים מלאים"}
                     </button>
-                    {(termsOpen || typeof window === "undefined") && (
-                      <ul className="mt-2 list-disc space-y-1 pr-4 text-xs text-muted-foreground marker:text-primary sm:block" data-mobile-collapsible="true">
-                        <li>לשמור על הציוד בקפידה ולהשתמש בו אך ורק למטרה שלשמה הושאל.</li>
-                        <li>לשאת באחריות מלאה לכל נזק, אובדן או גניבה של הציוד שבהשאלתי.</li>
-                        <li>לא להוציא את הציוד מהמייקרספייס ללא אישור מפורש מאחד המדריכים.</li>
-                        <li>
-                          להחזיר את כל הציוד במצב תקין ושלם לכל המאוחר עד{" "}
-                          <span className="font-semibold text-foreground">1.7.2026</span> (סוף שנת הלימודים).
-                        </li>
-                      </ul>
-                    )}
-                    {/* Always show full list on desktop regardless of toggle */}
-                    {!termsOpen && (
-                      <ul className="mt-2 hidden list-disc space-y-1 pr-4 text-xs text-muted-foreground marker:text-primary sm:block">
-                        <li>לשמור על הציוד בקפידה ולהשתמש בו אך ורק למטרה שלשמה הושאל.</li>
-                        <li>לשאת באחריות מלאה לכל נזק, אובדן או גניבה של הציוד שבהשאלתי.</li>
-                        <li>לא להוציא את הציוד מהמייקרספייס ללא אישור מפורש מאחד המדריכים.</li>
-                        <li>
-                          להחזיר את כל הציוד במצב תקין ושלם לכל המאוחר עד{" "}
-                          <span className="font-semibold text-foreground">1.7.2026</span> (סוף שנת הלימודים).
-                        </li>
-                      </ul>
-                    )}
+                    <ul
+                      className={`mt-2 list-disc space-y-1 pr-4 text-xs text-muted-foreground marker:text-primary sm:block ${termsOpen ? "block" : "hidden"}`}
+                    >
+                      <li>לשמור על הציוד בקפידה ולהשתמש בו אך ורק למטרה שלשמה הושאל.</li>
+                      <li>לשאת באחריות מלאה לכל נזק, אובדן או גניבה של הציוד שבהשאלתי.</li>
+                      <li>לא להוציא את הציוד מהמייקרספייס ללא אישור מפורש מאחד המדריכים.</li>
+                      <li>
+                        להחזיר את כל הציוד במצב תקין ושלם לכל המאוחר עד{" "}
+                        <span className="font-semibold text-foreground">1.7.2026</span> (סוף שנת הלימודים).
+                      </li>
+                    </ul>
                   </div>
+
 
                   <div className="sticky bottom-0 -mx-5 -mb-4 border-t border-border bg-card px-5 py-3 sm:static sm:m-0 sm:border-0 sm:bg-transparent sm:p-0">
                     {!user ? (
