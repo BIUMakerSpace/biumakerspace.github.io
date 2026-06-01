@@ -267,36 +267,42 @@ const Index = () => {
               </Link>
             </div>
 
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:justify-center" dir="rtl">
-              <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="sm:w-auto">
-                <Button size="lg" variant="outline" className="w-full gap-2 bg-background/70 backdrop-blur sm:w-auto">
-                  <Download className="h-4 w-4" />
-                  מצגת מפגש הפתיחה
-                </Button>
-              </a>
-              <a
-                href="https://gamma.app/docs/-tkm32divpo9tsdr?mode=doc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="sm:w-auto"
-              >
-                <Button size="lg" variant="outline" className="w-full gap-2 bg-background/70 backdrop-blur sm:w-auto">
-                  <BookOpen className="h-4 w-4" />
-                  מבוא לארדואינו – הפרויקט הראשון
-                </Button>
-              </a>
-              <a
-                href="https://biu-ac-il.zoom.us/rec/share/bExVxbRRpgEOeDesnxC7Zf-kKp33QrqSU-4zm9lO_hZcS1tanYT5Y3OAlZEFcAM.eeOlkhOwfrJSzlv3?from=hub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="sm:w-auto"
-              >
-                <Button size="lg" variant="outline" className="w-full gap-2 bg-background/70 backdrop-blur sm:w-auto">
-                  <Video className="h-4 w-4" />
-                  מבוא לארדואינו (הקלטה)
-                </Button>
-              </a>
+            <div className="mt-6 sm:mt-8" dir="rtl">
+              <p className="mb-2 text-center text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80 sm:text-xs">
+                חומרי לימוד
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center">
+                <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="sm:w-auto">
+                  <Button size="sm" variant="outline" className="w-full justify-center gap-1.5 bg-background/70 text-xs backdrop-blur sm:w-auto">
+                    <Download className="h-3.5 w-3.5" />
+                    מצגת מפגש הפתיחה
+                  </Button>
+                </a>
+                <a
+                  href="https://gamma.app/docs/-tkm32divpo9tsdr?mode=doc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sm:w-auto"
+                >
+                  <Button size="sm" variant="outline" className="w-full justify-center gap-1.5 bg-background/70 text-xs backdrop-blur sm:w-auto">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    מבוא לארדואינו – הפרויקט הראשון
+                  </Button>
+                </a>
+                <a
+                  href="https://biu-ac-il.zoom.us/rec/share/bExVxbRRpgEOeDesnxC7Zf-kKp33QrqSU-4zm9lO_hZcS1tanYT5Y3OAlZEFcAM.eeOlkhOwfrJSzlv3?from=hub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sm:w-auto"
+                >
+                  <Button size="sm" variant="outline" className="w-full justify-center gap-1.5 bg-background/70 text-xs backdrop-blur sm:w-auto">
+                    <Video className="h-3.5 w-3.5" />
+                    מבוא לארדואינו (הקלטה)
+                  </Button>
+                </a>
+              </div>
             </div>
+
 
           </div>
           <a
