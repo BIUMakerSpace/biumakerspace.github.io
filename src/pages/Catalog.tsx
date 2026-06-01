@@ -80,6 +80,7 @@ const Catalog = () => {
   const [lNotes, setLNotes] = useState("");
   const [lSubmitting, setLSubmitting] = useState(false);
   const [lAgreed, setLAgreed] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   // "Request new item" dialog
   const [reqOpen, setReqOpen] = useState(false);
