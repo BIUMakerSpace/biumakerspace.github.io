@@ -80,6 +80,7 @@ const Catalog = () => {
   const [lNotes, setLNotes] = useState("");
   const [lSubmitting, setLSubmitting] = useState(false);
   const [lAgreed, setLAgreed] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   // "Request new item" dialog
   const [reqOpen, setReqOpen] = useState(false);
@@ -527,13 +528,13 @@ const Catalog = () => {
 
         {/* Cart slide-in panel */}
         <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-          <SheetContent side="right" dir="rtl" className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
+          <SheetContent
+            side="right"
+            dir="rtl"
+            className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md [&>button]:hidden"
+          >
             <SheetHeader className="border-b border-border px-5 py-4 text-right">
               <div className="flex items-center justify-between gap-2">
-                <SheetTitle className="flex items-center gap-2 text-xl">
-                  <ShoppingCart className="h-5 w-5 text-primary" />
-                  העגלה שלי {cartCount > 0 && <span className="text-base text-muted-foreground">({cartCount})</span>}
-                </SheetTitle>
                 <Button
                   type="button"
                   variant="ghost"
@@ -545,110 +546,130 @@ const Catalog = () => {
                   <ArrowRight className="h-4 w-4" />
                   חזרה
                 </Button>
+                <SheetTitle className="flex items-center gap-2 text-xl">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  העגלה שלי {cartCount > 0 && <span className="text-base text-muted-foreground">({cartCount})</span>}
+                </SheetTitle>
               </div>
               <SheetDescription>
                 סקרו את הפריטים, מלאו פרטים ושלחו בקשת השאלה
               </SheetDescription>
             </SheetHeader>
 
-            <div className="flex-1 overflow-y-auto px-5 py-4">
-              {cartItems.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center gap-3 py-10 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                    <ShoppingCart className="h-7 w-7 text-muted-foreground" />
+            {/* Mobile: single scroll for items + form. Desktop (sm+): items scroll, form pinned. */}
+            <div className="flex flex-1 flex-col overflow-y-auto sm:overflow-hidden">
+              <div className="px-5 py-4 sm:flex-1 sm:overflow-y-auto">
+                {cartItems.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-3 py-10 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                      <ShoppingCart className="h-7 w-7 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">העגלה ריקה</p>
+                    <Button variant="outline" size="sm" onClick={() => setCartOpen(false)}>
+                      המשך לעיין בקטלוג
+                    </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground">העגלה ריקה</p>
-                  <Button variant="outline" size="sm" onClick={() => setCartOpen(false)}>
-                    המשך לעיין בקטלוג
-                  </Button>
-                </div>
-              ) : (
-                <ul className="space-y-2">
-                  {cartItems.map(({ item, qty }) => (
-                    <li key={item.id} className="flex items-center gap-2 rounded-lg border border-border bg-card p-2.5">
-                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="h-full w-full object-contain p-1" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                            <ShoppingBag className="h-5 w-5" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-0.5">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => decFromCart(item.id)}><Minus className="h-3.5 w-3.5" /></Button>
-                        <span className="w-6 text-center text-sm font-medium">{qty}</span>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => incFromCart(item.id)} disabled={qty >= item.quantity_available}><Plus className="h-3.5 w-3.5" /></Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => clearItem(item.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                ) : (
+                  <ul className="space-y-2">
+                    {cartItems.map(({ item, qty }) => (
+                      <li key={item.id} className="flex items-center gap-2 rounded-lg border border-border bg-card p-2.5">
+                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.name} className="h-full w-full object-contain p-1" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                              <ShoppingBag className="h-5 w-5" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">זמין: {item.quantity_available}</p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-0.5">
+                          <Button size="icon" variant="ghost" className="h-9 w-9 sm:h-7 sm:w-7" onClick={() => decFromCart(item.id)}><Minus className="h-3.5 w-3.5" /></Button>
+                          <span className="w-6 text-center text-sm font-medium">{qty}</span>
+                          <Button size="icon" variant="ghost" className="h-9 w-9 sm:h-7 sm:w-7" onClick={() => incFromCart(item.id)} disabled={qty >= item.quantity_available}><Plus className="h-3.5 w-3.5" /></Button>
+                          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive sm:h-7 sm:w-7" onClick={() => clearItem(item.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {cartItems.length > 0 && (
+                <form onSubmit={submitLend} className="space-y-3 border-t border-border bg-card/40 px-5 py-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="l-name" className="text-xs">שם מלא</Label>
+                      <Input id="l-name" value={lName} onChange={(e) => setLName(e.target.value)} required />
+                    </div>
+                    <div>
+                      <Label htmlFor="l-phone" className="text-xs">טלפון</Label>
+                      <Input id="l-phone" type="tel" value={lPhone} onChange={(e) => setLPhone(e.target.value)} required />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="l-email" className="text-xs">אימייל</Label>
+                    <Input id="l-email" type="email" value={lEmail} onChange={(e) => setLEmail(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label htmlFor="l-notes" className="text-xs">הערות (לא חובה)</Label>
+                    <Textarea id="l-notes" value={lNotes} onChange={(e) => setLNotes(e.target.value)} rows={2} />
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-muted/40 p-3">
+                    <div className="flex items-start gap-2">
+                      <Checkbox
+                        id="l-agree"
+                        checked={lAgreed}
+                        onCheckedChange={(c) => setLAgreed(c === true)}
+                        className="mt-0.5"
+                      />
+                      <Label htmlFor="l-agree" className="cursor-pointer text-xs leading-relaxed text-foreground">
+                        <span className="mb-1.5 block text-sm font-bold">הצהרת השאלה</span>
+                        <span className="block text-muted-foreground">
+                          קראתי ואני מאשר/ת את תנאי ההשאלה — שמירה על הציוד, אחריות מלאה לנזק/אובדן, והחזרה עד{" "}
+                          <span className="font-semibold text-foreground">1.7.2026</span>.
+                        </span>
+                      </Label>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setTermsOpen((o) => !o)}
+                      className="mt-2 text-xs font-medium text-primary underline-offset-2 hover:underline sm:hidden"
+                    >
+                      {termsOpen ? "הסתר תנאים מלאים" : "הצג תנאים מלאים"}
+                    </button>
+                    <ul
+                      className={`mt-2 list-disc space-y-1 pr-4 text-xs text-muted-foreground marker:text-primary sm:block ${termsOpen ? "block" : "hidden"}`}
+                    >
+                      <li>לשמור על הציוד בקפידה ולהשתמש בו אך ורק למטרה שלשמה הושאל.</li>
+                      <li>לשאת באחריות מלאה לכל נזק, אובדן או גניבה של הציוד שבהשאלתי.</li>
+                      <li>לא להוציא את הציוד מהמייקרספייס ללא אישור מפורש מאחד המדריכים.</li>
+                      <li>
+                        להחזיר את כל הציוד במצב תקין ושלם לכל המאוחר עד{" "}
+                        <span className="font-semibold text-foreground">1.7.2026</span> (סוף שנת הלימודים).
+                      </li>
+                    </ul>
+                  </div>
+
+
+                  <div className="sticky bottom-0 -mx-5 -mb-4 border-t border-border bg-card px-5 py-3 sm:static sm:m-0 sm:border-0 sm:bg-transparent sm:p-0">
+                    {!user ? (
+                      <Button type="button" className="w-full" onClick={() => navigate("/auth")}>
+                        התחברו כדי להגיש בקשה
+                      </Button>
+                    ) : (
+                      <Button type="submit" disabled={lSubmitting || !lAgreed} className="w-full">
+                        {lSubmitting ? "שולח..." : `שלח בקשת השאלה (${cartCount})`}
+                      </Button>
+                    )}
+                  </div>
+                </form>
               )}
             </div>
-
-            {cartItems.length > 0 && (
-              <form onSubmit={submitLend} className="space-y-3 border-t border-border bg-card/40 px-5 py-4">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="l-name" className="text-xs">שם מלא</Label>
-                    <Input id="l-name" value={lName} onChange={(e) => setLName(e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="l-phone" className="text-xs">טלפון</Label>
-                    <Input id="l-phone" type="tel" value={lPhone} onChange={(e) => setLPhone(e.target.value)} required />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="l-email" className="text-xs">אימייל</Label>
-                  <Input id="l-email" type="email" value={lEmail} onChange={(e) => setLEmail(e.target.value)} required />
-                </div>
-                <div>
-                  <Label htmlFor="l-notes" className="text-xs">הערות (לא חובה)</Label>
-                  <Textarea id="l-notes" value={lNotes} onChange={(e) => setLNotes(e.target.value)} rows={2} />
-                </div>
-
-                <div className="rounded-lg border border-border bg-muted/40 p-3">
-                  <div className="flex items-start gap-2">
-                    <Checkbox
-                      id="l-agree"
-                      checked={lAgreed}
-                      onCheckedChange={(c) => setLAgreed(c === true)}
-                      className="mt-0.5"
-                    />
-                    <Label htmlFor="l-agree" className="cursor-pointer text-xs leading-relaxed text-foreground">
-                      <span className="mb-1.5 block text-sm font-bold">הצהרת השאלה</span>
-                      <span className="block text-muted-foreground">
-                        בשליחת הבקשה אני מאשר/ת כי קראתי והבנתי את התנאים, ומתחייב/ת:
-                      </span>
-                      <ul className="mt-1.5 list-disc space-y-1 pr-4 text-muted-foreground marker:text-primary">
-                        <li>לשמור על הציוד בקפידה ולהשתמש בו אך ורק למטרה שלשמה הושאל.</li>
-                        <li>לשאת באחריות מלאה לכל נזק, אובדן או גניבה של הציוד שבהשאלתי.</li>
-                        <li>לא להוציא את הציוד מהמייקרספייס ללא אישור מפורש מאחד המדריכים.</li>
-                        <li>
-                          להחזיר את כל הציוד במצב תקין ושלם לכל המאוחר עד{" "}
-                          <span className="font-semibold text-foreground">1.7.2026</span> (סוף שנת הלימודים).
-                        </li>
-                      </ul>
-                    </Label>
-                  </div>
-                </div>
-
-                {!user ? (
-                  <Button type="button" className="w-full" onClick={() => navigate("/auth")}>
-                    התחברו כדי להגיש בקשה
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={lSubmitting || !lAgreed} className="w-full">
-                    {lSubmitting ? "שולח..." : `שלח בקשת השאלה (${cartCount})`}
-                  </Button>
-                )}
-              </form>
-            )}
           </SheetContent>
         </Sheet>
       </main>
