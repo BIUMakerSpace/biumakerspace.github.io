@@ -123,7 +123,7 @@ const LockersManager = () => {
                     <>
                       <p className="text-sm"><span className="text-muted-foreground">בידי:</span> {l.occupant_name ?? "—"}</p>
                       <p className="text-sm"><span className="text-muted-foreground">אימייל:</span> {l.occupant_email ?? "—"}</p>
-                      <p className="text-sm"><span className="text-muted-foreground">פין:</span> <span className="font-mono font-semibold">{l.pin_code ?? "—"}</span></p>
+                      <p className="text-sm"><span className="text-muted-foreground">קוד:</span> <span className="font-mono font-semibold">{l.pin_code ?? "—"}</span></p>
                       <p className="text-xs text-muted-foreground">
                         מאז: {l.occupied_at ? new Date(l.occupied_at).toLocaleString("he-IL") : "—"}
                       </p>
