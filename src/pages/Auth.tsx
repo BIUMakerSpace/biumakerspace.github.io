@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,15 +8,18 @@ import SiteNav from "@/components/SiteNav";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading } = useAuth();
+  const redirectParam = searchParams.get("redirect");
+  const safeRedirect = redirectParam && redirectParam.startsWith("/") ? redirectParam : "/requests";
 
   useEffect(() => {
-    if (!loading && user) navigate("/requests", { replace: true });
-  }, [user, loading, navigate]);
+    if (!loading && user) navigate(safeRedirect, { replace: true });
+  }, [user, loading, navigate, safeRedirect]);
 
   const handleGoogleSignIn = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/requests",
+      redirect_uri: window.location.origin + safeRedirect,
     });
     if (result.error) {
       toast.error("שגיאה בהתחברות", { description: result.error.message });
