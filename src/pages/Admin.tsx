@@ -20,6 +20,7 @@ import CreateLendForUser from "@/components/admin/CreateLendForUser";
 import EmailDialog from "@/components/admin/EmailDialog";
 import EmailTemplatesManager from "@/components/admin/EmailTemplatesManager";
 import WishlistManager from "@/components/admin/WishlistManager";
+import LockersManager from "@/components/admin/LockersManager";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
