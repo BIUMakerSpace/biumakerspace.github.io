@@ -1,10 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { Download, LockOpen } from "lucide-react";
+
+const DEFAULT_PUBLIC_ORIGIN = "https://biumakerspace.lovable.app";
 
 interface Locker {
   id: string;
@@ -20,7 +24,14 @@ interface Locker {
 const LockersManager = () => {
   const [lockers, setLockers] = useState<Locker[]>([]);
   const [loading, setLoading] = useState(true);
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const [baseUrl, setBaseUrl] = useState<string>(() => {
+    if (typeof window === "undefined") return DEFAULT_PUBLIC_ORIGIN;
+    const saved = localStorage.getItem("lockers_qr_base_url");
+    if (saved) return saved;
+    const o = window.location.origin;
+    // Avoid baking ephemeral preview origin into printed QR codes
+    return o.includes("id-preview--") || o.includes("localhost") ? DEFAULT_PUBLIC_ORIGIN : o;
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -60,12 +71,37 @@ const LockersManager = () => {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
-        הדפס את ה-QR של כל לוקר והדבק עליו. סריקה תפנה את המשתמש לדף תפיסת הלוקר.
+      <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm space-y-3">
+        <p>הדפס את ה-QR של כל לוקר והדבק עליו. סריקה תפנה את המשתמש לדף תפיסת הלוקר.</p>
+        <div className="space-y-1">
+          <Label htmlFor="qr-base-url" className="text-xs">כתובת בסיס ל-QR (האתר הציבורי)</Label>
+          <div className="flex gap-2">
+            <Input
+              id="qr-base-url"
+              dir="ltr"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value.replace(/\/+$/, ""))}
+              placeholder="https://biumakerspace.lovable.app"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                localStorage.setItem("lockers_qr_base_url", baseUrl);
+                toast.success("הכתובת נשמרה");
+              }}
+            >
+              שמור
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            ודא שזו הכתובת הציבורית של האתר (לא קישור תצוגה מקדימה זמני) כדי שה-QR לא יישבר.
+          </p>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {lockers.map((l) => {
-          const url = `${origin}/lockers/${l.number}`;
+          const url = `${baseUrl}/lockers/${l.number}`;
           const occupied = !!l.occupied_by;
           return (
             <Card key={l.id} className={occupied ? "border-amber-500/40" : "border-border"}>
@@ -87,7 +123,7 @@ const LockersManager = () => {
                     <>
                       <p className="text-sm"><span className="text-muted-foreground">בידי:</span> {l.occupant_name ?? "—"}</p>
                       <p className="text-sm"><span className="text-muted-foreground">אימייל:</span> {l.occupant_email ?? "—"}</p>
-                      <p className="text-sm"><span className="text-muted-foreground">פין:</span> <span className="font-mono font-semibold">{l.pin_code ?? "—"}</span></p>
+                      <p className="text-sm"><span className="text-muted-foreground">קוד:</span> <span className="font-mono font-semibold">{l.pin_code ?? "—"}</span></p>
                       <p className="text-xs text-muted-foreground">
                         מאז: {l.occupied_at ? new Date(l.occupied_at).toLocaleString("he-IL") : "—"}
                       </p>

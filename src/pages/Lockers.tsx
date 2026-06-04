@@ -78,7 +78,7 @@ const Lockers = () => {
   const claim = async () => {
     if (!claimTarget || !user) return;
     if (!pin.trim() || pin.length < 3) {
-      toast.error("הזן קוד פין תקין (לפחות 3 ספרות)");
+      toast.error("הזן קוד נעילה תקין (לפחות 3 ספרות)");
       return;
     }
     if (myLocker && myLocker.id !== claimTarget.id) {
@@ -146,7 +146,7 @@ const Lockers = () => {
       <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
         <h1 className="mb-2 text-3xl font-black tracking-tight md:text-4xl">לוקרים</h1>
         <p className="mb-6 text-muted-foreground">
-          סרוק את ה-QR שעל הלוקר כדי לתפוס אותו. הלוקר יירשם על שמך ותזין את קוד הפין שלך.
+          סרוק את ה-QR שעל הלוקר כדי לתפוס אותו. הלוקר יירשם על שמך ותזין את קוד הנעילה שלך.
         </p>
 
         {scanError && (
@@ -179,7 +179,7 @@ const Lockers = () => {
                 תפוס מאז: {myLocker.occupied_at ? new Date(myLocker.occupied_at).toLocaleString("he-IL") : "—"}
               </p>
               {myLocker.pin_code && (
-                <p className="text-sm">קוד פין רשום: <span className="font-mono font-semibold">{myLocker.pin_code}</span></p>
+                <p className="text-sm">קוד נעילה רשום: <span className="font-mono font-semibold">{myLocker.pin_code}</span></p>
               )}
               <Button variant="destructive" onClick={() => release(myLocker)} className="gap-2">
                 <LockOpen className="h-4 w-4" />
@@ -229,11 +229,11 @@ const Lockers = () => {
           <DialogHeader>
             <DialogTitle>תפיסת לוקר {claimTarget?.number}</DialogTitle>
             <DialogDescription>
-              הזן את קוד הפין שתשתמש בו לנעילת הלוקר. הקוד יישמר במערכת לטובת המנהלים בלבד.
+              הזן את קוד הנעילה שתשתמש בו לנעילת הלוקר. הקוד יישמר במערכת לטובת המנהלים בלבד.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Label>קוד פין</Label>
+            <Label>קוד נעילה</Label>
             <Input
               type="text"
               inputMode="numeric"
