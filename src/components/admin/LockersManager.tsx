@@ -71,12 +71,37 @@ const LockersManager = () => {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
-        הדפס את ה-QR של כל לוקר והדבק עליו. סריקה תפנה את המשתמש לדף תפיסת הלוקר.
+      <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm space-y-3">
+        <p>הדפס את ה-QR של כל לוקר והדבק עליו. סריקה תפנה את המשתמש לדף תפיסת הלוקר.</p>
+        <div className="space-y-1">
+          <Label htmlFor="qr-base-url" className="text-xs">כתובת בסיס ל-QR (האתר הציבורי)</Label>
+          <div className="flex gap-2">
+            <Input
+              id="qr-base-url"
+              dir="ltr"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value.replace(/\/+$/, ""))}
+              placeholder="https://biumakerspace.lovable.app"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                localStorage.setItem("lockers_qr_base_url", baseUrl);
+                toast.success("הכתובת נשמרה");
+              }}
+            >
+              שמור
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            ודא שזו הכתובת הציבורית של האתר (לא קישור תצוגה מקדימה זמני) כדי שה-QR לא יישבר.
+          </p>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {lockers.map((l) => {
-          const url = `${origin}/lockers/${l.number}`;
+          const url = `${baseUrl}/lockers/${l.number}`;
           const occupied = !!l.occupied_by;
           return (
             <Card key={l.id} className={occupied ? "border-amber-500/40" : "border-border"}>
