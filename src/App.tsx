@@ -39,6 +39,8 @@ const App = () => (
             <Route path="/forum" element={<Forum />} />
             <Route path="/forum/:id" element={<ForumThread />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/lockers" element={<Lockers />} />
+            <Route path="/lockers/:number" element={<Lockers />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
