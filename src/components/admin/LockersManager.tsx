@@ -1,10 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { Download, LockOpen } from "lucide-react";
+
+const DEFAULT_PUBLIC_ORIGIN = "https://biumakerspace.lovable.app";
 
 interface Locker {
   id: string;
