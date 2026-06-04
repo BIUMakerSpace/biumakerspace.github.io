@@ -432,7 +432,12 @@ const Admin = () => {
             <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" />משתמשים ({users.length})</TabsTrigger>
             <TabsTrigger value="wishlist" className="gap-1.5"><Heart className="h-4 w-4" />רשימת קניות</TabsTrigger>
             <TabsTrigger value="emails" className="gap-1.5"><Mail className="h-4 w-4" />תבניות מייל</TabsTrigger>
+            <TabsTrigger value="lockers" className="gap-1.5"><Lock className="h-4 w-4" />לוקרים</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="lockers">
+            <LockersManager />
+          </TabsContent>
 
           <TabsContent value="sources">
             <ItemSourcesManager />
