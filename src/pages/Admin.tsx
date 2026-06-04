@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users, Mail, Heart, AlertTriangle } from "lucide-react";
+import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users, Mail, Heart, AlertTriangle, Lock } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
