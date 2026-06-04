@@ -448,6 +448,45 @@ export type Database = {
         }
         Relationships: []
       }
+      lockers: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          number: number
+          occupant_email: string | null
+          occupant_name: string | null
+          occupied_at: string | null
+          occupied_by: string | null
+          pin_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          number: number
+          occupant_email?: string | null
+          occupant_name?: string | null
+          occupied_at?: string | null
+          occupied_by?: string | null
+          pin_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          number?: number
+          occupant_email?: string | null
+          occupant_name?: string | null
+          occupied_at?: string | null
+          occupied_by?: string | null
+          pin_code?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       print_requests: {
         Row: {
           admin_notes: string | null
