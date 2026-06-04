@@ -15,6 +15,7 @@ import BlogPost from "./pages/BlogPost";
 import Forum from "./pages/Forum";
 import ForumThread from "./pages/ForumThread";
 import Community from "./pages/Community";
+import Lockers from "./pages/Lockers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,8 @@ const App = () => (
             <Route path="/forum" element={<Forum />} />
             <Route path="/forum/:id" element={<ForumThread />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/lockers" element={<Lockers />} />
+            <Route path="/lockers/:number" element={<Lockers />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

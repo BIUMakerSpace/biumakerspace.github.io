@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users, Mail, Heart, AlertTriangle } from "lucide-react";
+import { Package, Printer, ShoppingBag, Plus, Trash2, Download, ClipboardList, Search, Pencil, Upload, FileDown, Palette, Users, Mail, Heart, AlertTriangle, Lock } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import ItemSourcesEditor from "@/components/admin/ItemSourcesEditor";
@@ -20,6 +20,7 @@ import CreateLendForUser from "@/components/admin/CreateLendForUser";
 import EmailDialog from "@/components/admin/EmailDialog";
 import EmailTemplatesManager from "@/components/admin/EmailTemplatesManager";
 import WishlistManager from "@/components/admin/WishlistManager";
+import LockersManager from "@/components/admin/LockersManager";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
@@ -431,7 +432,12 @@ const Admin = () => {
             <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" />משתמשים ({users.length})</TabsTrigger>
             <TabsTrigger value="wishlist" className="gap-1.5"><Heart className="h-4 w-4" />רשימת קניות</TabsTrigger>
             <TabsTrigger value="emails" className="gap-1.5"><Mail className="h-4 w-4" />תבניות מייל</TabsTrigger>
+            <TabsTrigger value="lockers" className="gap-1.5"><Lock className="h-4 w-4" />לוקרים</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="lockers">
+            <LockersManager />
+          </TabsContent>
 
           <TabsContent value="sources">
             <ItemSourcesManager />

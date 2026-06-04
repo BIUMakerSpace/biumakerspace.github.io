@@ -15,6 +15,7 @@ const SiteNav = () => {
     { to: "/catalog", label: "קטלוג" },
     { to: "/requests", label: "הדפסה" },
     { to: "/community", label: "קהילה" },
+    { to: "/lockers", label: "לוקרים" },
     ...(user ? [{ to: "/my-requests", label: "הבקשות שלי" }] : []),
     ...(isAdmin ? [{ to: "/admin", label: "ניהול" }] : []),
   ];
