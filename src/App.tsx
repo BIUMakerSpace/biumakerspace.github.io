@@ -15,6 +15,7 @@ import BlogPost from "./pages/BlogPost";
 import Forum from "./pages/Forum";
 import ForumThread from "./pages/ForumThread";
 import Community from "./pages/Community";
+import Lockers from "./pages/Lockers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
