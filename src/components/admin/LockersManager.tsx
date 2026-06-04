@@ -24,7 +24,14 @@ interface Locker {
 const LockersManager = () => {
   const [lockers, setLockers] = useState<Locker[]>([]);
   const [loading, setLoading] = useState(true);
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const [baseUrl, setBaseUrl] = useState<string>(() => {
+    if (typeof window === "undefined") return DEFAULT_PUBLIC_ORIGIN;
+    const saved = localStorage.getItem("lockers_qr_base_url");
+    if (saved) return saved;
+    const o = window.location.origin;
+    // Avoid baking ephemeral preview origin into printed QR codes
+    return o.includes("id-preview--") || o.includes("localhost") ? DEFAULT_PUBLIC_ORIGIN : o;
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
