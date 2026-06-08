@@ -188,7 +188,7 @@ const Lockers = () => {
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {lockers.map((l) => {
-              const mine = user && l.occupied_by === user.id;
+              const mine = !!user && l.occupied_by === user.id;
               const free = !l.is_occupied;
               return (
                 <Card
