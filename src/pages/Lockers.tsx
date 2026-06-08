@@ -11,7 +11,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Lock, LockOpen, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
-interface Locker {
+interface LockerStatus {
+  id: string;
+  number: number;
+  label: string | null;
+  is_occupied: boolean;
+  occupied_by: string | null;
+  occupied_at: string | null;
+}
+
+interface MyLocker {
   id: string;
   number: number;
   label: string | null;
@@ -26,19 +35,30 @@ const Lockers = () => {
   const { number: numberParam } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [lockers, setLockers] = useState<Locker[]>([]);
+  const [lockers, setLockers] = useState<LockerStatus[]>([]);
+  const [myLocker, setMyLocker] = useState<MyLocker | null>(null);
   const [loading, setLoading] = useState(true);
-  const [claimTarget, setClaimTarget] = useState<Locker | null>(null);
+  const [claimTarget, setClaimTarget] = useState<LockerStatus | null>(null);
   const [pin, setPin] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("lockers").select("*").order("number");
-    setLockers((data ?? []) as Locker[]);
+    const { data } = await supabase
+      .from("lockers_status" as never)
+      .select("*")
+      .order("number");
+    setLockers(((data as unknown) as LockerStatus[]) ?? []);
+    if (user) {
+      const { data: mine } = await supabase.rpc("get_my_locker" as never);
+      const row = Array.isArray(mine) ? (mine[0] as MyLocker | undefined) : null;
+      setMyLocker(row ?? null);
+    } else {
+      setMyLocker(null);
+    }
     setLoading(false);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     load();
@@ -57,23 +77,19 @@ const Lockers = () => {
       setScanError(`לוקר מספר ${numberParam} לא נמצא במערכת.`);
       return;
     }
-    if (target.occupied_by && target.occupied_by !== user.id) {
+    if (target.is_occupied && target.occupied_by !== user.id) {
       setScanError(
-        `לוקר ${target.number} כבר תפוס על ידי ${target.occupant_name ?? "משתמש אחר"}. אם זו טעות, פנה למנהל.`
+        `לוקר ${target.number} כבר תפוס. אם זו טעות, פנה למנהל.`
       );
       return;
     }
     if (target.occupied_by === user.id) {
       setScanError(null);
-      // already mine — just show list
       return;
     }
-    // free — open claim dialog
     setClaimTarget(target);
     setScanError(null);
   }, [authLoading, loading, numberParam, user, lockers, navigate]);
-
-  const myLocker = user ? lockers.find((l) => l.occupied_by === user.id) ?? null : null;
 
   const claim = async () => {
     if (!claimTarget || !user) return;
@@ -86,30 +102,13 @@ const Lockers = () => {
       return;
     }
     setSubmitting(true);
-    const { data: profile } = await supabase
-      .from("profiles").select("full_name, email").eq("id", user.id).maybeSingle();
-    const { data: updated, error } = await supabase
-      .from("lockers")
-      .update({
-        occupied_by: user.id,
-        occupant_name: profile?.full_name ?? user.email,
-        occupant_email: profile?.email ?? user.email,
-        pin_code: pin.trim(),
-        occupied_at: new Date().toISOString(),
-      })
-      .eq("id", claimTarget.id)
-      .is("occupied_by", null)
-      .select();
+    const { error } = await supabase.rpc("claim_locker" as never, {
+      p_number: claimTarget.number,
+      p_pin: pin.trim(),
+    } as never);
     setSubmitting(false);
     if (error) {
       toast.error("שגיאה בתפיסת הלוקר", { description: error.message });
-      return;
-    }
-    if (!updated || updated.length === 0) {
-      toast.error("לוקר נתפס בינתיים על ידי משתמש אחר");
-      setClaimTarget(null);
-      setPin("");
-      load();
       return;
     }
     toast.success(`לוקר ${claimTarget.number} נרשם על שמך`);
@@ -119,17 +118,11 @@ const Lockers = () => {
     load();
   };
 
-  const release = async (l: Locker) => {
+  const release = async (l: MyLocker) => {
     if (!user) return;
     const { error } = await supabase
       .from("lockers")
-      .update({
-        occupied_by: null,
-        occupant_name: null,
-        occupant_email: null,
-        pin_code: null,
-        occupied_at: null,
-      })
+      .update({ occupied_by: null })
       .eq("id", l.id)
       .eq("occupied_by", user.id);
     if (error) {
@@ -196,7 +189,7 @@ const Lockers = () => {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {lockers.map((l) => {
               const mine = user && l.occupied_by === user.id;
-              const free = !l.occupied_by;
+              const free = !l.is_occupied;
               return (
                 <Card
                   key={l.id}
