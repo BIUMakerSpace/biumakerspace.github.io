@@ -35,9 +35,9 @@ const LockersManager = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("lockers").select("*").order("number");
+    const { data, error } = await supabase.rpc("admin_list_lockers" as never);
     if (error) toast.error("שגיאה בטעינת לוקרים", { description: error.message });
-    setLockers((data ?? []) as Locker[]);
+    setLockers(((data as unknown) as Locker[]) ?? []);
     setLoading(false);
   }, []);
 
