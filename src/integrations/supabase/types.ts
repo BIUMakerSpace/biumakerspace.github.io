@@ -686,6 +686,27 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_my_locker: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          label: string | null
+          number: number
+          occupant_email: string | null
+          occupant_name: string | null
+          occupied_at: string | null
+          occupied_by: string | null
+          pin_code: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "lockers"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
