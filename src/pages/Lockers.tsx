@@ -51,9 +51,9 @@ const Lockers = () => {
       .order("number");
     setLockers(((data as unknown) as LockerStatus[]) ?? []);
     if (user) {
-      const { data: mine } = await supabase.rpc("get_my_locker" as never);
-      const row = Array.isArray(mine) ? (mine[0] as MyLocker | undefined) : null;
-      setMyLocker(row ?? null);
+      const { data: mineData } = await supabase.rpc("get_my_locker" as never);
+      const arr = (mineData as unknown) as MyLocker[] | null;
+      setMyLocker(arr && arr.length > 0 ? arr[0] : null);
     } else {
       setMyLocker(null);
     }
