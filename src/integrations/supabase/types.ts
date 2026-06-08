@@ -615,9 +615,56 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      lockers_status: {
+        Row: {
+          id: string | null
+          is_occupied: boolean | null
+          label: string | null
+          number: number | null
+          occupied_at: string | null
+          occupied_by: string | null
+        }
+        Insert: {
+          id?: string | null
+          is_occupied?: never
+          label?: string | null
+          number?: number | null
+          occupied_at?: string | null
+          occupied_by?: string | null
+        }
+        Update: {
+          id?: string | null
+          is_occupied?: never
+          label?: string | null
+          number?: number | null
+          occupied_at?: string | null
+          occupied_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      claim_locker: {
+        Args: { p_number: number; p_pin: string }
+        Returns: {
+          created_at: string
+          id: string
+          label: string | null
+          number: number
+          occupant_email: string | null
+          occupant_name: string | null
+          occupied_at: string | null
+          occupied_by: string | null
+          pin_code: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "lockers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
