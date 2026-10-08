@@ -2,7 +2,9 @@
 
 Hebrew (RTL) site for the Bar-Ilan CS MakerSpace: equipment catalog and lending, 3D-print requests, lockers, blog and forum, plus an admin area.
 
-**Stack:** React 18 + Vite + TypeScript + Tailwind/shadcn-ui on the frontend; Supabase (Postgres, Auth with Google, Storage) as the backend. All business rules (permissions, inventory, request states) live in the database as RLS policies, triggers and RPCs under `supabase/migrations/`. Hosted for free on GitHub Pages.
+**Stack:** React 18 + Vite + TypeScript + Tailwind/shadcn-ui + TanStack Query on the frontend; Supabase (Postgres, Auth with Google, Storage) as the backend. All business rules (permissions, inventory, request states) live in the database as RLS policies, triggers and RPCs under `supabase/migrations/`, covered by pgTAP tests in `supabase/tests/`. There are no edge functions. Hosted for free on GitHub Pages.
+
+**Layout:** `src/pages` (routes; `pages/admin` has one file per admin tab), `src/components` (`catalog/`, `admin/`, `layout/`, shadcn `ui/`), `src/lib` (helpers; `lib/queries` holds all Supabase reads/writes as React Query hooks), `src/content` (static landing-page content).
 
 ## Local development
 
@@ -63,5 +65,24 @@ Pushing to `main` runs `.github/workflows/deploy.yml`: lint, typecheck, tests, b
 4. **Supabase URL config** (Authentication → URL Configuration): Site URL = the public site URL; redirect URLs = `<public site URL>/**` and `http://localhost:8080/**`.
 5. Sign in once on the live site, then make yourself admin in the SQL editor:
    `insert into user_roles (user_id, role) select id, 'admin' from auth.users where email = '<you>';`
+
+## Migrating the catalog from the old (Lovable) project
+
+The catalog, storage sources, filament colors, email templates and wishlist can be copied over; user accounts, requests, posts and lockers start fresh (people sign in with Google again).
+
+1. Sign in as an admin on the old live site and copy your `access_token` (DevTools → Application → Local Storage → `sb-<ref>-auth-token`). It expires after about an hour.
+2. Export (the old project's URL and public key are in git history: `git show 8b7d932^:.env`):
+   ```sh
+   OLD_SUPABASE_URL=https://<old-ref>.supabase.co OLD_SUPABASE_ANON_KEY=<old key> OLD_ACCESS_TOKEN=<token> \
+     node scripts/export-catalog.mjs
+   ```
+   This writes `scripts/export/*.json` (gitignored) and lists equipment that is currently out on loan.
+3. Import into the new project with its **secret** key (local machine only, never commit it):
+   ```sh
+   SUPABASE_URL=https://<new-ref>.supabase.co SUPABASE_SECRET_KEY=<secret key> \
+     node scripts/import-catalog.mjs --dry-run      # check the counts first
+   SUPABASE_URL=... SUPABASE_SECRET_KEY=... node scripts/import-catalog.mjs [--include-on-loan]
+   ```
+   `--include-on-loan` puts units that were out on loan back on the shelf (loans aren't migrated, so nobody could return them in the new system). The import is safe to re-run.
 
 Note: Supabase's free tier pauses a project after about a week with no traffic; restore it from the dashboard if that happens.
