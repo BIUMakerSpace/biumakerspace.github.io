@@ -91,18 +91,16 @@ const DeliverDialog = ({ open, onClose, requestId, items, onDelivered }: Props) 
     }
     setSubmitting(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke("deliver-lend-request", {
-        body: {
-          request_id: requestId,
-          items: items.map((it) => ({
-            lend_request_item_id: it.id,
-            picks: (picks[it.id] ?? []).filter((p) => p.quantity > 0),
-          })),
-        },
+      const { error } = await supabase.rpc("deliver_lend_request", {
+        p_request_id: requestId,
+        p_items: items.map((it) => ({
+          lend_request_item_id: it.id,
+          picks: (picks[it.id] ?? [])
+            .filter((p) => p.quantity > 0)
+            .map((p) => ({ source_id: p.source_id, quantity: p.quantity })),
+        })),
       });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
       toast.success("נמסר בהצלחה");
       onDelivered();
       onClose();

@@ -63,11 +63,11 @@ const ReturnDialog = ({ open, onClose, requestId, onReturned }: Props) => {
       const overrides = rows
         .filter((r) => r.target_source_id && r.target_source_id !== r.origin_source_id)
         .map((r) => ({ lris_id: r.id, source_id: r.target_source_id }));
-      const { data, error } = await supabase.functions.invoke("return-lend-request", {
-        body: { request_id: requestId, overrides },
+      const { error } = await supabase.rpc("return_lend_request", {
+        p_request_id: requestId,
+        p_overrides: overrides,
       });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
       toast.success("הוחזר בהצלחה");
       onReturned();
       onClose();

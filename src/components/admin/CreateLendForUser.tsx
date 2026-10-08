@@ -75,24 +75,12 @@ export default function CreateLendForUser({ open, onClose, user, onCreated }: Pr
     }
     setSubmitting(true);
     try {
-      const { data: req, error } = await supabase
-        .from("lend_requests")
-        .insert({
-          user_id: user.id,
-          requester_name: user.full_name ?? user.email ?? "משתמש",
-          requester_email: user.email ?? "",
-          requester_phone: user.phone ?? "",
-          notes: notes || null,
-          status: "approved",
-        })
-        .select("id")
-        .single();
+      const { error } = await supabase.rpc("admin_create_lend_request", {
+        p_user_id: user.id,
+        p_notes: notes,
+        p_items: picked.map((p) => ({ item_id: p.item_id, quantity: p.quantity })),
+      });
       if (error) throw error;
-
-      const { error: itemsErr } = await supabase.from("lend_request_items").insert(
-        picked.map((p) => ({ request_id: req.id, item_id: p.item_id, quantity: p.quantity })),
-      );
-      if (itemsErr) throw itemsErr;
 
       toast.success("ההשאלה נוצרה");
       onCreated();

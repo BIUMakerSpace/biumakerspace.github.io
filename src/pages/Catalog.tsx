@@ -199,22 +199,14 @@ const Catalog = () => {
     }
     setLSubmitting(true);
     try {
-      const { data: req, error: reqErr } = await supabase
-        .from("lend_requests")
-        .insert([{
-          user_id: user.id,
-          requester_name: parsed.data.requester_name,
-          requester_email: parsed.data.requester_email,
-          requester_phone: parsed.data.requester_phone,
-          notes: parsed.data.notes ?? null,
-        }])
-        .select()
-        .single();
-      if (reqErr) throw reqErr;
-      const { error: itemsErr } = await supabase.from("lend_request_items").insert(
-        cartItems.map(({ item, qty }) => ({ request_id: req.id, item_id: item.id, quantity: qty }))
-      );
-      if (itemsErr) throw itemsErr;
+      const { error } = await supabase.rpc("create_lend_request", {
+        p_requester_name: parsed.data.requester_name,
+        p_requester_email: parsed.data.requester_email,
+        p_requester_phone: parsed.data.requester_phone,
+        p_notes: parsed.data.notes ?? "",
+        p_items: cartItems.map(({ item, qty }) => ({ item_id: item.id, quantity: qty })),
+      });
+      if (error) throw error;
       toast.success("הבקשה נשלחה!", { description: "ניצור קשר בקרוב" });
       setCart({}); setLNotes(""); setLAgreed(false); setCartOpen(false);
     } catch (err) {
