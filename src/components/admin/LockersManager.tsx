@@ -1,14 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { Download, LockOpen } from "lucide-react";
-
-const DEFAULT_PUBLIC_ORIGIN = "https://biumakerspace.lovable.app";
+import { PUBLIC_SITE_URL, siteUrl } from "@/config";
 
 interface Locker {
   id: string;
@@ -24,20 +21,12 @@ interface Locker {
 const LockersManager = () => {
   const [lockers, setLockers] = useState<Locker[]>([]);
   const [loading, setLoading] = useState(true);
-  const [baseUrl, setBaseUrl] = useState<string>(() => {
-    if (typeof window === "undefined") return DEFAULT_PUBLIC_ORIGIN;
-    const saved = localStorage.getItem("lockers_qr_base_url");
-    if (saved) return saved;
-    const o = window.location.origin;
-    // Avoid baking ephemeral preview origin into printed QR codes
-    return o.includes("id-preview--") || o.includes("localhost") ? DEFAULT_PUBLIC_ORIGIN : o;
-  });
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc("admin_list_lockers" as never);
+    const { data, error } = await supabase.rpc("admin_list_lockers");
     if (error) toast.error("שגיאה בטעינת לוקרים", { description: error.message });
-    setLockers(((data as unknown) as Locker[]) ?? []);
+    setLockers(data ?? []);
     setLoading(false);
   }, []);
 
@@ -64,7 +53,8 @@ const LockersManager = () => {
     const a = document.createElement("a");
     a.href = url; a.download = `locker-${n}-qr.svg`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Revoking synchronously can cancel the download in some browsers.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   if (loading) return <p className="text-muted-foreground">טוען...</p>;
@@ -73,35 +63,14 @@ const LockersManager = () => {
     <div className="space-y-4">
       <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm space-y-3">
         <p>הדפס את ה-QR של כל לוקר והדבק עליו. סריקה תפנה את המשתמש לדף תפיסת הלוקר.</p>
-        <div className="space-y-1">
-          <Label htmlFor="qr-base-url" className="text-xs">כתובת בסיס ל-QR (האתר הציבורי)</Label>
-          <div className="flex gap-2">
-            <Input
-              id="qr-base-url"
-              dir="ltr"
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value.replace(/\/+$/, ""))}
-              placeholder="https://biumakerspace.lovable.app"
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                localStorage.setItem("lockers_qr_base_url", baseUrl);
-                toast.success("הכתובת נשמרה");
-              }}
-            >
-              שמור
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            ודא שזו הכתובת הציבורית של האתר (לא קישור תצוגה מקדימה זמני) כדי שה-QR לא יישבר.
-          </p>
-        </div>
+        <p className="text-xs text-muted-foreground">
+          כתובת הבסיס של ה-QR: <span dir="ltr" className="font-mono">{PUBLIC_SITE_URL}</span>
+          {" "}(נקבעת במשתנה הסביבה VITE_PUBLIC_SITE_URL בזמן הבנייה).
+        </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {lockers.map((l) => {
-          const url = `${baseUrl}/lockers/${l.number}`;
+          const url = siteUrl(`/lockers/${l.number}`);
           const occupied = !!l.occupied_by;
           return (
             <Card key={l.id} className={occupied ? "border-amber-500/40" : "border-border"}>

@@ -3,6 +3,7 @@ import heroImage from "@/assets/hero-maker.jpg";
 import arduinoPlaylistThumb from "@/assets/arduino-playlist-thumb.png";
 import ResourceCard from "@/components/ResourceCard";
 import SiteNav from "@/components/SiteNav";
+import { publicAsset } from "@/config";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Cpu, Users, Lightbulb, ArrowDown, Play, BookOpen, ExternalLink, Sparkles, Rocket, ShoppingBag, FileText, Clock, DoorOpen, Presentation, Download, Video } from "lucide-react";
@@ -89,7 +90,7 @@ const resources = [
   {
     title: "Keyestudio 48-in-1 Sensor Kit – מדריך רשמי",
     description: "המדריך המלא של ערכת 48 החיישנים של Keyestudio – הסברים, סכמות חיבור ודוגמאות קוד לכל חיישן",
-    url: "/tutorials/keyestudio-48-in-1-sensor-kit.pdf",
+    url: publicAsset("tutorials/keyestudio-48-in-1-sensor-kit.pdf"),
     type: "pdf" as const,
   },
   {
@@ -272,7 +273,7 @@ const Index = () => {
                 חומרי לימוד
               </p>
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center">
-                <a href="/opening_meeting.pdf" target="_blank" rel="noopener noreferrer" className="sm:w-auto">
+                <a href={publicAsset("opening_meeting.pdf")} target="_blank" rel="noopener noreferrer" className="sm:w-auto">
                   <Button size="sm" variant="outline" className="w-full justify-center gap-1.5 bg-background/70 text-xs backdrop-blur sm:w-auto">
                     <Download className="h-3.5 w-3.5" />
                     מצגת מפגש הפתיחה
