@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { Download, LockOpen } from "lucide-react";
 import { PUBLIC_SITE_URL, siteUrl } from "@/config";
+import ConfirmButton from "@/components/ConfirmButton";
 
 interface Locker {
   id: string;
@@ -33,7 +34,6 @@ const LockersManager = () => {
   useEffect(() => { load(); }, [load]);
 
   const forceRelease = async (l: Locker) => {
-    if (!confirm(`לשחרר את לוקר ${l.number}?`)) return;
     const { error } = await supabase
       .from("lockers")
       .update({ occupied_by: null, occupant_name: null, occupant_email: null, pin_code: null, occupied_at: null })
@@ -96,9 +96,16 @@ const LockersManager = () => {
                       <p className="text-xs text-muted-foreground">
                         מאז: {l.occupied_at ? new Date(l.occupied_at).toLocaleString("he-IL") : "—"}
                       </p>
-                      <Button variant="outline" size="sm" className="mt-2 gap-1" onClick={() => forceRelease(l)}>
-                        <LockOpen className="h-3.5 w-3.5" /> שחרר
-                      </Button>
+                      <ConfirmButton
+                        title={`לשחרר את לוקר ${l.number}?`}
+                        confirmLabel="שחרר"
+                        onConfirm={() => forceRelease(l)}
+                        trigger={
+                          <Button variant="outline" size="sm" className="mt-2 gap-1">
+                            <LockOpen className="h-3.5 w-3.5" /> שחרר
+                          </Button>
+                        }
+                      />
                     </>
                   ) : (
                     <p className="text-sm text-muted-foreground">אין משתמש רשום</p>

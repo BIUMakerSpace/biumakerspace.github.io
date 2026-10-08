@@ -686,6 +686,7 @@ export type Database = {
         };
         Returns: string;
       };
+      admin_add_catalog_items: { Args: { p_items: Json }; Returns: string[] };
       admin_create_lend_request: {
         Args: { p_items: Json; p_notes: string; p_user_id: string };
         Returns: string;
@@ -743,6 +744,8 @@ export type Database = {
         Returns: string;
       };
       deliver_lend_request: { Args: { p_items: Json; p_request_id: string }; Returns: undefined };
+      ensure_item_source: { Args: { p_name: string }; Returns: string };
+      general_category_for: { Args: { p_category: string }; Returns: string };
       get_my_locker: {
         Args: Record<PropertyKey, never>;
         Returns: {

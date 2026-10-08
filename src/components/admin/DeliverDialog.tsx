@@ -1,127 +1,94 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useCatalogItemSources, useDeliverLendRequest, useItemSources } from "@/lib/queries/admin";
+import { errorMessage } from "@/lib/errors";
 
-interface LendItem {
+export interface DeliverItem {
   id: string;          // lend_request_items.id
   item_id: string;
   quantity: number;
   name: string;
 }
-interface Source { id: string; name: string; is_active: boolean; }
-interface Stock { source_id: string; quantity: number; }
 interface Pick { source_id: string; quantity: number; }
 
 interface Props {
-  open: boolean;
   onClose: () => void;
   requestId: string;
-  items: LendItem[];
+  items: DeliverItem[];
   onDelivered: () => void;
 }
 
-const DeliverDialog = ({ open, onClose, requestId, items, onDelivered }: Props) => {
-  const [sources, setSources] = useState<Source[]>([]);
-  const [stock, setStock] = useState<Record<string, Stock[]>>({}); // by item_id
-  const [picks, setPicks] = useState<Record<string, Pick[]>>({});  // by lend_request_item_id
-  const [submitting, setSubmitting] = useState(false);
+/** Choose which storage source(s) each lent item is taken from. Mount only while open. */
+const DeliverDialog = ({ onClose, requestId, items, onDelivered }: Props) => {
+  const { data: sources = [], isLoading: sourcesLoading } = useItemSources();
+  const { data: stockRows = [], isLoading: stockLoading } = useCatalogItemSources();
+  const deliver = useDeliverLendRequest();
+  const activeSources = sources.filter((s) => s.is_active);
+  const stockOf = (itemId: string, sourceId: string) =>
+    stockRows.find((r) => r.item_id === itemId && r.source_id === sourceId)?.quantity ?? 0;
 
-  useEffect(() => {
-    if (!open) return;
-    (async () => {
-      const { data: srcs } = await supabase
-        .from("item_sources").select("id, name, is_active").order("sort_order").order("name");
-      setSources((srcs ?? []) as Source[]);
+  // Initial picks: take everything from a single active source when one has enough.
+  const [picks, setPicks] = useState<Record<string, Pick[]> | null>(null);
+  const loading = sourcesLoading || stockLoading;
+  const currentPicks: Record<string, Pick[]> = picks ?? (loading ? {} : Object.fromEntries(items.map((it) => {
+    const single = activeSources.find((s) => stockOf(it.item_id, s.id) >= it.quantity);
+    return [it.id, [{ source_id: single?.id ?? "", quantity: it.quantity }]];
+  })));
 
-      const itemIds = items.map((i) => i.item_id);
-      const { data: cis } = await supabase
-        .from("catalog_item_sources")
-        .select("item_id, source_id, quantity")
-        .in("item_id", itemIds.length ? itemIds : ["00000000-0000-0000-0000-000000000000"]);
-      const map: Record<string, Stock[]> = {};
-      (cis ?? []).forEach((r: any) => {
-        (map[r.item_id] ??= []).push({ source_id: r.source_id, quantity: r.quantity });
-      });
-      setStock(map);
-
-      // Initial picks: try to auto-fill from a single source if possible
-      const init: Record<string, Pick[]> = {};
-      items.forEach((it) => {
-        const available = (map[it.item_id] ?? []).filter((s) => s.quantity > 0);
-        const single = available.find((s) => s.quantity >= it.quantity);
-        if (single) init[it.id] = [{ source_id: single.source_id, quantity: it.quantity }];
-        else init[it.id] = [{ source_id: "", quantity: it.quantity }];
-      });
-      setPicks(init);
-    })();
-  }, [open, requestId]);
-
-  const updatePick = (lriId: string, idx: number, patch: Partial<Pick>) => {
-    setPicks((p) => ({
-      ...p,
-      [lriId]: p[lriId].map((row, i) => (i === idx ? { ...row, ...patch } : row)),
-    }));
-  };
-  const addPickRow = (lriId: string) => {
-    setPicks((p) => ({ ...p, [lriId]: [...p[lriId], { source_id: "", quantity: 0 }] }));
-  };
-  const removePickRow = (lriId: string, idx: number) => {
-    setPicks((p) => ({ ...p, [lriId]: p[lriId].filter((_, i) => i !== idx) }));
-  };
+  const update = (fn: (p: Record<string, Pick[]>) => Record<string, Pick[]>) => setPicks(fn(currentPicks));
+  const updatePick = (lriId: string, idx: number, patch: Partial<Pick>) =>
+    update((p) => ({ ...p, [lriId]: p[lriId].map((row, i) => (i === idx ? { ...row, ...patch } : row)) }));
+  const addPickRow = (lriId: string) =>
+    update((p) => ({ ...p, [lriId]: [...(p[lriId] ?? []), { source_id: "", quantity: 0 }] }));
+  const removePickRow = (lriId: string, idx: number) =>
+    update((p) => ({ ...p, [lriId]: p[lriId].filter((_, i) => i !== idx) }));
 
   const submit = async () => {
-    // Validate
     for (const it of items) {
-      const rows = picks[it.id] ?? [];
+      const rows = currentPicks[it.id] ?? [];
       const sum = rows.reduce((s, r) => s + (r.quantity || 0), 0);
       if (sum !== it.quantity) {
         toast.error(`${it.name}: נדרש ${it.quantity}, נבחר ${sum}`);
         return;
       }
-      for (const r of rows) {
-        if (r.quantity > 0 && !r.source_id) {
-          toast.error(`${it.name}: יש לבחור מקור`);
-          return;
-        }
+      if (rows.some((r) => r.quantity > 0 && !r.source_id)) {
+        toast.error(`${it.name}: יש לבחור מקור`);
+        return;
       }
     }
-    setSubmitting(true);
     try {
-      const { error } = await supabase.rpc("deliver_lend_request", {
-        p_request_id: requestId,
-        p_items: items.map((it) => ({
+      await deliver.mutateAsync({
+        requestId,
+        items: items.map((it) => ({
           lend_request_item_id: it.id,
-          picks: (picks[it.id] ?? [])
+          picks: (currentPicks[it.id] ?? [])
             .filter((p) => p.quantity > 0)
             .map((p) => ({ source_id: p.source_id, quantity: p.quantity })),
         })),
       });
-      if (error) throw error;
       toast.success("נמסר בהצלחה");
       onDelivered();
       onClose();
     } catch (e) {
-      toast.error("שגיאה במסירה", { description: (e as Error).message });
-    } finally {
-      setSubmitting(false);
+      toast.error("שגיאה במסירה", { description: errorMessage(e) });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent dir="rtl" className="max-w-2xl">
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>בחירת מקורות למסירה</DialogTitle>
           <DialogDescription>בחר מאיזה מיקום אחסון לקחת כל פריט</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-          {items.map((it) => {
-            const itemStock = stock[it.item_id] ?? [];
-            const rows = picks[it.id] ?? [];
+          {loading && <p className="text-sm text-muted-foreground">טוען...</p>}
+          {!loading && items.map((it) => {
+            const rows = currentPicks[it.id] ?? [];
             const sum = rows.reduce((s, r) => s + (r.quantity || 0), 0);
             return (
               <div key={it.id} className="rounded-lg border border-border p-3">
@@ -140,8 +107,8 @@ const DeliverDialog = ({ open, onClose, requestId, items, onDelivered }: Props) 
                         className="h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm"
                       >
                         <option value="">— בחר מקור —</option>
-                        {sources.filter((s) => s.is_active).map((s) => {
-                          const stk = itemStock.find((x) => x.source_id === s.id)?.quantity ?? 0;
+                        {activeSources.map((s) => {
+                          const stk = stockOf(it.item_id, s.id);
                           return (
                             <option key={s.id} value={s.id} disabled={stk === 0}>
                               {s.name} (זמין: {stk})
@@ -156,7 +123,7 @@ const DeliverDialog = ({ open, onClose, requestId, items, onDelivered }: Props) 
                         className="h-9 w-20"
                       />
                       {rows.length > 1 && (
-                        <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={() => removePickRow(it.id, idx)}>
+                        <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={() => removePickRow(it.id, idx)} aria-label="הסר מקור">
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       )}
@@ -171,7 +138,7 @@ const DeliverDialog = ({ open, onClose, requestId, items, onDelivered }: Props) 
           })}
         </div>
         <DialogFooter className="gap-2 sm:justify-start">
-          <Button onClick={submit} disabled={submitting}>{submitting ? "מוסר..." : "אשר מסירה"}</Button>
+          <Button onClick={submit} disabled={deliver.isPending || loading}>{deliver.isPending ? "מוסר..." : "אשר מסירה"}</Button>
           <Button variant="outline" onClick={onClose}>ביטול</Button>
         </DialogFooter>
       </DialogContent>

@@ -34,3 +34,9 @@ export function siteUrl(path: string): string {
 export function publicAsset(path: string): string {
   return `${BASE_PATH}${path.replace(/^\/+/, "")}`;
 }
+
+/**
+ * Last day borrowed equipment must be returned, shown in the lending terms.
+ * Update every academic year.
+ */
+export const LOAN_RETURN_DEADLINE = "1.7.2026";

@@ -1,5 +1,5 @@
-// Forward-only state machines for print + lend requests.
-// Returns the list of allowed next statuses given the current one.
+// Status vocabularies, labels and forward-only state machines for requests.
+// The allowed values are also enforced by CHECK constraints in the database.
 
 export const PRINT_STATUS_HE: Record<string, string> = {
   pending: "ממתין",
@@ -19,6 +19,34 @@ export const LEND_STATUS_HE: Record<string, string> = {
   rejected: "נדחה",
   cancelled: "בוטל",
 };
+
+export const ITEM_REQUEST_STATUS_HE: Record<string, string> = {
+  pending: "ממתין",
+  approved: "אושר",
+  ordered: "הוזמן",
+  received: "הגיע",
+  rejected: "נדחה",
+};
+
+export type RequestKind = "print" | "lend" | "item";
+
+const LABELS: Record<RequestKind, Record<string, string>> = {
+  print: PRINT_STATUS_HE,
+  lend: LEND_STATUS_HE,
+  item: ITEM_REQUEST_STATUS_HE,
+};
+
+export function statusLabel(kind: RequestKind, status: string): string {
+  return LABELS[kind][status] ?? status;
+}
+
+/** Status values in display order, for filters and selects. */
+export function statusOptions(kind: RequestKind): string[] {
+  return Object.keys(LABELS[kind]);
+}
+
+/** Loans delivered longer ago than this are flagged as overdue. */
+export const LONG_LOAN_DAYS = 14;
 
 export function nextPrintStatuses(current: string): string[] {
   switch (current) {

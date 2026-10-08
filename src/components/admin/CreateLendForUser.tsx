@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useCatalogItems } from "@/lib/queries/catalog";
+import { useAdminCreateLendRequest } from "@/lib/queries/admin";
+import { errorMessage } from "@/lib/errors";
 
 interface CatalogItem {
   id: string;
@@ -22,30 +24,17 @@ interface Profile {
 }
 
 interface Props {
-  open: boolean;
   onClose: () => void;
-  user: Profile | null;
-  onCreated: () => void;
+  user: Profile;
 }
 
-export default function CreateLendForUser({ open, onClose, user, onCreated }: Props) {
-  const [items, setItems] = useState<CatalogItem[]>([]);
+/** Admin hands equipment to a user directly (request starts approved). Mount only while open. */
+export default function CreateLendForUser({ onClose, user }: Props) {
+  const { data: items = [] } = useCatalogItems();
+  const createLend = useAdminCreateLendRequest();
   const [picked, setPicked] = useState<{ item_id: string; name: string; quantity: number; max: number }[]>([]);
   const [search, setSearch] = useState("");
   const [notes, setNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    setPicked([]);
-    setNotes("");
-    setSearch("");
-    supabase
-      .from("catalog_items")
-      .select("id, name, quantity_available")
-      .order("name")
-      .then(({ data }) => setItems((data ?? []) as CatalogItem[]));
-  }, [open]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -68,35 +57,28 @@ export default function CreateLendForUser({ open, onClose, user, onCreated }: Pr
     setPicked(picked.map((p) => (p.item_id === id ? { ...p, quantity: Math.max(1, Math.min(p.max, q)) } : p)));
 
   const submit = async () => {
-    if (!user) return;
     if (!picked.length) {
       toast.error("יש לבחור לפחות פריט אחד");
       return;
     }
-    setSubmitting(true);
     try {
-      const { error } = await supabase.rpc("admin_create_lend_request", {
-        p_user_id: user.id,
-        p_notes: notes,
-        p_items: picked.map((p) => ({ item_id: p.item_id, quantity: p.quantity })),
+      await createLend.mutateAsync({
+        userId: user.id,
+        notes,
+        items: picked.map((p) => ({ item_id: p.item_id, quantity: p.quantity })),
       });
-      if (error) throw error;
-
       toast.success("ההשאלה נוצרה");
-      onCreated();
       onClose();
     } catch (err) {
-      toast.error("שגיאה", { description: (err as Error).message });
-    } finally {
-      setSubmitting(false);
+      toast.error("שגיאה", { description: errorMessage(err) });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent dir="rtl" className="max-w-2xl">
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>יצירת השאלה עבור {user?.full_name ?? user?.email}</DialogTitle>
+          <DialogTitle>יצירת השאלה עבור {user.full_name ?? user.email}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -146,7 +128,7 @@ export default function CreateLendForUser({ open, onClose, user, onCreated }: Pr
                       className="h-8 w-20"
                     />
                     <span className="text-xs text-muted-foreground">/ {p.max}</span>
-                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={() => removeItem(p.item_id)}>
+                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={() => removeItem(p.item_id)} aria-label="הסר">
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </li>
@@ -162,9 +144,9 @@ export default function CreateLendForUser({ open, onClose, user, onCreated }: Pr
         </div>
 
         <DialogFooter className="gap-2 sm:justify-start">
-          <Button onClick={submit} disabled={submitting} className="gap-1.5">
+          <Button onClick={submit} disabled={createLend.isPending} className="gap-1.5">
             <Plus className="h-4 w-4" />
-            {submitting ? "יוצר..." : "צור השאלה"}
+            {createLend.isPending ? "יוצר..." : "צור השאלה"}
           </Button>
           <Button variant="outline" onClick={onClose}>
             ביטול

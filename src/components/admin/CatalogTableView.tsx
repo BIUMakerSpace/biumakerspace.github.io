@@ -1,30 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { CATEGORIES, CATEGORY_LABELS, normalizeCategory, type CatalogCategory } from "@/lib/categories";
-
-interface CatalogItem {
-  id: string;
-  name: string;
-  description: string | null;
-  image_url: string | null;
-  quantity_total: number;
-  quantity_available: number;
-  category: string;
-}
-
-interface Source { id: string; name: string; is_active: boolean; }
-interface CISRow { id: string; item_id: string; source_id: string; quantity: number; }
+import {
+  invalidateInventory, useCatalogItemSources, useItemSources, useSetSourceQuantity, type CatalogItem,
+} from "@/lib/queries/admin";
+import { errorMessage } from "@/lib/errors";
 
 interface Props {
   items: CatalogItem[];
   onEdit: (item: CatalogItem) => void;
-  onDelete: (id: string) => void;
-  onChanged: () => void;
+  onDelete: (item: CatalogItem) => void;
 }
 
 /**
@@ -32,26 +23,17 @@ interface Props {
  * one column per source for per-location quantities, and an extra column to add
  * the item to a new source. Click "ערוך" for the full dialog.
  */
-const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
-  const [sources, setSources] = useState<Source[]>([]);
-  const [cis, setCis] = useState<CISRow[]>([]);
-  const [loading, setLoading] = useState(false);
+const CatalogTableView = ({ items, onEdit, onDelete }: Props) => {
+  const qc = useQueryClient();
+  const { data: allSources = [], isLoading: sourcesLoading } = useItemSources();
+  const { data: cis = [], isLoading: cisLoading } = useCatalogItemSources();
+  const setQuantity = useSetSourceQuantity();
+  const sources = allSources.filter((s) => s.is_active);
+  const loading = sourcesLoading || cisLoading;
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "out">("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
-
-  const load = async () => {
-    setLoading(true);
-    const [a, b] = await Promise.all([
-      supabase.from("item_sources").select("id, name, is_active").order("sort_order").order("name"),
-      supabase.from("catalog_item_sources").select("id, item_id, source_id, quantity"),
-    ]);
-    setSources(((a.data ?? []) as Source[]).filter((s) => s.is_active));
-    setCis((b.data ?? []) as CISRow[]);
-    setLoading(false);
-  };
-  useEffect(() => { load(); }, [items.length]);
 
   // Map item_id -> source_id -> { id, qty }
   const grid = useMemo(() => {
@@ -64,27 +46,20 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
   }, [cis]);
 
   const updateField = async (id: string, field: "name" | "description" | "category", value: string) => {
-    const patch = { [field]: value } as Partial<CatalogItem>;
+    const patch: Partial<Pick<CatalogItem, typeof field>> = { [field]: value };
     const { error } = await supabase.from("catalog_items").update(patch).eq("id", id);
     if (error) toast.error(error.message);
-    else onChanged();
+    else invalidateInventory(qc);
   };
 
   const setSourceQty = async (itemId: string, sourceId: string, qty: number) => {
     const existing = grid.get(itemId)?.get(sourceId);
-    qty = Math.max(0, qty);
-    if (existing) {
-      const { error } = await supabase
-        .from("catalog_item_sources").update({ quantity: qty }).eq("id", existing.id);
-      if (error) { toast.error(error.message); return; }
-    } else {
-      if (qty === 0) return;
-      const { error } = await supabase
-        .from("catalog_item_sources").insert({ item_id: itemId, source_id: sourceId, quantity: qty });
-      if (error) { toast.error(error.message); return; }
+    if (!existing && qty <= 0) return;
+    try {
+      await setQuantity.mutateAsync({ itemId, sourceId, quantity: qty, existingId: existing?.id });
+    } catch (e) {
+      toast.error(errorMessage(e));
     }
-    await load();
-    onChanged();
   };
 
   const filteredItems = useMemo(() => {
@@ -191,6 +166,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
               </td>
               <td className="p-2">
                 <Input
+                  key={`name-${item.name}`}
                   defaultValue={item.name}
                   onBlur={(e) => e.target.value !== item.name && updateField(item.id, "name", e.target.value)}
                   className="h-8"
@@ -198,6 +174,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
               </td>
               <td className="p-2">
                 <Input
+                  key={`desc-${item.description ?? ""}`}
                   defaultValue={item.description ?? ""}
                   onBlur={(e) => (e.target.value !== (item.description ?? "")) && updateField(item.id, "description", e.target.value)}
                   className="h-8"
@@ -206,7 +183,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
               </td>
               <td className="p-2">
                 <select
-                  defaultValue={normalizeCategory(item.category)}
+                  value={normalizeCategory(item.category)}
                   onChange={(e) => updateField(item.id, "category", e.target.value)}
                   className="h-8 rounded-md border border-input bg-background px-2 text-xs"
                 >
@@ -226,6 +203,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
                 return (
                   <td key={s.id} className="p-2">
                     <Input
+                      key={`qty-${cell?.qty ?? "none"}`}
                       type="number"
                       min={0}
                       defaultValue={cell?.qty ?? ""}
@@ -246,7 +224,7 @@ const CatalogTableView = ({ items, onEdit, onDelete, onChanged }: Props) => {
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onEdit(item)} aria-label="ערוך">
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onDelete(item.id)} aria-label="מחק">
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onDelete(item)} aria-label="מחק">
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
