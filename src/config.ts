@@ -39,4 +39,4 @@ export function publicAsset(path: string): string {
  * Last day borrowed equipment must be returned, shown in the lending terms.
  * Update every academic year.
  */
-export const LOAN_RETURN_DEADLINE = "1.7.2026";
+export const LOAN_RETURN_DEADLINE = "1.7.2027";
