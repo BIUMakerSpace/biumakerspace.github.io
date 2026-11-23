@@ -5,7 +5,7 @@ import type { Workshop } from "@/lib/workshops";
 
 const future = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
 const meeting = (id: string, over: Partial<Workshop["meetings"][number]> = {}) => ({
-  id, workshop_id: "w1", title: `מפגש ${id}`, starts_at: future(7), capacity: 12, is_cancelled: false,
+  id, workshop_id: "w1", title: `מפגש ${id}`, starts_at: future(7), capacity: 12, is_cancelled: false, materials: [] as Workshop["meetings"][number]["materials"],
   created_at: "", updated_at: "", registered_count: 3, is_registered: false, ...over,
 });
 const workshops: Workshop[] = [{
@@ -16,7 +16,14 @@ const workshops: Workshop[] = [{
     meeting("2", { registered_count: 12 }),
     meeting("3", { is_registered: true }),
     meeting("4", { is_cancelled: true }),
-    meeting("5", { starts_at: future(-1) }),
+    meeting("5", {
+      starts_at: future(-1),
+      materials: [
+        { kind: "slides", title: "מצגת מפגש 5", url: "https://drive.google.com/file/d/s5/view" },
+        { kind: "code", title: "s5.ino", url: "https://drive.google.com/file/d/c5/view" },
+        { kind: "code", title: "bad", url: "javascript:alert(1)" },
+      ],
+    }),
   ],
 }, {
   id: "w2", title: "טיוטה", description: "", image_url: null, notice: null, is_published: false,
@@ -52,6 +59,16 @@ describe("Workshops page", () => {
     expect(screen.getByRole("button", { name: "המפגש בוטל" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "המפגש הסתיים" })).toBeDisabled();
     expect(screen.getAllByText("9 מקומות פנויים")).toHaveLength(2);
+  });
+
+  it("shows material buttons as safe links that open in a new tab", () => {
+    renderPage();
+    const slides = screen.getByRole("link", { name: "מצגת מפגש 5" });
+    expect(slides).toHaveAttribute("href", "https://drive.google.com/file/d/s5/view");
+    expect(slides).toHaveAttribute("target", "_blank");
+    expect(slides).toHaveAttribute("rel", "noopener noreferrer");
+    expect(screen.getByRole("link", { name: "s5.ino" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "bad" })).not.toBeInTheDocument();
   });
 
   it("registers and cancels through the mutation", () => {

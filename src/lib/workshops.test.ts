@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  cleanMaterialUrl,
   combineWorkshops,
   fromIsraelInputValue,
   meetingDate,
   meetingState,
   meetingTime,
+  materialsOf,
   meetingWeekday,
   toIsraelInputValue,
   type MeetingRow,
@@ -50,7 +52,7 @@ describe("combineWorkshops", () => {
     created_at: "2026-11-01T00:00:00Z", updated_at: "2026-11-01T00:00:00Z",
   });
   const m = (id: string, workshop_id: string, starts_at: string): MeetingRow => ({
-    id, workshop_id, starts_at, title: id, capacity: 12, is_cancelled: false,
+    id, workshop_id, starts_at, title: id, capacity: 12, is_cancelled: false, materials: [],
     created_at: "2026-11-01T00:00:00Z", updated_at: "2026-11-01T00:00:00Z",
   });
 
@@ -64,5 +66,27 @@ describe("combineWorkshops", () => {
     expect(result[0].meetings.map((x) => x.id)).toEqual(["a1", "a2"]);
     expect(result[0].meetings[0]).toMatchObject({ registered_count: 5, is_registered: true });
     expect(result[0].meetings[1]).toMatchObject({ registered_count: 0, is_registered: false });
+  });
+});
+
+describe("materials", () => {
+  it("keeps only well-formed https materials", () => {
+    const materials = [
+      { kind: "slides", title: " מצגת ", url: "https://drive.google.com/file/d/abc/view" },
+      { kind: "code", title: "evil", url: "javascript:alert(1)" },
+      { kind: "video", title: "unknown kind", url: "https://x.com" },
+      { kind: "other", title: "", url: "https://x.com" },
+      "not an object",
+    ];
+    expect(materialsOf({ materials })).toEqual([
+      { kind: "slides", title: "מצגת", url: "https://drive.google.com/file/d/abc/view" },
+    ]);
+    expect(materialsOf({ materials: null })).toEqual([]);
+  });
+
+  it("tidies Drive links and leaves others alone", () => {
+    expect(cleanMaterialUrl("https://drive.google.com/file/d/1dZP-x_9/view?usp=drivesdk")).toBe("https://drive.google.com/file/d/1dZP-x_9/view");
+    expect(cleanMaterialUrl("https://docs.google.com/presentation/d/17F3a/edit?usp=drivesdk&ouid=1")).toBe("https://docs.google.com/presentation/d/17F3a/view");
+    expect(cleanMaterialUrl(" https://github.com/x/y ")).toBe("https://github.com/x/y");
   });
 });

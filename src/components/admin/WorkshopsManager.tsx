@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { Ban, ChevronDown, ChevronUp, Pencil, Plus, RotateCcw, Trash2, Users } from "lucide-react";
+import { Ban, ChevronDown, ChevronUp, Paperclip, Pencil, Plus, RotateCcw, Trash2, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,8 +17,8 @@ import {
   useSaveMeeting, useSaveWorkshop, useWorkshops,
 } from "@/lib/queries/workshops";
 import {
-  fromIsraelInputValue, meetingDate, meetingState, meetingTime, meetingWeekday, toIsraelInputValue,
-  type Meeting, type Workshop,
+  MATERIAL_KINDS, MATERIAL_KIND_LABEL, cleanMaterialUrl, fromIsraelInputValue, materialsOf, meetingDate,
+  meetingState, meetingTime, meetingWeekday, toIsraelInputValue, type Material, type Meeting, type Workshop,
 } from "@/lib/workshops";
 
 const fail = (e: unknown) => toast.error(errorMessage(e));
@@ -122,9 +122,19 @@ function MeetingForm({ workshop, meeting, onDone }: { workshop: Workshop; meetin
   const [title, setTitle] = useState(meeting?.title ?? `מפגש ${workshop.meetings.length + 1}`);
   const [startsAt, setStartsAt] = useState(defaultStart ? toIsraelInputValue(defaultStart) : "");
   const [capacity, setCapacity] = useState(String(meeting?.capacity ?? last?.capacity ?? 12));
+  const [materials, setMaterials] = useState<Material[]>(meeting ? materialsOf(meeting) : []);
+  const setMaterial = (i: number, patch: Partial<Material>) =>
+    setMaterials((list) => list.map((m, j) => (j === i ? { ...m, ...patch } : m)));
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
+    const cleaned = materials
+      .map((m) => ({ ...m, title: m.title.trim(), url: cleanMaterialUrl(m.url) }))
+      .filter((m) => m.title || m.url);
+    if (cleaned.some((m) => !m.title || !/^https:\/\/\S+$/i.test(m.url))) {
+      toast.error("לכל קובץ צריך שם וקישור שמתחיל ב-https://");
+      return;
+    }
     save.mutate(
       {
         id: meeting?.id,
@@ -134,6 +144,7 @@ function MeetingForm({ workshop, meeting, onDone }: { workshop: Workshop; meetin
           starts_at: fromIsraelInputValue(startsAt),
           capacity: Number(capacity),
           is_cancelled: meeting?.is_cancelled ?? false,
+          materials: cleaned,
         },
       },
       { onSuccess: () => { toast.success(meeting ? "המפגש עודכן" : "המפגש נוסף"); onDone(); }, onError: fail },
@@ -141,12 +152,43 @@ function MeetingForm({ workshop, meeting, onDone }: { workshop: Workshop; meetin
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-end gap-2 bg-muted/40 p-3">
-      <div className="min-w-32 flex-1"><Label className="text-xs">כותרת</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
-      <div><Label className="text-xs">מועד (שעון ישראל)</Label><Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} required /></div>
-      <div className="w-20"><Label className="text-xs">מקומות</Label><Input type="number" min={1} max={500} value={capacity} onChange={(e) => setCapacity(e.target.value)} required /></div>
-      <Button type="submit" size="sm" disabled={save.isPending}>{meeting ? "שמור" : "הוסף"}</Button>
-      <Button type="button" size="sm" variant="ghost" onClick={onDone}>ביטול</Button>
+    <form onSubmit={submit} className="space-y-3 bg-muted/40 p-3">
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="min-w-32 flex-1"><Label className="text-xs">כותרת</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
+        <div><Label className="text-xs">מועד (שעון ישראל)</Label><Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} required /></div>
+        <div className="w-20"><Label className="text-xs">מקומות</Label><Input type="number" min={1} max={500} value={capacity} onChange={(e) => setCapacity(e.target.value)} required /></div>
+      </div>
+
+      <fieldset className="space-y-2">
+        <legend className="mb-1 text-xs font-medium">חומרים למפגש (מצגת, קוד) — מוצגים ככפתורים בעמוד הסדנאות</legend>
+        {materials.map((m, i) => (
+          <div key={i} className="flex flex-wrap items-center gap-2">
+            <select
+              aria-label="סוג"
+              value={m.kind}
+              onChange={(e) => setMaterial(i, { kind: e.target.value as Material["kind"] })}
+              className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+            >
+              {MATERIAL_KINDS.map((k) => <option key={k} value={k}>{MATERIAL_KIND_LABEL[k]}</option>)}
+            </select>
+            <Input aria-label="שם הקובץ" className="w-48" placeholder="שם על הכפתור" value={m.title}
+              onChange={(e) => setMaterial(i, { title: e.target.value })} />
+            <Input aria-label="קישור" dir="ltr" className="min-w-48 flex-1" placeholder="https://drive.google.com/..." value={m.url}
+              onChange={(e) => setMaterial(i, { url: e.target.value })} />
+            <Button type="button" size="icon" variant="ghost" className="h-8 w-8" aria-label="הסר קובץ"
+              onClick={() => setMaterials((list) => list.filter((_, j) => j !== i))}><X className="h-3.5 w-3.5" /></Button>
+          </div>
+        ))}
+        <Button type="button" size="sm" variant="ghost" className="gap-1"
+          onClick={() => setMaterials((list) => [...list, { kind: list.length ? "code" : "slides", title: "", url: "" }])}>
+          <Paperclip className="h-3.5 w-3.5" />הוספת קובץ
+        </Button>
+      </fieldset>
+
+      <div className="flex gap-2">
+        <Button type="submit" size="sm" disabled={save.isPending}>{meeting ? "שמור" : "הוסף"}</Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onDone}>ביטול</Button>
+      </div>
     </form>
   );
 }
@@ -197,7 +239,7 @@ function MeetingRowAdmin({ workshop, meeting }: { workshop: Workshop; meeting: M
       {
         id: meeting.id,
         workshopId: workshop.id,
-        values: { title: meeting.title, starts_at: meeting.starts_at, capacity: meeting.capacity, is_cancelled: !meeting.is_cancelled },
+        values: { title: meeting.title, starts_at: meeting.starts_at, capacity: meeting.capacity, is_cancelled: !meeting.is_cancelled, materials: meeting.materials },
       },
       { onError: fail },
     );
@@ -211,6 +253,11 @@ function MeetingRowAdmin({ workshop, meeting }: { workshop: Workshop; meeting: M
             · {meetingWeekday(meeting.starts_at)} {meetingDate(meeting.starts_at)} · {meetingTime(meeting.starts_at)}
           </span>
         </div>
+        {materialsOf(meeting).length > 0 && (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" title="חומרים למפגש">
+            <Paperclip className="h-3.5 w-3.5" />{materialsOf(meeting).length}
+          </span>
+        )}
         {state === "cancelled" && <Badge variant="destructive">בוטל</Badge>}
         {state === "past" && <Badge variant="secondary">הסתיים</Badge>}
         {state === "full" && <Badge variant="outline">מלא</Badge>}

@@ -74,7 +74,7 @@ export type WorkshopInput = Pick<
   TablesInsert<"workshops">,
   "title" | "description" | "image_url" | "notice" | "is_published" | "sort_order"
 >;
-export type MeetingInput = Pick<TablesInsert<"workshop_meetings">, "title" | "starts_at" | "capacity" | "is_cancelled">;
+export type MeetingInput = Pick<TablesInsert<"workshop_meetings">, "title" | "starts_at" | "capacity" | "is_cancelled" | "materials">;
 
 export function useSaveWorkshop() {
   const qc = useQueryClient();

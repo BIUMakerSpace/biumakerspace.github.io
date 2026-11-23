@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CalendarDays, Check, Clock, Users, Sparkles, X, RefreshCw } from "lucide-react";
+import { CalendarDays, Check, Clock, Code2, FileText, Presentation, Users, Sparkles, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PageLoading } from "@/components/layout/PageStates";
 import { useAuth } from "@/hooks/useAuth";
 import { errorMessage } from "@/lib/errors";
 import { useToggleRegistration, useWorkshops } from "@/lib/queries/workshops";
-import { meetingDate, meetingState, meetingTime, meetingWeekday, type Meeting } from "@/lib/workshops";
+import {
+  materialsOf, meetingDate, meetingState, meetingTime, meetingWeekday, type MaterialKind, type Meeting,
+} from "@/lib/workshops";
+
+const MATERIAL_ICON: Record<MaterialKind, typeof FileText> = { slides: Presentation, code: Code2, other: FileText };
 
 export default function Workshops() {
   const { user, loading: authLoading } = useAuth();
@@ -113,6 +117,20 @@ export default function Workshops() {
                               <span className="inline-flex items-center gap-1 font-medium text-primary"><Check className="h-4 w-4" />נרשמת למפגש</span>
                             )}
                           </div>
+                          {materialsOf(m).length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2" aria-label={`חומרים: ${m.title}`}>
+                              {materialsOf(m).map((mat) => {
+                                const Icon = MATERIAL_ICON[mat.kind];
+                                return (
+                                  <Button key={mat.url} asChild variant="outline" size="sm" className="h-8 gap-1.5">
+                                    <a href={mat.url} target="_blank" rel="noopener noreferrer">
+                                      <Icon className="h-3.5 w-3.5" />{mat.title}
+                                    </a>
+                                  </Button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                         <Button
                           className="w-full shrink-0 sm:w-40"

@@ -648,6 +648,7 @@ export type Database = {
           created_at: string;
           id: string;
           is_cancelled: boolean;
+          materials: Json;
           starts_at: string;
           title: string;
           updated_at: string;
@@ -659,6 +660,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           is_cancelled?: boolean;
+          materials?: Json;
           starts_at: string;
           title: string;
           updated_at?: string;
@@ -669,6 +671,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           is_cancelled?: boolean;
+          materials?: Json;
           starts_at?: string;
           title?: string;
           updated_at?: string;
@@ -895,6 +898,7 @@ export type Database = {
       };
       cancel_workshop_registration: { Args: { p_meeting_id: string }; Returns: undefined };
       register_workshop_meeting: { Args: { p_meeting_id: string }; Returns: undefined };
+      valid_workshop_materials: { Args: { p: Json }; Returns: boolean };
       workshop_meeting_stats: {
         Args: Record<PropertyKey, never>;
         Returns: { is_registered: boolean; meeting_id: string; registered_count: number }[];

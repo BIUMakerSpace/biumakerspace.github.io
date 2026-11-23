@@ -103,3 +103,41 @@ export function fromIsraelInputValue(value: string): string {
   utc = wall - israelOffsetMinutes(utc) * 60_000;
   return new Date(utc).toISOString();
 }
+
+// ---------------------------------------------------------------------------
+// Meeting materials (slides, code, ...)
+// ---------------------------------------------------------------------------
+
+export const MATERIAL_KINDS = ["slides", "code", "other"] as const;
+export type MaterialKind = (typeof MATERIAL_KINDS)[number];
+export const MATERIAL_KIND_LABEL: Record<MaterialKind, string> = { slides: "מצגת", code: "קוד", other: "קובץ" };
+
+export interface Material {
+  kind: MaterialKind;
+  title: string;
+  url: string;
+}
+
+/**
+ * The meeting's materials, keeping only well-formed https links. The database enforces the same
+ * rule; filtering again here keeps a bad row from ever becoming a clickable link.
+ */
+export function materialsOf(meeting: Pick<MeetingRow, "materials">): Material[] {
+  if (!Array.isArray(meeting.materials)) return [];
+  return meeting.materials.flatMap((m) => {
+    if (!m || typeof m !== "object" || Array.isArray(m)) return [];
+    const { kind, title, url } = m as Record<string, unknown>;
+    if (typeof kind !== "string" || !(MATERIAL_KINDS as readonly string[]).includes(kind)) return [];
+    if (typeof title !== "string" || !title.trim() || typeof url !== "string" || !/^https:\/\/\S+$/i.test(url)) return [];
+    return [{ kind: kind as MaterialKind, title: title.trim(), url }];
+  });
+}
+
+/** Drive share links come with tracking params (…/view?usp=drivesdk); keep the clean viewer link. */
+export function cleanMaterialUrl(url: string): string {
+  const trimmed = url.trim();
+  const drive = /^https:\/\/(drive|docs)\.google\.com\/(file|presentation|document|spreadsheets)\/d\/([\w-]+)/i.exec(trimmed);
+  if (!drive) return trimmed;
+  const [, host, type, id] = drive;
+  return type === "file" ? `https://drive.google.com/file/d/${id}/view` : `https://${host}.google.com/${type}/d/${id}/view`;
+}
