@@ -642,6 +642,122 @@ export type Database = {
         };
         Relationships: [];
       };
+      workshop_meetings: {
+        Row: {
+          capacity: number;
+          created_at: string;
+          id: string;
+          is_cancelled: boolean;
+          starts_at: string;
+          title: string;
+          updated_at: string;
+          workshop_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          capacity?: number;
+          created_at?: string;
+          id?: string;
+          is_cancelled?: boolean;
+          starts_at: string;
+          title: string;
+          updated_at?: string;
+          workshop_id: string;
+        };
+        Update: {
+          capacity?: number;
+          created_at?: string;
+          id?: string;
+          is_cancelled?: boolean;
+          starts_at?: string;
+          title?: string;
+          updated_at?: string;
+          workshop_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workshop_meetings_workshop_id_fkey";
+            columns: ["workshop_id"];
+            isOneToOne: false;
+            referencedRelation: "workshops";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      workshop_registrations: {
+        Row: {
+          created_at: string;
+          id: string;
+          meeting_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          meeting_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          meeting_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workshop_registrations_meeting_id_fkey";
+            columns: ["meeting_id"];
+            isOneToOne: false;
+            referencedRelation: "workshop_meetings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "workshop_registrations_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      workshops: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          image_url: string | null;
+          is_published: boolean;
+          notice: string | null;
+          sort_order: number;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          image_url?: string | null;
+          is_published?: boolean;
+          notice?: string | null;
+          sort_order?: number;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          image_url?: string | null;
+          is_published?: boolean;
+          notice?: string | null;
+          sort_order?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       lockers_status: {
@@ -776,6 +892,12 @@ export type Database = {
       return_lend_request: {
         Args: { p_overrides?: Json; p_request_id: string };
         Returns: undefined;
+      };
+      cancel_workshop_registration: { Args: { p_meeting_id: string }; Returns: undefined };
+      register_workshop_meeting: { Args: { p_meeting_id: string }; Returns: undefined };
+      workshop_meeting_stats: {
+        Args: Record<PropertyKey, never>;
+        Returns: { is_registered: boolean; meeting_id: string; registered_count: number }[];
       };
     };
     Enums: {

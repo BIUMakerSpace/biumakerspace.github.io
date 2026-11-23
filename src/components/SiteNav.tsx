@@ -21,6 +21,7 @@ const SiteNav = () => {
   const links = [
     { to: "/", label: "בית" },
     { to: "/catalog", label: "קטלוג" },
+    { to: "/workshops", label: "סדנאות" },
     { to: "/requests", label: "הדפסה" },
     { to: "/community", label: "קהילה" },
     { to: "/lockers", label: "לוקרים" },

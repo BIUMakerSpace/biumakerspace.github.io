@@ -11,6 +11,8 @@ export const queryKeys = {
   myRequests: (userId: string) => ["my-requests", userId] as const,
   lockersStatus: ["lockers-status"] as const,
   myLocker: (userId: string) => ["my-locker", userId] as const,
+  /** Per user, because each meeting's "is_registered" depends on who is signed in. */
+  workshops: (userId: string) => ["workshops", userId] as const,
   admin: {
     all: ["admin"] as const,
     printRequests: ["admin", "print-requests"] as const,
@@ -20,5 +22,6 @@ export const queryKeys = {
     lockers: ["admin", "lockers"] as const,
     emailTemplates: ["admin", "email-templates"] as const,
     wishlist: ["admin", "wishlist"] as const,
+    workshopRegistrations: (meetingId: string) => ["admin", "workshop-registrations", meetingId] as const,
   },
 };

@@ -21,6 +21,7 @@ const Forum = lazy(() => import("./pages/Forum"));
 const ForumThread = lazy(() => import("./pages/ForumThread"));
 const Community = lazy(() => import("./pages/Community"));
 const Lockers = lazy(() => import("./pages/Lockers"));
+const Workshops = lazy(() => import("./pages/Workshops"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => (
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/community" element={<Community />} />
               <Route path="/lockers" element={<Lockers />} />
               <Route path="/lockers/:number" element={<Lockers />} />
+              <Route path="/workshops" element={<Workshops />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

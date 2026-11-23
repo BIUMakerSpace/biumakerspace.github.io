@@ -1,10 +1,11 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ClipboardList, Heart, Lock, Mail, Package, Palette, Printer, ShoppingBag, Users, Warehouse } from "lucide-react";
+import { ClipboardList, GraduationCap, Heart, Lock, Mail, Package, Palette, Printer, ShoppingBag, Users, Warehouse } from "lucide-react";
 import FilamentColorsManager from "@/components/admin/FilamentColorsManager";
 import ItemSourcesManager from "@/components/admin/ItemSourcesManager";
 import EmailTemplatesManager from "@/components/admin/EmailTemplatesManager";
 import WishlistManager from "@/components/admin/WishlistManager";
 import LockersManager from "@/components/admin/LockersManager";
+import WorkshopsManager from "@/components/admin/WorkshopsManager";
 import { useAdminUsers, useItemRequests, useLendRequests, usePrintRequests } from "@/lib/queries/admin";
 import CatalogTab from "./CatalogTab";
 import PrintRequestsTab from "./PrintRequestsTab";
@@ -42,6 +43,7 @@ const Admin = () => {
           <TabsTrigger value="wishlist" className="gap-1.5"><Heart className="h-4 w-4" />רשימת קניות</TabsTrigger>
           <TabsTrigger value="emails" className="gap-1.5"><Mail className="h-4 w-4" />תבניות מייל</TabsTrigger>
           <TabsTrigger value="lockers" className="gap-1.5"><Lock className="h-4 w-4" />לוקרים</TabsTrigger>
+          <TabsTrigger value="workshops" className="gap-1.5"><GraduationCap className="h-4 w-4" />סדנאות</TabsTrigger>
         </TabsList>
 
         <TabsContent value="catalog"><CatalogTab /></TabsContent>
@@ -55,6 +57,7 @@ const Admin = () => {
         <TabsContent value="wishlist"><WishlistManager /></TabsContent>
         <TabsContent value="emails"><EmailTemplatesManager /></TabsContent>
         <TabsContent value="lockers"><LockersManager /></TabsContent>
+        <TabsContent value="workshops"><WorkshopsManager /></TabsContent>
       </Tabs>
     </main>
   );
