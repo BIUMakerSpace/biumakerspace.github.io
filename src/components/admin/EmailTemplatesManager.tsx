@@ -13,7 +13,8 @@ export default function EmailTemplatesManager() {
   const [edits, setEdits] = useState<Record<string, { subject: string; body: string }>>({});
 
   const load = async () => {
-    const { data } = await supabase.from("email_templates").select("*").order("key");
+    const { data, error } = await supabase.from("email_templates").select("*").order("key");
+    if (error) toast.error("שגיאה בטעינה", { description: error.message });
     setTpls((data ?? []) as Tpl[]);
   };
   useEffect(() => { load(); }, []);

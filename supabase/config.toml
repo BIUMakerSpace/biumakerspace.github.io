@@ -1,1 +1,41 @@
-project_id = "cnqlastyquzjwifiukyv"
+# Supabase CLI config for local development (`npx supabase start`).
+# The hosted project is selected with `npx supabase link --project-ref <ref>`;
+# hosted auth settings (site URL, redirect URLs, Google provider) are set in the
+# dashboard or with `npx supabase config push`.
+project_id = "biu-makerspace"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["http://localhost:8080/**", "http://127.0.0.1:8080/**"]
+enable_signup = true
+
+[auth.email]
+# Local dev only: the app shows an email/password form in `npm run dev` so you
+# can test without Google credentials.
+enable_signup = true
+enable_confirmations = false
+
+[auth.external.google]
+# To test Google locally: set enabled = true, add
+# http://127.0.0.1:54321/auth/v1/callback as an authorized redirect URI on the
+# Google OAuth client, and export these two variables before `supabase start`.
+enabled = false
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = false

@@ -1,31 +1,30 @@
-import { useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import SiteNav from "@/components/SiteNav";
+import { BASE_PATH } from "@/config";
+import { safeRedirectPath } from "@/lib/redirect";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, loading } = useAuth();
-  const redirectParam = searchParams.get("redirect");
-  const safeRedirect = redirectParam && redirectParam.startsWith("/") ? redirectParam : "/requests";
+  const safeRedirect = safeRedirectPath(searchParams.get("redirect"), "/requests");
 
   useEffect(() => {
     if (!loading && user) navigate(safeRedirect, { replace: true });
   }, [user, loading, navigate, safeRedirect]);
 
   const handleGoogleSignIn = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + safeRedirect,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}${BASE_PATH}${safeRedirect.slice(1)}` },
     });
-    if (result.error) {
-      toast.error("שגיאה בהתחברות", { description: result.error.message });
-      return;
-    }
-    if (result.redirected) return;
+    if (error) toast.error("שגיאה בהתחברות", { description: error.message });
   };
 
   return (
@@ -48,9 +47,36 @@ const Auth = () => {
             </svg>
             התחברות עם Google
           </Button>
+          {import.meta.env.DEV && <DevEmailLogin />}
         </div>
       </div>
     </div>
+  );
+};
+
+/**
+ * Local-development-only sign-in, so the app can be exercised against
+ * `supabase start` without Google OAuth credentials. Never rendered in production builds.
+ */
+const DevEmailLogin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const signIn = await supabase.auth.signInWithPassword({ email, password });
+    if (!signIn.error) return;
+    const signUp = await supabase.auth.signUp({ email, password });
+    if (signUp.error) toast.error("Dev login failed", { description: signUp.error.message });
+  };
+
+  return (
+    <form onSubmit={submit} className="mt-8 space-y-2 border-t border-dashed border-border pt-6 text-start" dir="ltr">
+      <p className="text-xs font-mono text-muted-foreground">DEV ONLY: email login (creates the user if missing)</p>
+      <Input type="email" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      <Input type="password" placeholder="password (6+ chars)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+      <Button type="submit" variant="outline" size="sm" className="w-full">Sign in</Button>
+    </form>
   );
 };
 

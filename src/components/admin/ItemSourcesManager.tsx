@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,17 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
-
-interface Source {
-  id: string;
-  name: string;
-  description: string | null;
-  is_active: boolean;
-  sort_order: number;
-}
+import ConfirmButton from "@/components/ConfirmButton";
+import { invalidateInventory, useItemSources, type ItemSource } from "@/lib/queries/admin";
 
 const ItemSourcesManager = () => {
-  const [sources, setSources] = useState<Source[]>([]);
+  const qc = useQueryClient();
+  const { data: sources = [] } = useItemSources();
+  const reload = () => invalidateInventory(qc);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
@@ -24,27 +21,17 @@ const ItemSourcesManager = () => {
   const [eDesc, setEDesc] = useState("");
   const [eActive, setEActive] = useState(true);
 
-  const load = async () => {
-    const { data } = await supabase
-      .from("item_sources")
-      .select("*")
-      .order("sort_order")
-      .order("name");
-    setSources((data ?? []) as Source[]);
-  };
-  useEffect(() => { load(); }, []);
-
-  const add = async (e: React.FormEvent) => {
+  const add = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     const { error } = await supabase
       .from("item_sources")
       .insert({ name: name.trim(), description: desc.trim() || null });
     if (error) toast.error(error.message);
-    else { toast.success("מקור נוסף"); setName(""); setDesc(""); load(); }
+    else { toast.success("מקור נוסף"); setName(""); setDesc(""); reload(); }
   };
 
-  const startEdit = (s: Source) => {
+  const startEdit = (s: ItemSource) => {
     setEditId(s.id); setEName(s.name); setEDesc(s.description ?? ""); setEActive(s.is_active);
   };
   const saveEdit = async () => {
@@ -54,13 +41,13 @@ const ItemSourcesManager = () => {
       .update({ name: eName.trim(), description: eDesc.trim() || null, is_active: eActive })
       .eq("id", editId);
     if (error) toast.error(error.message);
-    else { toast.success("עודכן"); setEditId(null); load(); }
+    else { toast.success("עודכן"); setEditId(null); reload(); }
   };
   const remove = async (id: string) => {
-    if (!confirm("למחוק מקור זה? הפעולה תיכשל אם יש פריטים המשויכים אליו.")) return;
     const { error } = await supabase.from("item_sources").delete().eq("id", id);
-    if (error) toast.error("לא ניתן למחוק - יש פריטים המשויכים למקור זה");
-    else { toast.success("נמחק"); load(); }
+    if (error?.code === "23503") toast.error("לא ניתן למחוק - יש פריטים המשויכים למקור זה");
+    else if (error) toast.error(error.message);
+    else { toast.success("נמחק"); reload(); }
   };
 
   return (
@@ -99,8 +86,14 @@ const ItemSourcesManager = () => {
                   {s.description && <p className="text-xs text-muted-foreground">{s.description}</p>}
                 </div>
                 <div className="flex gap-1">
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(s)}><Pencil className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(s.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(s)} aria-label="ערוך"><Pencil className="h-3.5 w-3.5" /></Button>
+                  <ConfirmButton
+                    title="למחוק מקור זה?"
+                    description="הפעולה תיכשל אם יש פריטים המשויכים אליו."
+                    confirmLabel="מחק"
+                    onConfirm={() => remove(s.id)}
+                    trigger={<Button size="icon" variant="ghost" className="h-7 w-7" aria-label="מחק"><Trash2 className="h-3.5 w-3.5" /></Button>}
+                  />
                 </div>
               </div>
             )}

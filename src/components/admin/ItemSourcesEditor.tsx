@@ -1,88 +1,62 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
-
-interface Source { id: string; name: string; is_active: boolean; }
-interface Row { id?: string; source_id: string; quantity: number; }
+import {
+  ensureItemSource, useCatalogItemSources, useItemSources, useRemoveSourceRow, useSetSourceQuantity,
+} from "@/lib/queries/admin";
+import { errorMessage } from "@/lib/errors";
 
 interface Props {
   itemId: string;
-  onChanged?: () => void;
 }
 
-/**
- * Per-item storage location editor.
- * Loads catalog_item_sources rows for the item and lets admin add/remove/edit them.
- * Saves changes immediately on each action.
- */
-const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
-  const [sources, setSources] = useState<Source[]>([]);
-  const [rows, setRows] = useState<Row[]>([]);
+/** Per-item storage locations: add/remove sources and edit per-source quantities. */
+const ItemSourcesEditor = ({ itemId }: Props) => {
+  const { data: sources = [] } = useItemSources();
+  const { data: allRows = [] } = useCatalogItemSources();
+  const setQuantity = useSetSourceQuantity();
+  const removeRow = useRemoveSourceRow();
+  const rows = allRows.filter((r) => r.item_id === itemId);
   const [newSourceId, setNewSourceId] = useState<string>("");
   const [newQty, setNewQty] = useState(1);
   const [creatingNew, setCreatingNew] = useState(false);
   const [newSourceName, setNewSourceName] = useState("");
 
-  const load = async () => {
-    const [a, b] = await Promise.all([
-      supabase.from("item_sources").select("id, name, is_active").order("sort_order").order("name"),
-      supabase.from("catalog_item_sources").select("id, source_id, quantity").eq("item_id", itemId),
-    ]);
-    setSources((a.data ?? []) as Source[]);
-    setRows((b.data ?? []) as Row[]);
-  };
-  useEffect(() => { load(); }, [itemId]);
-
   const usedIds = new Set(rows.map((r) => r.source_id));
   const available = sources.filter((s) => s.is_active && !usedIds.has(s.id));
 
-  const addRow = async () => {
+  const run = async (action: () => Promise<unknown>, success?: string) => {
+    try {
+      await action();
+      if (success) toast.success(success);
+    } catch (e) {
+      toast.error(errorMessage(e));
+    }
+  };
+
+  const addRow = () => run(async () => {
     if (!newSourceId || newQty < 0) return;
-    const { error } = await supabase
-      .from("catalog_item_sources")
-      .insert({ item_id: itemId, source_id: newSourceId, quantity: newQty });
-    if (error) toast.error(error.message);
-    else { setNewSourceId(""); setNewQty(1); await load(); onChanged?.(); }
-  };
-  const updateQty = async (rowId: string, qty: number) => {
-    const { error } = await supabase
-      .from("catalog_item_sources")
-      .update({ quantity: Math.max(0, qty) })
-      .eq("id", rowId);
-    if (error) toast.error(error.message);
-    else { await load(); onChanged?.(); }
-  };
-  const removeRow = async (rowId: string) => {
-    const { error } = await supabase.from("catalog_item_sources").delete().eq("id", rowId);
-    if (error) toast.error(error.message);
-    else { await load(); onChanged?.(); }
-  };
-  const createAndAddNew = async () => {
+    await setQuantity.mutateAsync({ itemId, sourceId: newSourceId, quantity: newQty });
+    setNewSourceId(""); setNewQty(1);
+  });
+
+  const createAndAddNew = () => run(async () => {
     const name = newSourceName.trim();
     if (!name) return;
-    // Reuse if a source with this name already exists (case-insensitive)
-    const existing = sources.find((s) => s.name.trim().toLowerCase() === name.toLowerCase());
-    let sourceId = existing?.id;
-    if (!sourceId) {
-      const { data, error } = await supabase
-        .from("item_sources")
-        .insert({ name })
-        .select("id")
-        .single();
-      if (error) { toast.error(error.message); return; }
-      sourceId = data.id;
-    }
-    const { error: e2 } = await supabase
-      .from("catalog_item_sources")
-      .insert({ item_id: itemId, source_id: sourceId, quantity: Math.max(0, newQty) });
-    if (e2) { toast.error(e2.message); return; }
-    toast.success("מקור נוסף");
+    const sourceId = await ensureItemSource(name);
+    const existing = rows.find((r) => r.source_id === sourceId);
+    await setQuantity.mutateAsync({ itemId, sourceId, quantity: newQty, existingId: existing?.id });
     setNewSourceName(""); setNewQty(1); setCreatingNew(false);
-    await load(); onChanged?.();
+  }, "מקור נוסף");
+
+  /** Saves a quantity edit when the field loses focus (not on every keystroke). */
+  const commitQty = (rowId: string, oldQty: number, raw: string) => {
+    const qty = parseInt(raw, 10);
+    if (Number.isNaN(qty) || qty < 0 || qty === oldQty) return;
+    run(() => setQuantity.mutateAsync({ itemId, sourceId: "", quantity: qty, existingId: rowId }));
   };
 
   const total = rows.reduce((s, r) => s + r.quantity, 0);
@@ -99,12 +73,16 @@ const ItemSourcesEditor = ({ itemId, onChanged }: Props) => {
           <div key={r.id} className="flex items-center gap-2 rounded-md border border-border bg-background p-2">
             <span className="flex-1 text-sm font-medium">{s?.name ?? "מקור לא ידוע"}</span>
             <Input
+              // Re-mount when the stored value changes so the field shows the saved quantity.
+              key={`${r.id}-${r.quantity}`}
               type="number" min={0}
-              value={r.quantity}
-              onChange={(e) => updateQty(r.id!, parseInt(e.target.value) || 0)}
+              defaultValue={r.quantity}
+              onBlur={(e) => commitQty(r.id, r.quantity, e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } }}
               className="h-8 w-20"
+              aria-label={`כמות ב${s?.name ?? "מקור"}`}
             />
-            <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => removeRow(r.id!)}>
+            <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => run(() => removeRow.mutateAsync(r.id))} aria-label="הסר מקור">
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>

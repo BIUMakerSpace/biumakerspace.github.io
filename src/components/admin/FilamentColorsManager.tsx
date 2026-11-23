@@ -8,6 +8,7 @@ import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { fetchAllFilamentColors, filamentSwatchStyle, type FilamentColor } from "@/lib/filamentColors";
+import ConfirmButton from "@/components/ConfirmButton";
 
 type Mode = "solid" | "gradient";
 
@@ -141,19 +142,19 @@ const FilamentColorsManager = () => {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("למחוק צבע זה?")) return;
     const { error } = await supabase.from("filament_colors").delete().eq("id", id);
     if (error) toast.error(error.message);
     else { toast.success("נמחק"); load(); }
   };
 
+  // Renumber the whole list so moving works even when sort_order values collide.
   const move = async (idx: number, dir: -1 | 1) => {
-    const a = colors[idx]; const b = colors[idx + dir];
-    if (!a || !b) return;
-    const { error } = await supabase.from("filament_colors").upsert([
-      { ...a, sort_order: b.sort_order },
-      { ...b, sort_order: a.sort_order },
-    ]);
+    if (!colors[idx] || !colors[idx + dir]) return;
+    const reordered = [...colors];
+    [reordered[idx], reordered[idx + dir]] = [reordered[idx + dir], reordered[idx]];
+    const { error } = await supabase
+      .from("filament_colors")
+      .upsert(reordered.map((c, i) => ({ id: c.id, name: c.name, sort_order: i + 1 })));
     if (error) toast.error(error.message); else load();
   };
 
@@ -252,10 +253,17 @@ const FilamentColorsManager = () => {
                     <Pencil className="h-3.5 w-3.5" />
                     עריכה
                   </Button>
-                  <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive" onClick={() => remove(c.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                    מחיקה
-                  </Button>
+                  <ConfirmButton
+                    title="למחוק צבע זה?"
+                    confirmLabel="מחק"
+                    onConfirm={() => remove(c.id)}
+                    trigger={
+                      <Button variant="outline" size="sm" className="gap-1.5 text-destructive hover:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                        מחיקה
+                      </Button>
+                    }
+                  />
                 </div>
               </li>
             ))}
