@@ -87,7 +87,11 @@ CREATE POLICY "Admins manage workshop registrations" ON public.workshop_registra
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
--- Explicit grants (new Supabase projects grant nothing by default; see *_explicit_api_grants).
+-- Explicit privileges. Projects differ in what new tables get by default (newer Supabase projects
+-- grant nothing, older ones and the local CLI stack grant everything), so first clear whatever the
+-- defaults handed out, then grant exactly what's needed. Visitors only read workshops and meetings.
+REVOKE ALL ON public.workshops, public.workshop_meetings, public.workshop_registrations
+  FROM anon, authenticated;
 GRANT SELECT ON public.workshops, public.workshop_meetings TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE
   ON public.workshops, public.workshop_meetings, public.workshop_registrations TO authenticated;
