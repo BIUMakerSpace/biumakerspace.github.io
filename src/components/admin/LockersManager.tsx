@@ -65,7 +65,7 @@ const LockersManager = () => {
         <p>הדפס את ה-QR של כל לוקר והדבק עליו. סריקה תפנה את המשתמש לדף תפיסת הלוקר.</p>
         <p className="text-xs text-muted-foreground">
           כתובת הבסיס של ה-QR: <span dir="ltr" className="font-mono">{PUBLIC_SITE_URL}</span>
-          {" "}(נקבעת במשתנה הסביבה VITE_PUBLIC_SITE_URL בזמן הבנייה).
+          {" "}(נקבעת במשתנה הסביבה <span dir="ltr" className="font-mono">VITE_PUBLIC_SITE_URL</span> בזמן הבנייה).
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -77,7 +77,8 @@ const LockersManager = () => {
               <CardContent className="flex gap-4 p-4">
                 <div className="flex flex-col items-center gap-2 rounded-md bg-white p-2">
                   <QRCodeSVG id={`qr-locker-${l.number}`} value={url} size={120} level="M" includeMargin />
-                  <Button variant="ghost" size="sm" className="gap-1" onClick={() => downloadQr(l.number)}>
+                  {/* The QR card is always white, so use fixed dark text instead of the theme colors. */}
+                  <Button variant="ghost" size="sm" className="gap-1 text-neutral-900 hover:bg-neutral-100 hover:text-neutral-900" onClick={() => downloadQr(l.number)}>
                     <Download className="h-3.5 w-3.5" /> QR
                   </Button>
                 </div>
